@@ -1,4 +1,10 @@
+A.S. jobs:
+
 model.py:
 1)Need to fix binary cross entropy loss calc so that I dont generate preds twice/iteration. 
 2)requirements.txt need to be sharpened. Soo many irrelevant packages. 
 3)Write a few unit tests.
+4)Generalize README.md
+
+######################
+C.Z. jobs:
