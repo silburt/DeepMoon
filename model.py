@@ -190,7 +190,7 @@ def unet_model(dim,learn_rate,lmbda,drop,FL,init,n_filters):
 def train_and_test_model(Data,Craters,MP,i_MP):
     
     # static params
-    dir, dim, learn_rate, nb_epoch, bs = MP['dir'], MP['dim'], MP['lr'], MP['epochs'], MP['bs']
+    dim, learn_rate, nb_epoch, bs = MP['dim'], MP['lr'], MP['epochs'], MP['bs']
     
     # iterating params
     lmbda = get_param_i(MP['lambda'],i_MP)
