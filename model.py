@@ -27,7 +27,7 @@ from keras import backend as K
 K.set_image_dim_ordering('tf')
 
 from utils.template_match_target import *
-from utils.processing import *
+from utils.preprocessing import *
 
 #############################
 #Load/Read/Process Functions#
@@ -37,6 +37,9 @@ def get_param_i(param,i):
         return param[i]
     else:
         return param[0]
+
+def get_id(i, zeropad=5):
+    return 'img_{i:0{zp}d}'.format(i=i, zp=zeropad)
 
 ########################
 #Custom Image Generator#
@@ -72,13 +75,13 @@ def custom_image_generator(data, target, batch_size=32):
 #######################
 #Calculate Custom Loss#
 ########################################################################
-def get_metrics(data, craters, dim, model):
+def get_metrics(data, craters, dim, model, beta=1):
     
     X, Y = data[0], data[1]
     
     # get csvs
     csvs = []
-    minrad, maxrad, cutrad, n_csvs = 2, 50, 1, len(X)
+    minrad, maxrad, cutrad, n_csvs = 2, 50, 0.8, len(X)
     for i in range(n_csvs):
         csv = craters[get_id(i)]
         # remove small/large/half craters
@@ -101,14 +104,14 @@ def get_metrics(data, craters, dim, model):
     for i in range(n_csvs):
         if len(csvs[i]) < 3:
             continue
-        N_match, N_csv, N_templ, maxr, csv_dupe_flag = template_match_target_to_csv(preds[i], csvs[i])
+        N_match, N_csv, N_templ, maxr, csv_dupe_flag = template_match_target_to_csv(preds[i], csvs[i], remove_large_craters_csv=1)
         if N_match > 0:
-            p = float(N_match)/float(N_match + (N_templ-N_match))   #assums unmatched detected circles are FPs
+            p = float(N_match)/float(N_match + (N_templ-N_match))   #assumes unmatched detected circles are FPs
             r = float(N_match)/float(N_csv)                         #N_csv = tp + fn, i.e. total ground truth matches
-            f2score = 5*r*p/(4*p+r)                                 #f-score with beta = 2
+            fscore = (1+beta**2)*(r*p)/(p*beta**2 + r)              #f_beta score
             fn = float(N_templ - N_match)/float(N_templ)
             fn2 = float(N_templ - N_match)/float(N_csv)
-            recall.append(r); precision.append(p); f2.append(f2score)
+            recall.append(r); precision.append(p); f2.append(fscore)
             frac_new.append(fn); frac_new2.append(fn2); maxrad.append(maxr)
             if csv_dupe_flag == 1:
                 print "duplicate(s) (shown above) found in image %d"%i
@@ -229,13 +232,12 @@ def train_and_test_model(Data,Craters,MP,i_MP):
 ########################################################################
 def get_models(MP):
     
-    dir, dim = MP['dir'], MP['dim']
-    n_train, n_valid, n_test = MP['n_train'], MP['n_valid'], MP['n_test']
+    dir, n_train, n_valid, n_test = MP['n_train'], MP['n_valid'], MP['n_test'], MP['dir']
 
     #Load data /scratch/m/mhvk/czhu/newscripttest_for_ari
-    train = h5py.File('%s/train_images.hdf5'%dir, 'r')
-    valid = h5py.File('%s/dev_images.hdf5'%dir, 'r')
-    test = h5py.File('%s/test_images.hdf5'%dir, 'r')
+    train = h5py.File('%strain_images.hdf5'%dir, 'r')
+    valid = h5py.File('%sdev_images.hdf5'%dir, 'r')
+    test = h5py.File('%stest_images.hdf5'%dir, 'r')
     Data = {
         'train': [train['input_images'][:n_train].astype('float32'),
                   train['target_masks'][:n_train].astype('float32')],
@@ -251,9 +253,9 @@ def get_models(MP):
 
     #Load ground-truth craters
     Craters = {
-        'train': pd.HDFStore('%s/train_craters.hdf5'%dir, 'r'),
-        'valid': pd.HDFStore('%s/dev_craters.hdf5'%dir, 'r'),
-        'test': pd.HDFStore('%s/test_craters.hdf5'%dir, 'r')
+        'train': pd.HDFStore('%strain_craters.hdf5'%dir, 'r'),
+        'valid': pd.HDFStore('%sdev_craters.hdf5'%dir, 'r'),
+        'test': pd.HDFStore('%stest_craters.hdf5'%dir, 'r')
     }
 
     #Iterate over parameters
@@ -268,9 +270,10 @@ if __name__ == '__main__':
     MP = {}
     
     #/scratch/m/mhvk/czhu/newscripttest_for_ari
-    #Location of Train/Dev/Test folders. Don't include final '/' in path
-    #MP['dir'] = 'datasets/HEAD'
-    MP['dir'] = '/scratch/m/mhvk/czhu/newscripttest_for_ari'
+    #Location of Train/Dev/Test folders. Include final '/' in path!
+    #MP['dir'] = 'datasets/HEAD/'
+    MP['dir'] = '/scratch/m/mhvk/czhu/newscripttest_for_ari/'
+    #MP['dir'] = '/scratch/m/mhvk/czhu/newsala_for_ari/sala_'
     
     #Model Parameters
     MP['dim'] = 256             #image width/height, assuming square images. Shouldn't change
