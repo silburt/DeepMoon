@@ -12,7 +12,7 @@ import os
 def get_model_preds(CP):
     dim, n_imgs, dtype = CP['dim'], CP['n_imgs'], CP['datatype']
 
-    data = h5py.File('%s/%s_images.hdf5'%(CP['dir_data'],dtype), 'r')
+    data = h5py.File(CP['dir_data'], 'r')
 
     Data = {
         dtype: [data['input_images'][:n_imgs].astype('float32'),
@@ -58,7 +58,7 @@ def extract_crater_dist(CP, pred_crater_dist):
         preds = get_model_preds(CP)
     
     # need for long/lat bounds
-    P = h5py.File('%s/%s_images.hdf5'%(CP['dir_data'],CP['datatype']), 'r')
+    P = h5py.File(CP['dir_data'], 'r')
     llbd, pbd = 'longlat_bounds', 'pix_bounds'
     
     master_img_height_pix = 30720.  #number of pixels for height
