@@ -5,6 +5,7 @@ model.py:
 2)requirements.txt need to be sharpened. Soo many irrelevant packages. 
 3)Write a few unit tests.
 4)Generalize README.md
+5)Check that you recover the ground truth exactly on the crater unique extract routine.
 
 ######################
 C.Z. jobs:
