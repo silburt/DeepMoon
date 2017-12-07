@@ -100,7 +100,7 @@ def get_metrics(data, craters, dim, model, beta=1):
     print("")
     print("*********Custom Loss*********")
     preds = model.predict(X)
-    recall, precision, f2, frac_new, frac_new2, maxrad = [], [], [], [], [], []
+    recall, precision, fscore, frac_new, frac_new2, maxrad = [], [], [], [], [], []
     for i in range(n_csvs):
         if len(csvs[i]) < 3:
             continue
@@ -108,10 +108,10 @@ def get_metrics(data, craters, dim, model, beta=1):
         if N_match > 0:
             p = float(N_match)/float(N_match + (N_templ-N_match))   #assumes unmatched detected circles are FPs
             r = float(N_match)/float(N_csv)                         #N_csv = tp + fn, i.e. total ground truth matches
-            fscore = (1+beta**2)*(r*p)/(p*beta**2 + r)              #f_beta score
+            f = (1+beta**2)*(r*p)/(p*beta**2 + r)                   #f_beta score
             fn = float(N_templ - N_match)/float(N_templ)
             fn2 = float(N_templ - N_match)/float(N_csv)
-            recall.append(r); precision.append(p); f2.append(fscore)
+            recall.append(r); precision.append(p); fscore.append(f)
             frac_new.append(fn); frac_new2.append(fn2); maxrad.append(maxr)
             if csv_dupe_flag == 1:
                 print "duplicate(s) (shown above) found in image %d"%i
@@ -122,7 +122,7 @@ def get_metrics(data, craters, dim, model, beta=1):
     if len(recall) > 5:
         print("mean and std of N_match/N_csv (recall) = %f, %f"%(np.mean(recall), np.std(recall)))
         print("mean and std of N_match/(N_match + (N_templ-N_match)) (precision) = %f, %f"%(np.mean(precision), np.std(precision)))
-        print("mean and std of 5rp/(2r+p) (F2 score) = %f, %f"%(np.mean(f2), np.std(f2)))
+        print("mean and std of F_%d score = %f, %f"%(beta, np.mean(fscore), np.std(fscore)))
 
         print("mean and std of (N_template - N_match)/N_template (fraction of craters that are new) = %f, %f"%(np.mean(frac_new), np.std(frac_new)))
         print("mean and std of (N_template - N_match)/N_csv (fraction of craters that are new, 2) = %f, %f"%(np.mean(frac_new2), np.std(frac_new2)))
