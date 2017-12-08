@@ -59,12 +59,13 @@ def extract_crater_dist(CP, pred_crater_dist):
     
     # need for long/lat bounds
     P = h5py.File('%s/%s_images.hdf5'%(CP['dir_data'],CP['datatype']), 'r')
-    llbd, pbd = 'longlat_bounds', 'pix_bounds'
-    
-    master_img_height_pix = 30720.  #number of pixels for height
-    master_img_height_lat = 120.    #degrees used for latitude
-    r_moon = 1737.4                 #radius of the moon (km)
-    dim = float(CP['dim'])          #image dimension (pixels, assume dim=height=width), needs to be float
+    llbd, pbd, distcoeff = ('longlat_bounds', 'pix_bounds',
+                            'pix_distortion_coefficient')
+
+    # Radius of the moon (km).
+    r_moon = 1737.4
+    # Image dimension (pixels, assume dim=height=width), needs to be float.
+    dim = float(CP['dim'])
 
     N_matches_tot = 0
     for i in range(CP['n_imgs']):
@@ -78,11 +79,11 @@ def extract_crater_dist(CP, pred_crater_dist):
             radii_km = radii_pix * pix_to_km
             long_central = 0.5 * (P[llbd][id][0] + P[llbd][id][1])
             lat_central = 0.5 * (P[llbd][id][2] + P[llbd][id][3])
-            lat_deg = lat_central - ((P[llbd][id][3] - P[llbd][id][2]) *
-                                     (lat_pix / dim - 0.5))
-            long_deg = long_central + ((P[llbd][id][1] - P[llbd][id][0]) *
-                                       (long_pix / dim - 0.5) /
-                                       (np.cos(np.pi * lat_deg / 180.)))
+            deg_per_pix = ((P[llbd][id][3] - P[llbd][id][2]) / dim /
+                           distortion_coeff)
+            lat_deg = lat_central - deg_per_pix * (lat_pix - 128.)
+            long_deg = long_central + (deg_per_pix * (long_pix - 128.) /
+                                       np.cos(np.pi * lat_deg / 180.))
             tuple_ = np.column_stack((long_deg, lat_deg, radii_km))
             N_matches_tot += len(coords)
 
