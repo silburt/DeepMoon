@@ -27,7 +27,7 @@ from keras import backend as K
 K.set_image_dim_ordering('tf')
 
 from utils.template_match_target import *
-from utils.processing import *
+from utils.preprocessing import *
 
 #############################
 #Load/Read/Process Functions#
@@ -37,6 +37,9 @@ def get_param_i(param,i):
         return param[i]
     else:
         return param[0]
+
+def get_id(i, zeropad=5):
+    return 'img_{i:0{zp}d}'.format(i=i, zp=zeropad)
 
 ########################
 #Custom Image Generator#
@@ -72,13 +75,13 @@ def custom_image_generator(data, target, batch_size=32):
 #######################
 #Calculate Custom Loss#
 ########################################################################
-def get_metrics(data, craters, dim, model):
+def get_metrics(data, craters, dim, model, beta=1):
     
     X, Y = data[0], data[1]
     
     # get csvs
     csvs = []
-    minrad, maxrad, cutrad, n_csvs = 2, 50, 1, len(X)
+    minrad, maxrad, cutrad, n_csvs = 2, 50, 0.8, len(X)
     for i in range(n_csvs):
         csv = craters[get_id(i)]
         # remove small/large/half craters
@@ -97,32 +100,35 @@ def get_metrics(data, craters, dim, model):
     print("")
     print("*********Custom Loss*********")
     preds = model.predict(X)
-    recall, precision, f2, frac_new, frac_new2, maxrad = [], [], [], [], [], []
+    recall, precision, fscore, frac_new, frac_new2, maxrad = [], [], [], [], [], []
+    err_lo, err_la, err_r = [], [], []
     for i in range(n_csvs):
         if len(csvs[i]) < 3:
             continue
-        N_match, N_csv, N_templ, maxr, csv_dupe_flag = template_match_target_to_csv(preds[i], csvs[i])
+        N_match, N_csv, N_templ, maxr, elo, ela, er, csv_duplicates = template_match_target_to_csv(preds[i], csvs[i], remove_largesmall_csvs=0)
         if N_match > 0:
-            p = float(N_match)/float(N_match + (N_templ-N_match))   #assums unmatched detected circles are FPs
+            p = float(N_match)/float(N_match + (N_templ-N_match))   #assumes unmatched detected circles are FPs
             r = float(N_match)/float(N_csv)                         #N_csv = tp + fn, i.e. total ground truth matches
-            f2score = 5*r*p/(4*p+r)                                 #f-score with beta = 2
+            f = (1+beta**2)*(r*p)/(p*beta**2 + r)                   #f_beta score
             fn = float(N_templ - N_match)/float(N_templ)
             fn2 = float(N_templ - N_match)/float(N_csv)
-            recall.append(r); precision.append(p); f2.append(f2score)
+            recall.append(r); precision.append(p); fscore.append(f)
             frac_new.append(fn); frac_new2.append(fn2); maxrad.append(maxr)
-            if csv_dupe_flag == 1:
+            err_lo.append(elo); err_la.append(ela); err_r.append(er)
+            if len(csv_duplicates) > 0:
                 print "duplicate(s) (shown above) found in image %d"%i
         else:
             print("skipping iteration %d,N_csv=%d,N_templ=%d,N_match=%d"%(i,N_csv,N_templ,N_match))
 
-    print("binary XE score = %f"%model.evaluate(X.astype('float32'), Y.astype('float32')))
-    if len(recall) > 5:
+    print("binary XE score = %f"%model.evaluate(X, Y))
+    if len(recall) > 3:
         print("mean and std of N_match/N_csv (recall) = %f, %f"%(np.mean(recall), np.std(recall)))
         print("mean and std of N_match/(N_match + (N_templ-N_match)) (precision) = %f, %f"%(np.mean(precision), np.std(precision)))
-        print("mean and std of 5rp/(2r+p) (F2 score) = %f, %f"%(np.mean(f2), np.std(f2)))
+        print("mean and std of F_%d score = %f, %f"%(beta, np.mean(fscore), np.std(fscore)))
 
         print("mean and std of (N_template - N_match)/N_template (fraction of craters that are new) = %f, %f"%(np.mean(frac_new), np.std(frac_new)))
         print("mean and std of (N_template - N_match)/N_csv (fraction of craters that are new, 2) = %f, %f"%(np.mean(frac_new2), np.std(frac_new2)))
+        print("mean fractional difference between pred and GT craters: %f, %f, %f"%(np.mean(err_lo),np.mean(err_la),np.mean(err_r)))
         print("mean and std of maximum detected pixel radius in an image = %f, %f"%(np.mean(maxrad), np.std(maxrad)))
         print("absolute maximum detected pixel radius over all images = %f"%np.max(maxrad))
         print("")
@@ -215,7 +221,7 @@ def train_and_test_model(Data,Craters,MP,i_MP):
         get_metrics(Data['valid'], Craters['valid'], dim, model)
 
     if MP['save_models'] == 1:
-        model.save('models/HEAD.h5')
+        model.save(MP['save_dir'])
 
     print('###################################')
     print('##########END_OF_RUN_INFO##########')
@@ -229,13 +235,12 @@ def train_and_test_model(Data,Craters,MP,i_MP):
 ########################################################################
 def get_models(MP):
     
-    dir, dim = MP['dir'], MP['dim']
-    n_train, n_valid, n_test = MP['n_train'], MP['n_valid'], MP['n_test']
+    dir, n_train, n_valid, n_test = MP['dir'], MP['n_train'], MP['n_valid'], MP['n_test']
 
-    #Load data /scratch/m/mhvk/czhu/newscripttest_for_ari
-    train = h5py.File('%s/train_images.hdf5'%dir, 'r')
-    valid = h5py.File('%s/dev_images.hdf5'%dir, 'r')
-    test = h5py.File('%s/test_images.hdf5'%dir, 'r')
+    #Load data
+    train = h5py.File('%strain_images.hdf5'%dir, 'r')
+    valid = h5py.File('%sdev_images.hdf5'%dir, 'r')
+    test = h5py.File('%stest_images.hdf5'%dir, 'r')
     Data = {
         'train': [train['input_images'][:n_train].astype('float32'),
                   train['target_masks'][:n_train].astype('float32')],
@@ -251,9 +256,9 @@ def get_models(MP):
 
     #Load ground-truth craters
     Craters = {
-        'train': pd.HDFStore('%s/train_craters.hdf5'%dir, 'r'),
-        'valid': pd.HDFStore('%s/dev_craters.hdf5'%dir, 'r'),
-        'test': pd.HDFStore('%s/test_craters.hdf5'%dir, 'r')
+        'train': pd.HDFStore('%strain_craters.hdf5'%dir, 'r'),
+        'valid': pd.HDFStore('%sdev_craters.hdf5'%dir, 'r'),
+        'test': pd.HDFStore('%stest_craters.hdf5'%dir, 'r')
     }
 
     #Iterate over parameters
@@ -267,20 +272,17 @@ if __name__ == '__main__':
     print('Keras version: {}'.format(keras_version))
     MP = {}
     
-    #/scratch/m/mhvk/czhu/newscripttest_for_ari
-    #Location of Train/Dev/Test folders. Don't include final '/' in path
-    #MP['dir'] = 'datasets/HEAD'
-    MP['dir'] = '/scratch/m/mhvk/czhu/newscripttest_for_ari'
-    
     #Model Parameters
+    MP['dir'] = '/scratch/m/mhvk/czhu/moondata/final_data/'
     MP['dim'] = 256             #image width/height, assuming square images. Shouldn't change
     MP['lr'] = 0.0001           #learning rate
     MP['bs'] = 8                #batch size: smaller values = less memory but less accurate gradient estimate
     MP['epochs'] = 4            #number of epochs. 1 epoch = forward/back pass through all train data
-    MP['n_train'] = 30000       #number of training samples, needs to be a multiple of batch size. Big memory hog.
-    MP['n_valid'] = 1000        #number of examples to calculate recall on after each epoch. Expensive operation.
-    MP['n_test'] = 5000         #number of examples to calculate recall on after training. Expensive operation.
+    MP['n_train'] = 30000       #number of training samples, needs to be a multiple of batch size. Big memory hog. (30000)
+    MP['n_valid'] = 1000         #number of examples to calculate recall on after each epoch. Expensive operation. (1000)
+    MP['n_test'] = 5000         #number of examples to calculate recall on after training. Expensive operation. (5000)
     MP['save_models'] = 1       #save keras models upon training completion
+    MP['save_dir'] = 'models/HEAD_final.h5'
     
     #Model Parameters (to potentially iterate over, keep in lists)
     MP['N_runs'] = 1
@@ -289,11 +291,17 @@ if __name__ == '__main__':
     MP['init'] = ['he_normal']                      #See unet model. Initialization of weights.
     MP['lambda'] = [1e-6]
     MP['dropout'] = [0.15]
-    
+
     #example for iterating over parameters
-    #MP['N_runs'] = 4
-    #MP['lambda']=[1e-5,1e-5,1e-6,1e-6]              #regularization
-    #MP['dropout']=[0.25,0.15,0.25,0.15]             #dropout after merge layers
-    
+#    MP['N_runs'] = 2
+#    MP['lambda']=[1e-4,1e-4]              #regularization
+#    MP['dropout']=[0.25,0.15]             #dropout after merge layers
+#    MP['lambda']=[1e-5,1e-5]              #regularization
+#    MP['dropout']=[0.25,0.15]             #dropout after merge layers
+#    MP['lambda']=[1e-6,1e-6]              #regularization
+#    MP['dropout']=[0.25,0.15]             #dropout after merge layers
+#    MP['lambda']=[1e-7,1e-7]              #regularization
+#    MP['dropout']=[0.25,0.15]             #dropout after merge layers
+
     #run models
     get_models(MP)
