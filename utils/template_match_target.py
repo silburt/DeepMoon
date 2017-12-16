@@ -20,7 +20,7 @@ target_thresh_= 0.1
 
 #####################################
 
-def template_match_target(target, minrad=minrad_, maxrad=maxrad_, longlat_thresh2=longlat_thresh2_, rad_thresh=rad_thresh_, template_thresh=template_thresh_, target_thresh=target_thresh_):
+def template_match_t(target, minrad=minrad_, maxrad=maxrad_, longlat_thresh2=longlat_thresh2_, rad_thresh=rad_thresh_, template_thresh=template_thresh_, target_thresh=target_thresh_):
 
     # thickness of rings for the templates. 2 works well, just hardcode.
     ring_thickness = 2
@@ -73,10 +73,10 @@ def template_match_target(target, minrad=minrad_, maxrad=maxrad_, longlat_thresh
     return coords
 
 
-def template_match_target_to_csv(target, csv_coords, minrad=minrad_, maxrad=maxrad_, longlat_thresh2=longlat_thresh2_, rad_thresh=rad_thresh_, template_thresh=template_thresh_, target_thresh=target_thresh_, remove_largesmall_csvs=0):
+def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_, longlat_thresh2=longlat_thresh2_, rad_thresh=rad_thresh_, template_thresh=template_thresh_, target_thresh=target_thresh_, rmv_oob_csvs=0):
 
     # get coordinates from template matching
-    templ_coords = template_match_target(target, minrad, maxrad, longlat_thresh2, rad_thresh, template_thresh, target_thresh)
+    templ_coords = template_match_t(target, minrad, maxrad, longlat_thresh2, rad_thresh, template_thresh, target_thresh)
 
     # find max detected crater radius
     maxr = 0
@@ -125,7 +125,7 @@ def template_match_target_to_csv(target, csv_coords, minrad=minrad_, maxrad=maxr
         if len(csv_coords) == 0:
             break
 
-    if remove_largesmall_csvs == 1:
+    if rmv_oob_csvs == 1:
         N_large_unmatched = len(np.where((csv_coords.T[2] > maxr)|(csv_coords.T[2] < minrad_))[0])
         if N_large_unmatched < N_csv:
             N_csv -= N_large_unmatched

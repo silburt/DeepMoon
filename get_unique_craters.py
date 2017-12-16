@@ -1,9 +1,9 @@
-# The point of this script is to take the outputted numpy files generated from
-# Crater_distribution_extract_*.py and generate a list of unique craters, i.e.
-# No duplicates. The key hyperparameters to tune are thresh_longlat2 and
-# thresh_rad2, which is guided by comparing the unique distirbution to the
-# ground truth (alanalldata.csv) data.
-# First generate predictions from crater_distribution_get_modelpreds.py
+#!/usr/bin/env python
+"""Unique Crater Distribution Functions
+
+Functions for extracting craters from model target predictions and filtering
+out duplicates.
+"""
 
 import numpy as np
 import h5py
@@ -130,9 +130,9 @@ def extract_unique_craters(CP, craters_unique):
         rawlen = P[pbd][get_id(i)][2] - P[pbd][get_id(i)][0]
         if rawlen < 4000:
             minrad = int((3. / 1000.) * rawlen - 3)
-            coords = template_match_target(preds[i], minrad=max(minrad, 3))
+            coords = template_match_t(preds[i], minrad=max(minrad, 3))
         elif rawlen >= 4000:
-            coords = template_match_target(preds[i], minrad=9)
+            coords = template_match_t(preds[i], minrad=9)
 
         # convert, add to master dist
         if len(coords) > 0:

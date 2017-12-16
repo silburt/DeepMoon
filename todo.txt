@@ -6,6 +6,7 @@ model.py:
 3)Write a few unit tests.
 4)Generalize README.md
 5)Check that you recover the ground truth exactly on the crater unique extract routine.
+6)Make code py3 generalizable, maybe tensorflow 1.0 and keras 2.0 as well? Probably isn’t too bad…
 
 ######################
 C.Z. jobs:
