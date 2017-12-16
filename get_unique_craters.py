@@ -124,7 +124,6 @@ def extract_unique_craters(CP, craters_unique):
 
     N_matches_tot = 0
     for i in range(CP['n_imgs']):
-        print i, len(craters_unique)
         id = proc.get_id(i)
 
         # sloped minrad
