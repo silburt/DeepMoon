@@ -1,10 +1,14 @@
-#The point of this script is to take the outputted numpy files generated from crater_distribution_extract_*.py and generate a list of unique craters, i.e. no duplicates. The key hyperparameters to tune are thresh_longlat2 and thresh_rad2, which is guided by comparing the unique distirbution to the ground truth (alanalldata.csv) data.
-#First you need to generate predictions from crater_distribution_get_modelpreds.py
+# The point of this script is to take the outputted numpy files generated from
+# Crater_distribution_extract_*.py and generate a list of unique craters, i.e.
+# No duplicates. The key hyperparameters to tune are thresh_longlat2 and
+# thresh_rad2, which is guided by comparing the unique distirbution to the
+# ground truth (alanalldata.csv) data.
+# First generate predictions from crater_distribution_get_modelpreds.py
 
-import numpy as np, h5py
+import numpy as np
+import h5py
 from utils.template_match_target import *
 from utils.preprocessing import *
-import glob
 import sys
 from keras.models import load_model
 
@@ -14,7 +18,7 @@ def get_id(i, zeropad=5):
 
 #########################
 def get_model_preds(CP):
-    dim, n_imgs, dtype = CP['dim'], CP['n_imgs'], CP['datatype']
+    n_imgs, dtype = CP['n_imgs'], CP['datatype']
 
     data = h5py.File(CP['dir_data'], 'r')
 
@@ -27,27 +31,32 @@ def get_model_preds(CP):
 
     model = load_model(CP['model'])
     preds = model.predict(Data[dtype][0])
-    
-    #save
+
+    # save
     h5f = h5py.File(CP['dir_preds'], 'w')
     h5f.create_dataset(dtype, data=preds)
-    print "Successfully generated and saved model predictions."
+    print("Successfully generated and saved model predictions.")
     return preds
 
 #########################
 def add_unique_craters(tuple, crater_dist, thresh_longlat2, thresh_rad2):
+    '''
+      #unique value determined from long/lat, then rad
+    '''
     km_to_deg = 180./(np.pi*1737.4)
     Long, Lat, Rad = crater_dist.T
     for j in range(len(tuple)):
-        lo,la,r = tuple[j].T
-        diff_longlat = ((Long - lo)**2 + (Lat - la)**2)/(r*km_to_deg)**2    #fractional long/lat change
+        lo, la, r = tuple[j].T
+        # Fractional long/lat change
+        diff_longlat = ((Long - lo)**2 + (Lat - la)**2) / (r * km_to_deg)**2
         Rad_ = Rad[diff_longlat < thresh_longlat2]
         if len(Rad_) > 0:
-            diff_rad = ((Rad_ - r)/r)**2                #fractional radius change
+            # Fractional radius change
+            diff_rad = ((Rad_ - r)/r)**2                
             index = diff_rad < thresh_rad2
-            if len(np.where(index==True)[0]) == 0:      #unique value determined from long/lat, then rad
+            if len(np.where(index==True)[0]) == 0:
                 crater_dist = np.vstack((crater_dist,tuple[j]))
-        else:                                           #unique value determined from long/lat alone
+        else:
             crater_dist = np.vstack((crater_dist,tuple[j]))
     return crater_dist
 
