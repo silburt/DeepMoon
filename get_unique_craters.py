@@ -4,11 +4,12 @@
 Functions for extracting craters from model target predictions and filtering
 out duplicates.
 """
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 import h5py
-from utils.template_match_target import *
-from utils.processing import *
+import utils.template_match_target as tmt
+import utils.processing as proc
 import sys
 from keras.models import load_model
 
@@ -36,9 +37,9 @@ def get_model_preds(CP):
                 data['target_masks'][:n_imgs].astype('float32')]
     }
     data.close()
-    preprocess(Data)
+    proc.preprocess(Data)
 
-    model = load_model(CP['model'])
+    model = load_model(CP['dir_model'])
     preds = model.predict(Data[dtype][0])
 
     # save
@@ -124,15 +125,15 @@ def extract_unique_craters(CP, craters_unique):
     N_matches_tot = 0
     for i in range(CP['n_imgs']):
         print i, len(craters_unique)
-        id = get_id(i)
+        id = proc.get_id(i)
 
         # sloped minrad
-        rawlen = P[pbd][get_id(i)][2] - P[pbd][get_id(i)][0]
+        rawlen = P[pbd][proc.get_id(i)][2] - P[pbd][proc.get_id(i)][0]
         if rawlen < 4000:
             minrad = int((3. / 1000.) * rawlen - 3)
-            coords = template_match_t(preds[i], minrad=max(minrad, 3))
+            coords = tmt.template_match_t(preds[i], minrad=max(minrad, 3))
         elif rawlen >= 4000:
-            coords = template_match_t(preds[i], minrad=9)
+            coords = tmt.template_match_t(preds[i], minrad=9)
 
         # convert, add to master dist
         if len(coords) > 0:
@@ -159,27 +160,3 @@ def extract_unique_craters(CP, craters_unique):
 
     np.save(CP['dir_result'], craters_unique)
     return craters_unique
-
-#########################
-if __name__ == '__main__':
-    # Arguments
-    CP = {}
-    CP['datatype'] = 'dev'
-    CP['n_imgs'] = 30000
-    CP['dim'] = 256
-
-    # Hyperparameters
-    CP['llt2'] = float(sys.argv[1])    # D_{L,L} from Silburt et. al (2017)
-    CP['rt2'] = float(sys.argv[2])     # D_{R} from Silburt et. al (2017)
-
-    CP['dir_data'] = 'datasets/HEAD/%s_images_final.hdf5' % CP['datatype']
-    CP['dir_preds'] = 'datasets/HEAD/HEAD_%spreds_n%d_final.hdf5' % (
-                      (CP['datatype'], CP['n_imgs']))
-    CP['dir_result'] = 'datasets/HEAD/HEAD_%s_craterdist_llt%.2f_rt%.2f_' \
-                       'final.npy' % (CP['datatype'], CP['llt2'], CP['rt2'])
-
-    # Needed to generate model_preds if they don't exist yet
-    CP['model'] = 'models/HEAD_final.h5'
-
-    craters_unique = np.empty([0, 3])
-    craters_unique = extract_unique_craters(CP, craters_unique)

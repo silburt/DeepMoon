@@ -4,6 +4,7 @@
 Functions for building and training a (UNET) Convolutional Neural Network on
 images of the Moon and binary ring targets.
 """
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 import pandas as pd
@@ -21,8 +22,8 @@ from keras import __version__ as keras_version
 from keras import backend as K
 K.set_image_dim_ordering('tf')
 
-from utils.template_match_target import *
-from utils.processing import *
+import utils.template_match_target as tmt
+import utils.processing as proc
 
 ########################
 def get_param_i(param, i):
@@ -116,7 +117,7 @@ def get_metrics(data, craters, dim, model, beta=1):
     minrad, maxrad, cutrad, n_csvs = 2, 50, 0.8, len(X)
     diam = 'Diameter (pix)'
     for i in range(n_csvs):
-        csv = craters[get_id(i)]
+        csv = craters[proc.get_id(i)]
         # remove small/large/half craters
         csv = csv[(csv[diam] < 2 * maxrad) & (csv[diam] > 2 * minrad)]
         csv = csv[(csv['x'] + cutrad * csv[diam] / 2 <= dim)]
@@ -140,8 +141,8 @@ def get_metrics(data, craters, dim, model, beta=1):
         if len(csvs[i]) < 3:
             continue
         (N_match, N_csv, N_templ, maxr,
-         elo, ela, er, csv_duplicates) = template_match_t2c(preds[i], csvs[i],
-                                                            rmv_oob_csvs=0)
+         elo, ela, er, csv_duplicates) = tmt.template_match_t2c(preds[i], csvs[i],
+                                                                rmv_oob_csvs=0)
         if N_match > 0:
             p = float(N_match) / float(N_match + (N_templ - N_match))
             r = float(N_match) / float(N_csv)
@@ -292,14 +293,15 @@ def train_and_test_model(Data, Craters, MP, i_MP):
         Iteration number (when iterating over hypers).
     """
     # Static params
-    dim, learn_rate, nb_epoch, bs = MP['dim'], MP['lr'], MP['epochs'], MP['bs']
+    dim, nb_epoch, bs = MP['dim'], MP['epochs'], MP['bs']
 
     # Iterating params
+    FL = get_param_i(MP['filter_length'], i_MP)
+    learn_rate = get_param_i(MP['lr'], i_MP)
+    n_filters = get_param_i(MP['n_filters'], i_MP)
+    init = get_param_i(MP['init'], i_MP)
     lmbda = get_param_i(MP['lambda'], i_MP)
     drop = get_param_i(MP['dropout'], i_MP)
-    FL = get_param_i(MP['filter_length'], i_MP)
-    init = get_param_i(MP['init'], i_MP)
-    n_filters = get_param_i(MP['n_filters'], i_MP)
 
     # Build model
     model = build_model(dim, learn_rate, lmbda, drop, FL, init, n_filters)
@@ -309,7 +311,7 @@ def train_and_test_model(Data, Craters, MP, i_MP):
     for nb in range(nb_epoch):
         model.fit_generator(custom_image_generator(Data['train'][0], Data['train'][1], batch_size=bs),
                             samples_per_epoch=n_samples, nb_epoch=1, verbose=1,
-                            #validation_data=(Data['dev'][0],Data['dev'][1]), #no generator for validation data
+                            #validation_data=(Data['dev'][0],Data['dev'][1]), #no generator
                             validation_data=custom_image_generator(Data['dev'][0], Data['dev'][1], batch_size=bs),
                             nb_val_samples=n_samples,
                             callbacks=[EarlyStopping(monitor='val_loss', patience=3, verbose=0)])
@@ -358,7 +360,7 @@ def get_models(MP):
     test.close()
 
     # Rescale, normalize, add extra dim
-    preprocess(Data)
+    proc.preprocess(Data)
 
     # Load ground-truth craters
     Craters = {
@@ -370,35 +372,3 @@ def get_models(MP):
     # Iterate over parameters
     for i in range(MP['N_runs']):
         train_and_test_model(Data, Craters, MP, i)
-
-########################
-if __name__ == '__main__':
-    print('Keras version: {}'.format(keras_version))
-    MP = {}
-
-    # Model Parameters
-    MP['dir'] = '/scratch/m/mhvk/czhu/moondata/final_data/'
-    MP['dim'] = 256             #image width/height, assuming square images. Shouldn't change
-    MP['lr'] = 0.0001           #learning rate
-    MP['bs'] = 8                #batch size: smaller values = less memory but less accurate gradient estimate
-    MP['epochs'] = 4            #number of epochs. 1 epoch = forward/back pass through all train data
-    MP['n_train'] = 30000       #number of training samples, needs to be a multiple of batch size. Big memory hog. (30000)
-    MP['n_dev'] = 1000         #number of examples to calculate recall on after each epoch. Expensive operation. (1000)
-    MP['n_test'] = 5000         #number of examples to calculate recall on after training. Expensive operation. (5000)
-    MP['save_models'] = 1       #save keras models upon training completion
-    MP['save_dir'] = 'models/HEAD_final.h5'
-
-    # Model Parameters (to potentially iterate over, keep in lists)
-    MP['N_runs'] = 1
-    MP['filter_length'] = [3]
-    MP['n_filters'] = [112]
-    MP['init'] = ['he_normal']                      #See unet model. Initialization of weights.
-    MP['lambda'] = [1e-6]
-    MP['dropout'] = [0.15]
-
-    # Example for iterating over parameters
-#    MP['N_runs'] = 2
-#    MP['lambda']=[1e-4,1e-4]              #regularization
-
-    # Run models
-    get_models(MP)
