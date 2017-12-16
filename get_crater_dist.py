@@ -103,7 +103,8 @@ def extract_crater_dist(CP, pred_crater_dist):
             deg_per_pix = ((P[llbd][id][3] - P[llbd][id][2]) / dim /
                            P[distcoeff][id][0])
             lat_deg = lat_central - deg_per_pix * (lat_pix - 128.)
-            long_deg = long_central + (deg_per_pix * (long_pix - 128.) / np.cos(np.pi * lat_deg / 180.))
+            long_deg = long_central + (deg_per_pix * (long_pix - 128.) /
+                                       np.cos(np.pi * lat_deg / 180.))
             tuple_ = np.column_stack((long_deg, lat_deg, radii_km))
             N_matches_tot += len(coords)
             

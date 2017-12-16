@@ -11,12 +11,13 @@ import cv2
 # TEMPLATE_THRESH: 0-1 range, if scikit-image's template matching probability > template_thresh, count as detection
 # TARGET_THRESH: 0-1 range, set pixel values > target_thresh to 1, and pixel values < target_thresh -> 0
 # MINRAD/MAXRAD are the radii to search over during template matching. For minrad, keep in mind that if the predicted target has thick rings, a small ring of diameter ~ ring_thickness could be detected by match_filter.
-minrad_= 3
+minrad_= 6
 maxrad_= 50
 longlat_thresh2_= 70
 rad_thresh_= 1
-template_thresh_= 0.6
+template_thresh_= 0.5
 target_thresh_= 0.1
+
 #####################################
 
 def template_match_target(target, minrad=minrad_, maxrad=maxrad_, longlat_thresh2=longlat_thresh2_, rad_thresh=rad_thresh_, template_thresh=template_thresh_, target_thresh=target_thresh_):
@@ -72,7 +73,7 @@ def template_match_target(target, minrad=minrad_, maxrad=maxrad_, longlat_thresh
     return coords
 
 
-def template_match_target_to_csv(target, csv, minrad=minrad_, maxrad=maxrad_, longlat_thresh2=longlat_thresh2_, rad_thresh=rad_thresh_, template_thresh=template_thresh_, target_thresh=target_thresh_, remove_large_craters_csv=0):
+def template_match_target_to_csv(target, csv_coords, minrad=minrad_, maxrad=maxrad_, longlat_thresh2=longlat_thresh2_, rad_thresh=rad_thresh_, template_thresh=template_thresh_, target_thresh=target_thresh_, remove_largesmall_csvs=0):
 
     # get coordinates from template matching
     templ_coords = template_match_target(target, minrad, maxrad, longlat_thresh2, rad_thresh, template_thresh, target_thresh)
@@ -80,24 +81,12 @@ def template_match_target_to_csv(target, csv, minrad=minrad_, maxrad=maxrad_, lo
     # find max detected crater radius
     maxr = 0
     if len(templ_coords > 0):
-        x,y,r = templ_coords.T
-        maxr = np.max(r)
-    
-    # If remove_large_craters_csv == 1, see how recall improves when large craters are excluded.
-    if remove_large_craters_csv == 1:
-        buff = 0.2      #small buffer
-        index = np.where((csv.T[2] <= maxr+buff)&(csv.T[2] >= minrad-buff))
-        if len(index[0]) > 0:
-            csv_coords = csv[index]
-        else:
-            print("all craters are larger than max detected radius")
-            csv_coords = csv
-    else:
-        csv_coords = csv
+        maxr = np.max(templ_coords.T[2])
 
     # compare template-matched results to ground truth csv input data
     N_match = 0
-    csv_duplicate_flag = 0
+    csv_duplicates = []
+    err_lo, err_la, err_r = 0, 0, 0
     N_csv, N_templ = len(csv_coords), len(templ_coords)
     for lo,la,r in templ_coords:
         csvLong, csvLat, csvRad = csv_coords.T
@@ -107,17 +96,45 @@ def template_match_target_to_csv(target, csv, minrad=minrad_, maxrad=maxrad_, lo
         index_True = np.where(index==True)[0]
         N = len(index_True)
         if N > 1:
-            csv_duplicate_flag = 1
-            print("%d GT entries matched to CNN-predicted ring... only counting first match."%N)
-            for i,id in enumerate(index_True):
-                print(csv_coords[id])
-                if i > 0:                               #keep only first match as true
-                    index[id] = False
+            csv_duplicates, cratervals = [], np.array((lo,la,r))
+            id_keep = index_True[0]
+            diff = np.sum((csv_coords[id_keep] - cratervals)**2)
+            csv_duplicates.append(csv_coords[id_keep])
+            for id in index_True[1:]:
+                dupevals = csv_coords[id]
+                index[id] = False
+                csv_duplicates.append(dupevals)
+                diff_ = np.sum((dupevals - cratervals)**2)
+                if diff_ < diff:
+                    id_keep = id
+                    diff = diff_
+            index[id_keep] = True       #keep only closest match as true
+            Lo,La,R = csv_coords[id_keep].T
+            err_lo += abs(Lo - lo)/r
+            err_la += abs(La - la)/r
+            err_r += abs(R - r)/r
+            print("%d GT entries matched to (%d,%d,%d) ring... counted (%f,%f,%f) as the match."%(N,lo,la,r,Lo,La,r))
+            print(csv_duplicates)
+        elif N == 1:
+            Lo,La,R = csv_coords[index_True[0]].T
+            err_lo += abs(Lo - lo)/r
+            err_la += abs(La - la)/r
+            err_r += abs(R - r)/r
         N_match += min(1,N)                             #count up to one match in recall
         csv_coords = csv_coords[np.where(index==False)] #remove csv so it can't be re-matched again
         if len(csv_coords) == 0:
             break
 
-    return N_match, N_csv, N_templ, maxr, csv_duplicate_flag
+    if remove_largesmall_csvs == 1:
+        N_large_unmatched = len(np.where((csv_coords.T[2] > maxr)|(csv_coords.T[2] < minrad_))[0])
+        if N_large_unmatched < N_csv:
+            N_csv -= N_large_unmatched
+
+    if N_match >= 1:
+        err_lo = err_lo/N_match
+        err_la = err_la/N_match
+        err_r = err_r/N_match
+
+    return N_match, N_csv, N_templ, maxr, err_lo, err_la, err_r, csv_duplicates
 
 
