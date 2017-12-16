@@ -1,13 +1,11 @@
 from __future__ import absolute_import, division, print_function
 import sys
 import pytest
-import re
 import pandas as pd
 import numpy as np
 import cartopy.crs as ccrs
 import cartopy.img_transform as cimg
 from PIL import Image
-from scipy import signal
 sys.path.append('../')
 import input_data_gen as igen
 import utils.transform as trf
