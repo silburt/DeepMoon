@@ -140,15 +140,15 @@ def get_metrics(data, craters, dim, model, beta=1):
     for i in range(n_csvs):
         if len(csvs[i]) < 3:
             continue
-        (N_match, N_csv, N_templ, maxr,
+        (N_match, N_csv, N_detect, maxr,
          elo, ela, er, csv_duplicates) = tmt.template_match_t2c(preds[i], csvs[i],
                                                                 rmv_oob_csvs=0)
         if N_match > 0:
-            p = float(N_match) / float(N_match + (N_templ - N_match))
+            p = float(N_match) / float(N_match + (N_detect - N_match))
             r = float(N_match) / float(N_csv)
             f = (1 + beta**2) * (r * p) / (p * beta**2 + r)
-            fn = float(N_templ - N_match) / float(N_templ)
-            fn2 = float(N_templ - N_match) / float(N_csv)
+            fn = float(N_detect - N_match) / float(N_detect)
+            fn2 = float(N_detect - N_match) / float(N_csv)
             recall.append(r)
             precision.append(p)
             fscore.append(f)
@@ -161,21 +161,21 @@ def get_metrics(data, craters, dim, model, beta=1):
             if len(csv_duplicates) > 0:
                 print "duplicate(s) (shown above) found in image %d" % i
         else:
-            print("skipping iteration %d,N_csv=%d,N_templ=%d,N_match=%d" %
-                  (i, N_csv, N_templ, N_match))
+            print("skipping iteration %d,N_csv=%d,N_detect=%d,N_match=%d" %
+                  (i, N_csv, N_detect, N_match))
 
     print("binary XE score = %f" % model.evaluate(X, Y))
     if len(recall) > 3:
         print("mean and std of N_match/N_csv (recall) = %f, %f" %
               (np.mean(recall), np.std(recall)))
-        print("mean and std of N_match/(N_match + (N_templ-N_match)) " /
+        print("mean and std of N_match/(N_match + (N_detect-N_match)) " /
               "(precision) = %f, %f" % (np.mean(precision), np.std(precision)))
         print("mean and std of F_%d score = %f, %f" %
               (beta, np.mean(fscore), np.std(fscore)))
-        print("mean and std of (N_template - N_match)/N_template (fraction " /
+        print("mean and std of (N_detect - N_match)/N_detect (fraction " /
               "of craters that are new) = %f, %f" %
               (np.mean(frac_new), np.std(frac_new)))
-        print("mean and std of (N_template - N_match)/N_csv (fraction of " /
+        print("mean and std of (N_detect - N_match)/N_csv (fraction of " /
               "craters that are new, 2) = %f, %f" %
               (np.mean(frac_new2), np.std(frac_new2)))
         print("mean fractional difference between pred and GT craters = " /
@@ -312,7 +312,8 @@ def train_and_test_model(Data, Craters, MP, i_MP):
         model.fit_generator(custom_image_generator(Data['train'][0], Data['train'][1], batch_size=bs),
                             samples_per_epoch=n_samples, nb_epoch=1, verbose=1,
                             #validation_data=(Data['dev'][0],Data['dev'][1]), #no generator
-                            validation_data=custom_image_generator(Data['dev'][0], Data['dev'][1], batch_size=bs),
+                            validation_data=custom_image_generator(Data['dev'][0], Data['dev'][1],
+                                                                   batch_size=bs),
                             nb_val_samples=n_samples,
                             callbacks=[EarlyStopping(monitor='val_loss', patience=3, verbose=0)])
 

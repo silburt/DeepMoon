@@ -15,7 +15,7 @@ CP = {}
 CP['dim'] = 256
 
 # Data type - train, dev, test
-CP['datatype'] = 'dev'
+CP['datatype'] = 'test'
 
 # Number of images to extract craters from
 CP['n_imgs'] = 30000
@@ -25,13 +25,13 @@ CP['llt2'] = float(sys.argv[1])    # D_{L,L} from Silburt et. al (2017)
 CP['rt2'] = float(sys.argv[2])     # D_{R} from Silburt et. al (2017)
 
 # Location of model to generate predictions (if they don't exist yet)
-CP['dir_model'] = 'models/HEAD_final.h5'
+CP['dir_model'] = '../moon-craters/models/HEAD_final.h5'
 
 # Location of where hdf5 data images are stored
-CP['dir_data'] = 'datasets/HEAD/%s_images_final.hdf5' % CP['datatype']
+CP['dir_data'] = '../moon-craters/datasets/HEAD/%s_images_final.hdf5' % CP['datatype']
 
 # Location of where model predictions are/will be stored
-CP['dir_preds'] = 'datasets/HEAD/HEAD_%spreds_n%d_final.hdf5' % (CP['datatype'],
+CP['dir_preds'] = '../moon-craters/datasets/HEAD/HEAD_%spreds_n%d_final.hdf5' % (CP['datatype'],
                                                                  CP['n_imgs'])
 
 # Location of where final unique crater distribution will be stored
