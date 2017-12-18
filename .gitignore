@@ -1,0 +1,13 @@
+# Compiled files
+*.py[cod]
+*.a
+*.o
+*.so
+__pycache__
+
+# Other
+.cache
+*~
+
+# Mac OSX
+.DS_Store
