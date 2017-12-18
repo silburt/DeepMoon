@@ -8,9 +8,10 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 import h5py
+import sys
 import utils.template_match_target as tmt
 import utils.processing as proc
-import sys
+import utils.transform as trf
 from keras.models import load_model
 
 #########################
@@ -119,7 +120,7 @@ def extract_unique_craters(CP, craters_unique):
     P = h5py.File(CP['dir_data'], 'r')
     llbd, pbd, distcoeff = ('longlat_bounds', 'pix_bounds',
                             'pix_distortion_coefficient')
-    r_moon = 1737.4
+    #r_moon = 1737.4
     dim = float(CP['dim'])
 
     N_matches_tot = 0
@@ -136,10 +137,13 @@ def extract_unique_craters(CP, craters_unique):
 
         # convert, add to master dist
         if len(coords) > 0:
-            pix_to_km = ((P[llbd][id][3] - P[llbd][id][2]) *
-                         (np.pi / 180.0) * r_moon / dim)
+            km_to_pix = trf.km2pix(dim, P[llbd][id][3] - P[llbd][id][2],
+                                   P[distcoeff][id][0])
+            #pix_to_km = ((P[llbd][id][3] - P[llbd][id][2]) *
+            #             (np.pi / 180.0) * r_moon / dim)
             long_pix, lat_pix, radii_pix = coords.T
-            radii_km = radii_pix * pix_to_km
+            #radii_km = radii_pix * pix_to_km
+            radii_km = radii_pix / km_to_pix
             long_central = 0.5 * (P[llbd][id][0] + P[llbd][id][1])
             lat_central = 0.5 * (P[llbd][id][2] + P[llbd][id][3])
             deg_per_pix = ((P[llbd][id][3] - P[llbd][id][2]) / dim /

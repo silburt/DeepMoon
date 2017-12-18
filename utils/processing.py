@@ -25,7 +25,7 @@ def preprocess(Data, dim=256, low=0.1, hi=1.0):
             Data[key][0][i] = img
 
 def get_id(i, zeropad=5):
-    """Properly index hdf5 files.
+    """Properly indexes hdf5 files.
 
     Parameters
     ----------

@@ -90,14 +90,14 @@ def template_match_t(target, minrad=minrad_, maxrad=maxrad_,
         diff_longlat = (Long - lo)**2 + (Lat - la)**2
         diff_rad = abs(Rad - r)
         index = (diff_rad < max(1.01, rad_thresh * r)) & (diff_longlat < longlat_thresh2)
-        if len(np.where(index is True)[0]) > 1:
+        if len(np.where(index == True)[0]) > 1:
             # replace current coord with max match probability coord in
             # duplicate list
-            coords_i = coords[np.where(index is True)]
-            corr_i = corr[np.where(index is True)]
+            coords_i = coords[np.where(index == True)]
+            corr_i = corr[np.where(index == True)]
             coords[i] = coords_i[corr_i == np.max(corr_i)][0]
             index[i] = False
-            coords = coords[np.where(index is False)]
+            coords = coords[np.where(index == False)]
         N, i = len(coords), i + 1
 
     return coords
@@ -157,8 +157,8 @@ def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
         List of multiple csv entries that matched to single detected crater.
     """
     # get coordinates from template matching
-    templ_coords = template_match_t(target, minrad, maxrad, longlat_thresh2,
-                                    rad_thresh, template_thresh, target_thresh)
+    templ_coords = template_match_t(target, minrad_, maxrad_, longlat_thresh2_,
+                                    rad_thresh_, template_thresh_, target_thresh_)
 
     # find max detected crater radius
     maxr = 0
@@ -175,7 +175,7 @@ def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
         diff_longlat = (csvLong - lo)**2 + (csvLat - la)**2
         diff_rad = abs(csvRad - r)
         index = (diff_rad < max(1.01, rad_thresh * r)) & (diff_longlat < longlat_thresh2)
-        index_True = np.where(index is True)[0]
+        index_True = np.where(index == True)[0]
         N = len(index_True)
         if N > 1:
             cratervals = np.array((lo, la, r))
@@ -205,7 +205,7 @@ def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
             err_r += abs(R - r) / r
         N_match += min(1, N)
         # remove csv so it can't be re-matched again
-        csv_coords = csv_coords[np.where(index is False)]
+        csv_coords = csv_coords[np.where(index == False)]
         if len(csv_coords) == 0:
             break
 
