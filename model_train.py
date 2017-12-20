@@ -159,7 +159,7 @@ def get_metrics(data, craters, dim, model, beta=1):
             err_la.append(ela)
             err_r.append(er)
             if len(csv_duplicates) > 0:
-                print "duplicate(s) (shown above) found in image %d" % i
+                print("duplicate(s) (shown above) found in image %d" % i)
         else:
             print("skipping iteration %d,N_csv=%d,N_detect=%d,N_match=%d" %
                   (i, N_csv, N_detect, N_match))
