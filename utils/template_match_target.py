@@ -10,7 +10,7 @@ import cv2
 minrad_ = 3
 maxrad_ = 50
 longlat_thresh2_ = 70
-rad_thresh_ = 0.3
+rad_thresh_ = 1.0
 template_thresh_ = 0.5
 target_thresh_ = 0.1
 
