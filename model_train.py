@@ -114,7 +114,7 @@ def get_metrics(data, craters, dim, model, beta=1):
 
     # Get csvs of human-counted craters
     csvs = []
-    minrad, maxrad, cutrad, n_csvs = 2, 50, 0.8, len(X)
+    minrad, maxrad, cutrad, n_csvs = 3, 50, 0.8, len(X)
     diam = 'Diameter (pix)'
     for i in range(n_csvs):
         csv = craters[proc.get_id(i)]

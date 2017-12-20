@@ -7,10 +7,10 @@ import cv2
 # TEMPLATE_THRESH: 0-1 range, if scikit-image's template matching probability > template_thresh, count as detection
 # TARGET_THRESH: 0-1 range, set pixel values > target_thresh to 1, and pixel values < target_thresh -> 0
 # MINRAD/MAXRAD are the radii to search over during template matching. For minrad, keep in mind that if the predicted target has thick rings, a small ring of diameter ~ rw could be detected by match_filter.
-minrad_ = 6
+minrad_ = 3
 maxrad_ = 50
 longlat_thresh2_ = 70
-rad_thresh_ = 1
+rad_thresh_ = 0.3
 template_thresh_ = 0.5
 target_thresh_ = 0.1
 
@@ -89,7 +89,7 @@ def template_match_t(target, minrad=minrad_, maxrad=maxrad_,
         lo, la, r = coords[i]
         diff_longlat = (Long - lo)**2 + (Lat - la)**2
         diff_rad = abs(Rad - r)
-        index = (diff_rad < max(1.01, rad_thresh * r)) & (diff_longlat < longlat_thresh2)
+        index = (diff_rad < max(2.01, rad_thresh * r)) & (diff_longlat < longlat_thresh2)
         if len(np.where(index == True)[0]) > 1:
             # replace current coord with max match probability coord in
             # duplicate list
@@ -157,8 +157,8 @@ def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
         List of multiple csv entries that matched to single detected crater.
     """
     # get coordinates from template matching
-    templ_coords = template_match_t(target, minrad_, maxrad_, longlat_thresh2_,
-                                    rad_thresh_, template_thresh_, target_thresh_)
+    templ_coords = template_match_t(target, minrad, maxrad, longlat_thresh2,
+                                    rad_thresh, template_thresh, target_thresh)
 
     # find max detected crater radius
     maxr = 0
@@ -195,8 +195,8 @@ def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
             err_lo += abs(Lo - lo) / r
             err_la += abs(La - la) / r
             err_r += abs(R - r) / r
-            print("%d GT entries matched to (%d,%d,%d) ring... counted " /
-                  "(%f,%f,%f) as the match." % (N, lo, la, r, Lo, La, r))
+            print("""%d GT entries matched to (%d,%d,%d) ring... counted
+                (%f,%f,%f) as the match.""" % (N, lo, la, r, Lo, La, r))
             print(csv_duplicates)
         elif N == 1:
             Lo, La, R = csv_coords[index_True[0]].T
@@ -210,8 +210,11 @@ def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
             break
 
     if rmv_oob_csvs == 1:
-        N_large_unmatched = len(np.where((csv_coords.T[2] > maxr) |
-                                         (csv_coords.T[2] < minrad_))[0])
+        #upper = maxr
+        upper = 15
+        lower = minrad_
+        N_large_unmatched = len(np.where((csv_coords.T[2] > upper) |
+                                         (csv_coords.T[2] < lower))[0])
         if N_large_unmatched < N_csv:
             N_csv -= N_large_unmatched
 
