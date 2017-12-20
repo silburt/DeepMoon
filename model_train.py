@@ -181,7 +181,7 @@ def get_metrics(data, craters, dim, model, beta=1):
         print("""mean fractional difference between pred and GT craters =
               %f, %f, %f""" % (np.mean(err_lo), np.mean(err_la), np.mean(err_r)))
         print("""mean and std of maximum detected pixel radius in an image =
-              """%f, %f" % (np.mean(maxrad), np.std(maxrad)))
+              %f, %f""" % (np.mean(maxrad), np.std(maxrad)))
         print("""absolute maximum detected pixel radius over all images =
               %f""" % np.max(maxrad))
         print("")
