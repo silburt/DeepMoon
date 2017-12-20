@@ -13,7 +13,7 @@ import h5py
 from keras.models import Model
 from keras.layers.core import Dropout, Reshape
 from keras.layers import merge, Input
-from keras.layers.convolutional import Convolution2D, MaxPooling2D
+from keras.layers.convolutional import Convolution2D, MaxPooling2D, UpSampling2D
 from keras.regularizers import l2
 
 from keras.optimizers import Adam
