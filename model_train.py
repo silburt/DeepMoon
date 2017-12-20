@@ -13,7 +13,7 @@ import h5py
 from keras.models import Model
 from keras.layers.core import Dropout, Reshape
 from keras.layers import merge, Input
-from keras.layers.convolutional import Convolution2D, MaxPooling2D
+from keras.layers.convolutional import Convolution2D, MaxPooling2D, UpSampling2D
 from keras.regularizers import l2
 
 from keras.optimizers import Adam
@@ -46,7 +46,7 @@ def get_param_i(param, i):
         return param[0]
 
 ########################
-def custom_image_generator(data, target, bs=32):
+def custom_image_generator(data, target, batch_size=32):
     """Custom image generator that manipulates image/target pairs to prevent
     overfitting in the Convolutional Neural Network.
 
@@ -56,7 +56,7 @@ def custom_image_generator(data, target, bs=32):
         Input images.
     target : array
         Target images.
-    bs : int, optional
+    batch_size : int, optional
         Batch size for image manipulation.
 
     Yields
@@ -66,25 +66,25 @@ def custom_image_generator(data, target, bs=32):
     """
     L, W = data[0].shape[0], data[0].shape[1]
     while True:
-        for i in range(0, len(data), bs):
-            d, t = data[i:i + bs].copy(), target[i:i + bs].copy()
+        for i in range(0, len(data), batch_size):
+            d, t = data[i:i + batch_size].copy(), target[i:i + batch_size].copy()
 
             # Random color inversion
-            # for j in np.where(np.random.randint(0, 2, bs) == 1)[0]:
+            # for j in np.where(np.random.randint(0, 2, batch_size) == 1)[0]:
             #     d[j][d[j] > 0.] = 1. - d[j][d[j] > 0.]
 
             # Horizontal/vertical flips
-            for j in np.where(np.random.randint(0, 2, bs) == 1)[0]:
+            for j in np.where(np.random.randint(0, 2, batch_size) == 1)[0]:
                 d[j], t[j] = np.fliplr(d[j]), np.fliplr(t[j])      # left/right
-            for j in np.where(np.random.randint(0, 2, bs) == 1)[0]:
+            for j in np.where(np.random.randint(0, 2, batch_size) == 1)[0]:
                 d[j], t[j] = np.flipud(d[j]), np.flipud(t[j])      # up/down
 
             # Random up/down & left/right pixel shifts, 90 degree rotations
             npix = 15
-            h = np.random.randint(-npix, npix + 1, bs)    # Horizontal shift
-            v = np.random.randint(-npix, npix + 1, bs)    # Vertical shift
-            r = np.random.randint(0, 4, bs)               # 90 degree rotations
-            for j in range(bs):
+            h = np.random.randint(-npix, npix + 1, batch_size)    # Horizontal shift
+            v = np.random.randint(-npix, npix + 1, batch_size)    # Vertical shift
+            r = np.random.randint(0, 4, batch_size)               # 90 degree rotations
+            for j in range(batch_size):
                 d[j] = np.pad(d[j], ((npix, npix), (npix, npix), (0, 0)),
                               mode='constant')[npix + h[j]:L + h[j] + npix,
                                                npix + v[j]:W + v[j] + npix, :]
@@ -159,7 +159,7 @@ def get_metrics(data, craters, dim, model, beta=1):
             err_la.append(ela)
             err_r.append(er)
             if len(csv_duplicates) > 0:
-                print "duplicate(s) (shown above) found in image %d" % i
+                print("duplicate(s) (shown above) found in image %d" % i)
         else:
             print("skipping iteration %d,N_csv=%d,N_detect=%d,N_match=%d" %
                   (i, N_csv, N_detect, N_match))
