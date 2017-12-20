@@ -168,22 +168,22 @@ def get_metrics(data, craters, dim, model, beta=1):
     if len(recall) > 3:
         print("mean and std of N_match/N_csv (recall) = %f, %f" %
               (np.mean(recall), np.std(recall)))
-        print("mean and std of N_match/(N_match + (N_detect-N_match)) " /
-              "(precision) = %f, %f" % (np.mean(precision), np.std(precision)))
+        print("""mean and std of N_match/(N_match + (N_detect-N_match))
+              (precision) = %f, %f""" % (np.mean(precision), np.std(precision)))
         print("mean and std of F_%d score = %f, %f" %
               (beta, np.mean(fscore), np.std(fscore)))
-        print("mean and std of (N_detect - N_match)/N_detect (fraction " /
-              "of craters that are new) = %f, %f" %
+        print("""mean and std of (N_detect - N_match)/N_detect (fraction
+              of craters that are new) = %f, %f""" %
               (np.mean(frac_new), np.std(frac_new)))
-        print("mean and std of (N_detect - N_match)/N_csv (fraction of " /
-              "craters that are new, 2) = %f, %f" %
+        print("""mean and std of (N_detect - N_match)/N_csv (fraction of
+              "craters that are new, 2) = %f, %f""" %
               (np.mean(frac_new2), np.std(frac_new2)))
-        print("mean fractional difference between pred and GT craters = " /
-              "%f, %f, %f" % (np.mean(err_lo), np.mean(err_la), np.mean(err_r)))
-        print("mean and std of maximum detected pixel radius in an image = " /
-              "%f, %f" % (np.mean(maxrad), np.std(maxrad)))
-        print("absolute maximum detected pixel radius over all images = " /
-              "%f" % np.max(maxrad))
+        print("""mean fractional difference between pred and GT craters =
+              %f, %f, %f""" % (np.mean(err_lo), np.mean(err_la), np.mean(err_r)))
+        print("""mean and std of maximum detected pixel radius in an image =
+              """%f, %f" % (np.mean(maxrad), np.std(maxrad)))
+        print("""absolute maximum detected pixel radius over all images =
+              %f""" % np.max(maxrad))
         print("")
 
 ########################
