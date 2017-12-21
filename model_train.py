@@ -326,15 +326,15 @@ def train_and_test_model(Data, Craters, MP, i_MP):
     if MP['save_models'] == 1:
         model.save(MP['save_dir'])
 
-    print('###################################')
-    print('##########END_OF_RUN_INFO##########')
-    print('learning_rate=%e, batch_size=%d, filter_length=%e, n_epoch=%d, ' /
-          'n_train=%d, img_dimensions=%d, init=%s, n_filters=%d, lambda=%e,' /
-          'dropout=%f' % (learn_rate, bs, FL, nb_epoch, MP['n_train'],
-                          MP['dim'], init, n_filters, lmbda, drop))
+    print("###################################")
+    print("##########END_OF_RUN_INFO##########")
+    print("""learning_rate=%e, batch_size=%d, filter_length=%e, n_epoch=%d
+          n_train=%d, img_dimensions=%d, init=%s, n_filters=%d, lambda=%e
+          dropout=%f""" % (learn_rate, bs, FL, nb_epoch, MP['n_train'],
+                           MP['dim'], init, n_filters, lmbda, drop))
     get_metrics(Data['test'], Craters['test'], dim, model)
-    print('###################################')
-    print('###################################')
+    print("###################################")
+    print("###################################")
 
 ########################
 def get_models(MP):
