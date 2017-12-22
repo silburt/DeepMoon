@@ -69,17 +69,15 @@ def template_match_t(target, minrad=minrad_, maxrad=maxrad_,
         # template match - result is nxn array of probabilities
         result = match_template(target, template, pad_input=True)
         index_r = np.where(result > template_thresh)
-        coords_r = np.asarray(zip(*index_r))
+        coords_r = np.asarray(list(zip(*index_r)))
         corr_r = np.asarray(result[index_r])
 
         # store x,y,r
-        try:
+        if len(coords_r) > 0:
             for c in coords_r:
                 coords.append([c[1], c[0], r])
             for l in corr_r:
                 corr.append(np.abs(l))
-        except:
-            pass
 
     # remove duplicates from template matching at neighboring radii/locations
     coords, corr = np.asarray(coords), np.asarray(corr)
