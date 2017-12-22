@@ -1,11 +1,11 @@
 #!/bin/bash
 #PBS -l nodes=1:gpus=1
-#PBS -l walltime=48:00:00
-#PBS -l pmem=16gb
-#PBS -A cyberlamp -l qos=cl_open
+#PBS -l walltime=24:00:00
+#PBS -l pmem=12gb
+#PBS -A cyberlamp ebf11_a_g_sc_default
 #PBS -j oe
 cd $PBS_O_WORKDIR
 module load python/3.3.2
 export PATH="/storage/work/ajs725/conda/install/bin:$PATH"
 
-CUDA_VISIBLE_DEVICES=0 python run_model_train.py > DeepMoon.txt
+CUDA_VISIBLE_DEVICES=0 python run_model_train.py > DeepMoon3.txt

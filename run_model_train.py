@@ -24,7 +24,7 @@ MP['bs'] = 8
 MP['epochs'] = 1
 
 # Number of train/valid/test samples, needs to be a multiple of batch size.
-MP['n_train'] = 1000
+MP['n_train'] = 500
 MP['n_dev'] = 100
 MP['n_test'] = 100
 

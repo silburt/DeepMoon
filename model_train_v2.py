@@ -313,11 +313,11 @@ def train_and_test_model(Data, Craters, MP, i_MP):
     n_samples = MP['n_train']
     for nb in range(nb_epoch):
         model.fit_generator(custom_image_generator(Data['train'][0], Data['train'][1], batch_size=bs),
-                            samples_per_epoch=n_samples, nb_epoch=1, verbose=1,
+                            steps_per_epoch=n_samples, epoch=1, verbose=1,
                             #validation_data=(Data['dev'][0],Data['dev'][1]), #no generator
                             validation_data=custom_image_generator(Data['dev'][0], Data['dev'][1],
                                                                    batch_size=bs),
-                            nb_val_samples=n_samples,
+                            validation_steps=n_samples,
                             callbacks=[EarlyStopping(monitor='val_loss', patience=3, verbose=0)])
 
         get_metrics(Data['dev'], Craters['dev'], dim, model)
