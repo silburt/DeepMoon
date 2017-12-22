@@ -5,13 +5,14 @@
     images of the Moon and binary ring targets.
     """
 
-import model_train as mt
+#import model_train as mt       # tested for keras version 1.2.2.
+import model_train_v2 as mt     # tested for keras version 2.0.8.
 
 # Model Parameters
 MP = {}
 
 # Directory of train/dev/test image and crater hdf5 files.
-MP['dir'] = '/scratch/m/mhvk/czhu/moondata/final_data/'
+MP['dir'] = 'catalogues/'
 
 # Image width/height, assuming square images.
 MP['dim'] = 256
@@ -20,16 +21,16 @@ MP['dim'] = 256
 MP['bs'] = 8
 
 # Number of training epochs.
-MP['epochs'] = 4
+MP['epochs'] = 1
 
 # Number of train/valid/test samples, needs to be a multiple of batch size.
-MP['n_train'] = 30000
-MP['n_dev'] = 1000
-MP['n_test'] = 5000
+MP['n_train'] = 1000
+MP['n_dev'] = 100
+MP['n_test'] = 100
 
 # Save model (binary flag) and directory.
 MP['save_models'] = 1
-MP['save_dir'] = 'models/DeepMoon_final.h5'
+MP['save_dir'] = 'models/DeepMoon_v2.h5'
 
 # Model Parameters (to potentially iterate over, keep in lists).
 MP['N_runs'] = 1                # Number of runs
