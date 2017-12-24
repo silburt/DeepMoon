@@ -16,10 +16,8 @@ class TestCraterExtraction(object):
 
     def test_extract(self):
         (N_match, N_csv, N_detect, maxr,
-         elo, ela, er, csv_duplicates) = tmt.template_match_t2c(self.pred,
-                                                                self.pixcsv,
-                                                                minrad=8,
-                                                                maxrad=11)
+         elo, ela, er, csv_duplicates) = tmt.template_match_t2c(
+            self.pred, self.pixcsv, minrad=8, maxrad=11)
         assert N_match == 1
         assert elo < 0.1
         assert ela < 0.1

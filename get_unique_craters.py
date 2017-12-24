@@ -89,6 +89,18 @@ def add_unique_craters(craters, craters_unique, thresh_longlat2, thresh_rad2):
     return craters_unique
 
 #########################
+def estimate_longlat():
+    """First-order estimation of long/lat from (Orthographic) x/y position.
+
+    For images transformed from ~6000 pixel crops of the 30,000 pixel
+    LROC-Kaguya DEM, this results in < ~0.4 degree latitude, <~0.2
+    longitude offsets (~2% and ~1% of the image, respectively).  Larger images
+    therefore require an exact inverse transform.
+
+    Parameters
+    ----------
+    """
+
 def extract_unique_craters(CP, craters_unique):
     """Top level function that extracts craters from model predictions,
     converts craters from pixel to real (degree, km) coordinates, and filters
