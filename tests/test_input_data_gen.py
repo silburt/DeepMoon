@@ -40,57 +40,6 @@ class TestCatalogue(object):
         assert not np.all(lrochead == lrochead_nosort)
 
 
-class TestCoordinateTransforms(object):
-    """Tests pix2coord and coord2pix."""
-
-    def setup(self):
-        np.random.seed(9590)
-        origin = np.random.uniform(-30, 30, 1000)
-        extent = np.random.uniform(0, 45, 1000)
-        self.cdim = [origin[0], origin[0] + extent[0],
-                     origin[1], origin[1] + extent[1]]
-        self.imgdim = np.random.randint(100, high=200, size=1000)
-
-        self.cx = np.array(
-            [self.cdim[1], np.random.uniform(self.cdim[0] + 1, self.cdim[1])])
-        self.cy = np.array(
-            [self.cdim[3], np.random.uniform(self.cdim[2] + 1, self.cdim[3])])
-
-    @pytest.mark.parametrize('origin', ('lower', 'upper'))
-    def test_coord2pix(self, origin):
-        x_gt = (self.imgdim[0] *
-                (self.cx - self.cdim[0]) / (self.cdim[1] - self.cdim[0]))
-        y_gt = (self.imgdim[1] *
-                (self.cy - self.cdim[2]) / (self.cdim[3] - self.cdim[2]))
-        yi_gt = (self.imgdim[1] *
-                 (self.cdim[3] - self.cy) / (self.cdim[3] - self.cdim[2]))
-
-        x, y = trf.coord2pix(self.cx, self.cy, self.cdim,
-                             self.imgdim, origin=origin)
-        if origin == "upper":
-            y_gt_curr = yi_gt
-        else:
-            y_gt_curr = y_gt
-        xy = np.r_[x, y]
-        xy_gt = np.r_[x_gt, y_gt_curr]
-        assert np.all(np.isclose(xy, xy_gt, rtol=1e-7, atol=1e-10))
-
-    @pytest.mark.parametrize('origin', ('lower', 'upper'))
-    def test_pix2coord(self, origin):
-        x, y = trf.coord2pix(self.cx, self.cy, self.cdim,
-                             self.imgdim, origin=origin)
-        cx, cy = trf.pix2coord(x, y, self.cdim, self.imgdim,
-                               origin=origin)
-        cxy = np.r_[cx, cy]
-        cxy_gt = np.r_[self.cx, self.cy]
-        assert np.all(np.isclose(cxy, cxy_gt, rtol=1e-7, atol=1e-10))
-
-    def test_km2pix(self):
-        mykmppix = 1500. / (np.pi * 1737.4) * 0.5
-        kmppix = trf.km2pix(1500., 180., dc=0.5, a=1737.4)
-        assert np.isclose(mykmppix, kmppix, rtol=1e-7, atol=1e-10)
-
-
 class InputImgTest(object):
 
     def setup(self):
