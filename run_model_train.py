@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 """Run Convolutional Neural Network Training
 
-    Execute the training of a (UNET) Convolutional Neural Network on
-    images of the Moon and binary ring targets.
-    """
+Execute the training of a (UNET) Convolutional Neural Network on
+images of the Moon and binary ring targets.
+"""
 
-#import model_train as mt       # tested for keras version 1.2.2.
-import model_train_v2 as mt     # tested for keras version 2.0.8.
+import model_train as mt
 
 # Model Parameters
 MP = {}
