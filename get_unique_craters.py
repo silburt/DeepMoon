@@ -120,7 +120,7 @@ def estimate_longlatdiamkm(dim, llbd, distcoeff, coords):
     long_pix, lat_pix, radii_pix = coords.T
 
     # Determine radius (km).
-    km_per_pix = 1. / trf.km2pix(dim[1], llbd[3] - llbd[2], dc=distcoeff)
+    km_per_pix = 1. / trf.km2pix(dim, llbd[3] - llbd[2], dc=distcoeff)
     radii_km = radii_pix * km_per_pix
 
     # Determine long/lat.
