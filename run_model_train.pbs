@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -l nodes=1:gpus=1
-#PBS -l walltime=24:00:00
-#PBS -l pmem=12gb
+#PBS -l walltime=36:00:00
+#PBS -l pmem=10gb
 #PBS -A cyberlamp ebf11_a_g_sc_default
 #PBS -j oe
 cd $PBS_O_WORKDIR
