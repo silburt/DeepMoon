@@ -24,8 +24,11 @@ predictions.
 DeepMoon requires the following packages to function:
 
 - [Python](https://www.python.org/) version 2.7 or 3.5+
-- [Cartopy](http://scitools.org.uk/cartopy/) >= 0.14.2; Cartopy requires
-  installing the **XXXX** and **YYYY** packages.
+- [Cartopy](http://scitools.org.uk/cartopy/) >= 0.14.2.  Cartopy itself has a
+number of [dependencies](http://scitools.org.uk/cartopy/docs/latest/installing.html#installing),
+including the GEOS and Proj.4.x libraries.  (For Ubuntu systems, these can be
+installed through the `libgeos++-dev` and `libproj-dev` packages,
+respectively.)
 - [h5py](http://www.h5py.org/) >= 2.6.0
 - [Keras](https://keras.io/) 1.2.2 [(documentation)](https://faroit.github.io/keras-docs/1.2.2/);
   also tested with Keras >= 2.0.2
@@ -33,6 +36,7 @@ DeepMoon requires the following packages to function:
 - [OpenCV](https://pypi.python.org/pypi/opencv-python) >= 3.2.0.6
 - [*pandas*](https://pandas.pydata.org/) >= 0.19.1
 - [Pillow](https://python-pillow.org/) >= 3.1.2
+- [PyTables](http://www.pytables.org/) >=3.4.2
 - [TensorFlow](https://www.tensorflow.org/) 0.10.0rc0, also tested with
   TensorFlow >= 1.0
 
