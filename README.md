@@ -27,8 +27,8 @@ DeepMoon requires the following packages to function:
 - [Cartopy](http://scitools.org.uk/cartopy/) >= 0.14.2; Cartopy requires
   installing the **XXXX** and **YYYY** packages.
 - [h5py](http://www.h5py.org/) >= 2.6.0
-- [Keras](https://keras.io/) 1.2.2 [documentation](https://faroit.github.io/keras-docs/1.2.2/);
-  also tested with Keras >= 2.0
+- [Keras](https://keras.io/) 1.2.2 [(documentation)](https://faroit.github.io/keras-docs/1.2.2/);
+  also tested with Keras >= 2.0.2
 - [Numpy](http://www.numpy.org/) >= 1.12
 - [OpenCV](https://pypi.python.org/pypi/opencv-python) >= 3.2.0.6
 - [*pandas*](https://pandas.pydata.org/) >= 0.19.1

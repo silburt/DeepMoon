@@ -12,18 +12,43 @@ import h5py
 
 from keras.models import Model
 from keras.layers.core import Dropout, Reshape
-from keras.layers import merge, Input
-from keras.layers.convolutional import Convolution2D, MaxPooling2D, UpSampling2D
 from keras.regularizers import l2
 
 from keras.optimizers import Adam
 from keras.callbacks import EarlyStopping
-from keras import __version__ as keras_version
 from keras import backend as K
 K.set_image_dim_ordering('tf')
 
 import utils.template_match_target as tmt
 import utils.processing as proc
+
+# Check Keras version - code will switch API if needed.
+from keras import __version__ as keras_version
+k2 = True if keras_version[0] == '2' else False
+
+# If Keras is v2.x.x, create Keras 1-syntax wrappers.
+if not k2:
+    from keras.layers import merge, Input
+    from keras.layers.convolutional import (Convolution2D, MaxPooling2D,
+                                            UpSampling2D)
+
+else:
+    from keras.layers import Concatenate, Input
+    from keras.layers.convolutional import (Conv2D, MaxPooling2D,
+                                            UpSampling2D)
+
+    def merge(layers, mode=None, concat_axis=None):
+        """Wrapper for Keras 2's Concatenate class (`mode` is discarded)."""
+        return Concatenate(axis=concat_axis)(list(layers))
+
+    def Convolution2D(n_filters, FL, FLredundant, activation=None,
+                      init=None, W_regularizer=None, border_mode=None):
+        """Wrapper for Keras 2's Conv2D class."""
+        return Conv2D(n_filters, FL, activation=activation,
+                      kernel_initializer=init,
+                      kernel_regularizer=W_regularizer,
+                      padding=border_mode)
+
 
 ########################
 def get_param_i(param, i):
@@ -269,10 +294,12 @@ def build_model(dim, learn_rate, lmbda, drop, FL, init, n_filters):
     # Final output
     final_activation = 'sigmoid'
     u = Convolution2D(1, 1, 1, activation=final_activation, init=init,
-                      W_regularizer=l2(lmbda), name='output',
-                      border_mode='same')(u)
+                      W_regularizer=l2(lmbda), border_mode='same')(u)
     u = Reshape((dim, dim))(u)
-    model = Model(input=img_input, output=u)
+    if k2:
+        model = Model(inputs=img_input, outputs=u)
+    else:
+        model = Model(input=img_input, output=u)
 
     optimizer = Adam(lr=learn_rate)
     model.compile(loss='binary_crossentropy', optimizer=optimizer)
@@ -313,13 +340,30 @@ def train_and_test_model(Data, Craters, MP, i_MP):
     # Main loop
     n_samples = MP['n_train']
     for nb in range(nb_epoch):
-        model.fit_generator(custom_image_generator(Data['train'][0], Data['train'][1], batch_size=bs),
-                            samples_per_epoch=n_samples, nb_epoch=1, verbose=1,
-                            #validation_data=(Data['dev'][0],Data['dev'][1]), #no generator
-                            validation_data=custom_image_generator(Data['dev'][0], Data['dev'][1],
-                                                                   batch_size=bs),
-                            nb_val_samples=n_samples,
-                            callbacks=[EarlyStopping(monitor='val_loss', patience=3, verbose=0)])
+        if k2:
+            model.fit_generator(
+                custom_image_generator(Data['train'][0], Data['train'][1],
+                                       batch_size=bs),
+                steps_per_epoch=n_samples, epochs=1, verbose=1,
+                # validation_data=(Data['dev'][0],Data['dev'][1]), #no gen
+                validation_data=custom_image_generator(Data['dev'][0],
+                                                       Data['dev'][1],
+                                                       batch_size=bs),
+                validation_steps=n_samples,
+                callbacks=[
+                    EarlyStopping(monitor='val_loss', patience=3, verbose=0)])
+        else:
+            model.fit_generator(
+                custom_image_generator(Data['train'][0], Data['train'][1],
+                                       batch_size=bs),
+                samples_per_epoch=n_samples, nb_epoch=1, verbose=1,
+                # validation_data=(Data['dev'][0],Data['dev'][1]), #no gen
+                validation_data=custom_image_generator(Data['dev'][0],
+                                                       Data['dev'][1],
+                                                       batch_size=bs),
+                nb_val_samples=n_samples,
+                callbacks=[
+                    EarlyStopping(monitor='val_loss', patience=3, verbose=0)])
 
         get_metrics(Data['dev'], Craters['dev'], dim, model)
 
