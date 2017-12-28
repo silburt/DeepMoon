@@ -10,7 +10,7 @@ import utils.transform as trf
 
 class TestCraterExtraction(object):
     def setup(self):
-        sample = h5py.File('sample.hdf5', 'r')
+        sample = h5py.File('sample_template_match.hdf5', 'r')
         csv = sample['csv'][...].T
         self.pred = sample['pred'][...]
         # self.coordcsv = np.array((csv[0], csv[1], csv[2] / 2.)).T
