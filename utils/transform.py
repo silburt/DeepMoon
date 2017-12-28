@@ -81,7 +81,7 @@ def pix2coord(x, y, cdim, imgdim, origin="upper"):
 ########## Metres to pixels conversion ##########
 
 def km2pix(imgheight, latextent, dc=1., a=1737.4):
-    """Returns conversion from km to pixels.
+    """Returns conversion from km to pixels (i.e. pix / km).
 
     Parameters
     ----------

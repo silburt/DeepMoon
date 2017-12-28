@@ -89,6 +89,59 @@ def add_unique_craters(craters, craters_unique, thresh_longlat2, thresh_rad2):
     return craters_unique
 
 #########################
+def estimate_longlatdiamkm(dim, llbd, distcoeff, coords):
+    """First-order estimation of long/lat, and radius (km) from
+    (Orthographic) x/y position and radius (pix).
+
+    For images transformed from ~6000 pixel crops of the 30,000 pixel
+    LROC-Kaguya DEM, this results in < ~0.4 degree latitude, <~0.2
+    longitude offsets (~2% and ~1% of the image, respectively) and ~2% error in
+    radius. Larger images thus may require an exact inverse transform,
+    depending on the accuracy demanded by the user.
+
+    Parameters
+    ----------
+    dim : tuple or list
+        (width, height) of input images.
+    llbd : tuple or list
+        Long/lat limits (long_min, long_max, lat_min, lat_max) of image.
+    distcoeff : float
+        Ratio between the central heights of the transformed image and original
+        image.
+    coords : numpy.ndarray
+        Array of crater x coordinates, y coordinates, and pixel radii.
+
+    Returns
+    -------
+    craters_longlatdiamkm : numpy.ndarray
+        Array of crater longitude, latitude and radii in km.
+    """
+    # Expand coords.
+    long_pix, lat_pix, radii_pix = coords.T
+
+    # Determine radius (km).
+    km_per_pix = 1. / trf.km2pix(dim[1], llbd[3] - llbd[2], dc=distcoeff)
+    radii_km = radii_pix * km_per_pix
+
+    # Determine long/lat.
+    deg_per_pix = km_per_pix * 180. / (np.pi * 1737.4)
+    long_central = 0.5 * (llbd[0] + llbd[1])
+    lat_central = 0.5 * (llbd[2] + llbd[3])
+
+    # Iterative method for determining latitude.
+    lat_deg_firstest = lat_central - deg_per_pix * (lat_pix - dim[1] / 2.)
+    latdiff = abs(lat_central - lat_deg_firstest)
+    lat_deg = lat_central - (deg_per_pix * (lat_pix - dim[1] / 2.) *
+                             (np.pi * latdiff / 180.) /
+                             np.sin(np.pi * latdiff / 180.))
+    # Determine longitude using determined latitude.
+    long_deg = long_central + (deg_per_pix * (long_pix - dim[0] / 2.) /
+                               np.cos(np.pi * lat_deg / 180.))
+
+    # Return combined long/lat/radius array.
+    return np.column_stack((long_deg, lat_deg, radii_km))
+
+
 def extract_unique_craters(CP, craters_unique):
     """Top level function that extracts craters from model predictions,
     converts craters from pixel to real (degree, km) coordinates, and filters
@@ -97,7 +150,7 @@ def extract_unique_craters(CP, craters_unique):
     Parameters
     ----------
     CP : dict
-        Crater Parameters needed to run the code. 
+        Crater Parameters needed to run the code.
     craters_unique : array
         Empty master array of unique crater tuples in the form 
         (long, lat, radius).
@@ -137,29 +190,19 @@ def extract_unique_craters(CP, craters_unique):
 
         # convert, add to master dist
         if len(coords) > 0:
-            km_to_pix = trf.km2pix(dim, P[llbd][id][3] - P[llbd][id][2],
-                                   P[distcoeff][id][0])
-            #pix_to_km = ((P[llbd][id][3] - P[llbd][id][2]) *
-            #             (np.pi / 180.0) * r_moon / dim)
-            long_pix, lat_pix, radii_pix = coords.T
-            #radii_km = radii_pix * pix_to_km
-            radii_km = radii_pix / km_to_pix
-            long_central = 0.5 * (P[llbd][id][0] + P[llbd][id][1])
-            lat_central = 0.5 * (P[llbd][id][2] + P[llbd][id][3])
-            deg_per_pix = ((P[llbd][id][3] - P[llbd][id][2]) / dim /
-                           P[distcoeff][id][0])
-            lat_deg = lat_central - deg_per_pix * (lat_pix - 128.)
-            long_deg = long_central + (deg_per_pix * (long_pix - 128.) /
-                                       np.cos(np.pi * lat_deg / 180.))
-            tuple_ = np.column_stack((long_deg, lat_deg, radii_km))
+
+            new_craters_unique = estimate_longlatdiamkm(
+                dim, P[llbd][id], P[distcoeff][id][0], coords)
             N_matches_tot += len(coords)
 
             # Only add unique (non-duplicate) craters
             if len(craters_unique) > 0:
-                craters_unique = add_unique_craters(tuple_, craters_unique,
+                craters_unique = add_unique_craters(new_craters_unique,
+                                                    craters_unique,
                                                     CP['llt2'], CP['rt2'])
             else:
-                craters_unique = np.concatenate((craters_unique, tuple_))
+                craters_unique = np.concatenate((craters_unique,
+                                                 new_craters_unique))
 
     np.save(CP['dir_result'], craters_unique)
     return craters_unique
