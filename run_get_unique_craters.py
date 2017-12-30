@@ -4,7 +4,7 @@
     Execute extracting craters from model target predictions and filtering
     out duplicates.
     """
-import get_unique_craters_debug as guc
+import get_unique_craters as guc
 import sys
 import numpy as np
 
