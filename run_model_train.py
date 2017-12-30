@@ -20,7 +20,7 @@ MP['dim'] = 256
 MP['bs'] = 8
 
 # Number of training epochs.
-MP['epochs'] = 1
+MP['epochs'] = 4
 
 # Number of train/valid/test samples, needs to be a multiple of batch size.
 MP['n_train'] = 30000

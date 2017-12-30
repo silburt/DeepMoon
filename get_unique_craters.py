@@ -131,6 +131,8 @@ def estimate_longlatdiamkm(dim, llbd, distcoeff, coords):
     # Iterative method for determining latitude.
     lat_deg_firstest = lat_central - deg_per_pix * (lat_pix - dim[1] / 2.)
     latdiff = abs(lat_central - lat_deg_firstest)
+    # Protect against latdiff = 0 situation.
+    latdiff[latdiff < 1e-7] = 1e-7
     lat_deg = lat_central - (deg_per_pix * (lat_pix - dim[1] / 2.) *
                              (np.pi * latdiff / 180.) /
                              np.sin(np.pi * latdiff / 180.))
