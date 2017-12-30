@@ -62,10 +62,10 @@ A copy of our global DEM can be found at **XXXXX**.
 
 For the ground truth longitude / latitude locations and sizes of craters, we
 combine the [LROC Craters 5 to 20 km diameter][lroc cat] dataset with the
-[Head et al. 2010 >= 20 km diameter][head cat] one.  The LROC dataset was
-converted from ESRI shapefile to .csv.  They can be found under the
-`catalogues` folder of the repo, and have had their formatting slightly
-modified to be read into *pandas*.
+[Head et al. 2010 >= 20 km diameter][head cat] one ([alternate download
+link][head cat2]).  The LROC dataset was converted from ESRI shapefile to .csv.
+They can be found under the `catalogues` folder of the repo, and have had their
+formatting slightly modified to be read into *pandas*.
 
 During initial testing, we also used the [Salamunićcar LU78287GT
 catalogue][sala cat].
@@ -95,4 +95,5 @@ this repo to your Python path) instead of modifying them in the repo.
 [lola dem]: https://astrogeology.usgs.gov/search/map/Moon/LRO/LOLA/Lunar_LRO_LrocKaguya_DEMmerge_60N60S_512ppd
 [lroc cat]: http://wms.lroc.asu.edu/lroc/rdr_product_select?filter%5Btext%5D=&filter%5Blat%5D=&filter%5Blon%5D=&filter%5Brad%5D=&filter%5Bwest%5D=&filter%5Beast%5D=&filter%5Bsouth%5D=&filter%5Bnorth%5D=&filter%5Btopographic%5D=either&filter%5Bprefix%5D%5B%5DSHAPEFILE&show_thumbs=0&per_page=100&commit=Search
 [head cat]: http://science.sciencemag.org/content/329/5998/1504/tab-figures-data
+[head cat2]: http://www.planetary.brown.edu/html_pages/LOLAcraters.html
 [sala cat]: https://astrogeology.usgs.gov/search/map/Moon/Research/Craters/GoranSalamuniccar_MoonCraters
