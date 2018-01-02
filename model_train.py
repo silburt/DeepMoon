@@ -167,13 +167,14 @@ def get_metrics(data, craters, dim, model, beta=1):
             continue
         (N_match, N_csv, N_detect, maxr,
          elo, ela, er, csv_duplicates) = tmt.template_match_t2c(preds[i], csvs[i],
-                                                                rmv_oob_csvs=1)
+                                                                rmv_oor_csvs=1)
         if N_match > 0:
             p = float(N_match) / float(N_match + (N_detect - N_match))
             r = float(N_match) / float(N_csv)
             f = (1 + beta**2) * (r * p) / (p * beta**2 + r)
-            fn = float(N_detect - N_match) / float(N_detect)
-            fn2 = float(N_detect - N_match) / float(N_csv)
+            diff = float(N_detect - N_match)
+            fn = diff / (float(N_detect) + diff)
+            fn2 = diff / (float(N_csv) + diff)
             recall.append(r)
             precision.append(p)
             fscore.append(f)

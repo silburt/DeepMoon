@@ -104,7 +104,7 @@ def template_match_t(target, minrad=minrad_, maxrad=maxrad_,
 def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
                        longlat_thresh2=longlat_thresh2_,
                        rad_thresh=rad_thresh_, template_thresh=template_thresh_,
-                       target_thresh=target_thresh_, rmv_oob_csvs=0):
+                       target_thresh=target_thresh_, rmv_oor_csvs=0):
     """Extracts crater coordinates (in pixels) from a CNN-predicted target and
     compares the resulting detections to the corresponding human-counted crater
     data.
@@ -131,7 +131,7 @@ def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
     target_thresh : float
         Value between 0-1. All pixels > target_thresh are set to 1, and
         otherwise set to 0.
-    rmv_oob_csvs : boolean, flag
+    rmv_oor_csvs : boolean, flag
         If set to 1, remove craters from the csv that are outside your
         detectable range.
 
@@ -207,10 +207,10 @@ def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
         if len(csv_coords) == 0:
             break
 
-    if rmv_oob_csvs == 1:
+    if rmv_oor_csvs == 1:
         #upper = maxr
         upper = 15
-        lower = minrad_
+        lower = minrad
         N_large_unmatched = len(np.where((csv_coords.T[2] > upper) |
                                          (csv_coords.T[2] < lower))[0])
         if N_large_unmatched < N_csv:
