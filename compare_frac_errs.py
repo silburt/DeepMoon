@@ -38,8 +38,8 @@ dir = '../moon-craters/datasets/HEAD'
 dtype = 'test'
 
 preds = h5py.File('%s/HEAD_%spreds_n30000_final.hdf5'%(dir,dtype), 'r')[dtype]
-imgs = h5py.File('%s/%s_images.hdf5'%(dir,dtype), 'r')
-craters = pd.HDFStore('%s/%s_craters.hdf5'%(dir,dtype), 'r')
+imgs = h5py.File('%s/%s_images_final.hdf5'%(dir,dtype), 'r')
+craters = pd.HDFStore('%s/%s_craters_final.hdf5'%(dir,dtype), 'r')
 
 llbd, pbd, distcoeff = ('longlat_bounds', 'pix_bounds', 'pix_distortion_coefficient')
 
