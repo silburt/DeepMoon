@@ -3,6 +3,7 @@ import os
 import cv2
 from utils.template_match_target import *
 import utils.transform as trf
+#from keras.models import load_model
 
 def get_id(i, zeropad=5):
     return 'img_{i:0{zp}d}'.format(i=i, zp=zeropad)
@@ -36,10 +37,14 @@ def estimate_longlatdiamkm(llbd, distcoeff, long_pix, lat_pix, radii_pix):
 
 dir = '../moon-craters/datasets/HEAD'
 dtype = 'test'
+n_imgs = 8
 
+#preds = h5py.File('../moon-craters/datasets/HEAD/HEAD_%spreds_n30000_final.hdf5'%(dtype), 'r')[dtype]
+#imgs = h5py.File('/scratch/m/mhvk/czhu/moondata/final_data/%s_images.hdf5'%(dtype), 'r')
+#craters = pd.HDFStore('%s/%s_craters.hdf5'%(dir,dtype), 'r')
 preds = h5py.File('../moon-craters/datasets/HEAD/HEAD_%spreds_n30000_final.hdf5'%(dtype), 'r')[dtype]
-imgs = h5py.File('/scratch/m/mhvk/czhu/moondata/final_data/%s_images.hdf5'%(dtype), 'r')
-craters = pd.HDFStore('%s/%s_craters.hdf5'%(dir,dtype), 'r')
+imgs = h5py.File('../moon-craters/datasets/HEAD/final_data/%s_images_final.hdf5'%(dtype), 'r')
+craters = pd.HDFStore('../moon-craters/datasets/HEAD/final_data/%s_craters_final.hdf5'%(dir,dtype), 'r')
 
 llbd, pbd, distcoeff = ('longlat_bounds', 'pix_bounds', 'pix_distortion_coefficient')
 
@@ -49,17 +54,19 @@ rad_thresh = 1.0
 template_thresh = 0.5
 target_thresh = 0.1
 
+#model = load_model('models/DeepMoon_final.h5')
+#preds = model.predict(imgs['input_images'][0:n_imgs].reshape(n_imgs,256,256,1))
+
 i = -1
-while i < 2:
+while i < n_imgs:
     i += 1
-    templ_coords = template_match_t(preds[i], minrad, maxrad, longlat_thresh2,
-                                    rad_thresh, template_thresh, target_thresh)
+    
+    templ_coords = template_match_t(preds[i], minrad, maxrad, longlat_thresh2, rad_thresh, template_thresh, target_thresh)
     # get csv coords
-    cutrad, n_csvs = 0.8, 50
     csv = craters[get_id(i)]
     csv_coords = np.asarray((csv['x'], csv['y'], csv['Diameter (pix)'] / 2.)).T
     csv_real = np.asarray((csv['Long'], csv['Lat'], csv['Diameter (km)'] / 2.)).T
-        
+    
     # compare template-matched results to ground truth csv input data
     N_match = 0
     csv_duplicates = []
