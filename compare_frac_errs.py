@@ -57,6 +57,9 @@ target_thresh = 0.1
 #model = load_model('models/DeepMoon_final.h5')
 #preds = model.predict(imgs['input_images'][0:n_imgs].reshape(n_imgs,256,256,1))
 
+err_lo_pix, err_la_pix, err_r_pix = [], [], []
+err_lo_real, err_la_real, err_r_real = [], [], []
+
 i = -1
 while i < n_imgs:
     print(i)
@@ -71,8 +74,6 @@ while i < n_imgs:
     # compare template-matched results to ground truth csv input data
     N_match = 0
     csv_duplicates = []
-    err_lo_pix, err_la_pix, err_r_pix = [], [], []
-    err_lo_real, err_la_real, err_r_real = [], [], []
     N_csv, N_detect = len(csv_coords), len(templ_coords)
     for lo, la, r in templ_coords:
         csvLong, csvLat, csvRad = csv_coords.T
