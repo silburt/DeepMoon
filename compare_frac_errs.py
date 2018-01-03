@@ -35,16 +35,20 @@ def estimate_longlatdiamkm(llbd, distcoeff, long_pix, lat_pix, radii_pix):
     # Return combined long/lat/radius array.
     return long_deg, lat_deg, radii_km
 
-dir = '../moon-craters/datasets/HEAD'
+
+#os.system("sshfs silburt@rein005.utsc.utoronto.ca:/data_local/silburt/moon-craters/datasets/HEAD /Users/silburt/remotemount/")
+dir = '/Users/silburt/remotemount'
+#dir = '../moon-craters/datasets/HEAD'
+
 dtype = 'test'
-n_imgs = 10
+n_imgs = 1
 
 #preds = h5py.File('../moon-craters/datasets/HEAD/HEAD_%spreds_n30000_final.hdf5'%(dtype), 'r')[dtype]
 #imgs = h5py.File('/scratch/m/mhvk/czhu/moondata/final_data/%s_images.hdf5'%(dtype), 'r')
 #craters = pd.HDFStore('%s/%s_craters.hdf5'%(dir,dtype), 'r')
-preds = h5py.File('../moon-craters/datasets/HEAD/HEAD_%spreds_n30000_final.hdf5'%(dtype), 'r')[dtype]
-imgs = h5py.File('../moon-craters/datasets/HEAD/%s_images_final.hdf5'%(dtype), 'r')
-craters = pd.HDFStore('../moon-craters/datasets/HEAD/%s_craters_final.hdf5'%(dtype), 'r')
+preds = h5py.File('%s/HEAD_%spreds_n30000_final.hdf5'%(dir,dtype), 'r')[dtype]
+imgs = h5py.File('%s/%s_images_final.hdf5'%(dir,dtype), 'r')
+craters = pd.HDFStore('%s/%s_craters_final.hdf5'%(dir,dtype), 'r')
 
 llbd, pbd, distcoeff = ('longlat_bounds', 'pix_bounds', 'pix_distortion_coefficient')
 
@@ -61,7 +65,7 @@ err_lo_pix, err_la_pix, err_r_pix = [], [], []
 err_lo_real, err_la_real, err_r_real = [], [], []
 
 i = -1
-while i < n_imgs:
+while i < n_imgs-1:
     print(i)
     i += 1
     
@@ -76,6 +80,7 @@ while i < n_imgs:
     csv_duplicates = []
     N_csv, N_detect = len(csv_coords), len(templ_coords)
     for lo, la, r in templ_coords:
+        lo_, la_, r_ = estimate_longlatdiamkm(imgs[llbd][get_id(i)], imgs[distcoeff][get_id(i)][0], lo, la, r)
         csvLong, csvLat, csvRad = csv_coords.T
         diff_longlat = (csvLong - lo)**2 + (csvLat - la)**2
         diff_rad = abs(csvRad - r)
@@ -98,7 +103,6 @@ while i < n_imgs:
             index[id_keep] = True       # keep only closest match as true
             Lo, La, R = csv_coords[id_keep].T
             Lo_, La_, R_ = csv_real[id_keep].T
-            lo_, la_, r_ = estimate_longlatdiamkm(imgs[llbd][get_id(id_keep)], imgs[distcoeff][get_id(id_keep)][0], lo, la, r)
             err_lo_pix.append(abs(Lo - lo) / r)
             err_la_pix.append(abs(La - la) / r)
             err_r_pix.append(abs(R - r) / r)
@@ -111,7 +115,6 @@ while i < n_imgs:
         elif N == 1:
             Lo, La, R = csv_coords[index_True[0]].T
             Lo_, La_, R_ = csv_real[index_True[0]].T
-            lo_, la_, r_ = estimate_longlatdiamkm(imgs[llbd][get_id(index_True[0])], imgs[distcoeff][get_id(index_True[0])][0], lo, la, r)
             err_lo_pix.append(abs(Lo - lo) / r)
             err_la_pix.append(abs(La - la) / r)
             err_r_pix.append(abs(R - r) / r)
