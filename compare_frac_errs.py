@@ -37,7 +37,7 @@ def estimate_longlatdiamkm(llbd, distcoeff, long_pix, lat_pix, radii_pix):
 
 dir = '../moon-craters/datasets/HEAD'
 dtype = 'test'
-n_imgs = 8
+n_imgs = 10
 
 #preds = h5py.File('../moon-craters/datasets/HEAD/HEAD_%spreds_n30000_final.hdf5'%(dtype), 'r')[dtype]
 #imgs = h5py.File('/scratch/m/mhvk/czhu/moondata/final_data/%s_images.hdf5'%(dtype), 'r')
@@ -104,9 +104,9 @@ while i < n_imgs:
             err_lo_real.append(abs(Lo_ - lo_) / r_)
             err_la_real.append(abs(La_ - la_) / r_)
             err_r_real.append(abs(R_ - r_) / r_)
-            print("""%d GT entries matched to (%d,%d,%d) ring... counted
-                (%f,%f,%f) as the match.""" % (N, lo, la, r, Lo, La, r))
-            print(csv_duplicates)
+            #print("""%d GT entries matched to (%d,%d,%d) ring... counted
+            #    (%f,%f,%f) as the match.""" % (N, lo, la, r, Lo, La, r))
+            #print(csv_duplicates)
         elif N == 1:
             Lo, La, R = csv_coords[index_True[0]].T
             Lo_, La_, R_ = csv_real[index_True[0]].T
@@ -123,6 +123,15 @@ while i < n_imgs:
         if len(csv_coords) == 0:
             break
 
+print("Stats:")
+print("Mean err Longitude (pix) = %f"%np.mean(err_lo_pix))
+print("Mean err Longitude (deg) = %f"%np.mean(err_lo_real))
 print(list(zip(err_lo_pix, err_lo_real)))
+
+print("Mean err Latitude (pix) = %f"%np.mean(err_la_pix))
+print("Mean err Latitude (deg) = %f"%np.mean(err_la_real))
 print(list(zip(err_la_pix, err_la_real)))
+
+print("Mean err Radius (pix) = %f"%np.mean(err_r_pix))
+print("Mean err Radius (deg) = %f"%np.mean(err_r_real))
 print(list(zip(err_r_pix, err_r_real)))
