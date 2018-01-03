@@ -43,8 +43,8 @@ n_imgs = 8
 #imgs = h5py.File('/scratch/m/mhvk/czhu/moondata/final_data/%s_images.hdf5'%(dtype), 'r')
 #craters = pd.HDFStore('%s/%s_craters.hdf5'%(dir,dtype), 'r')
 preds = h5py.File('../moon-craters/datasets/HEAD/HEAD_%spreds_n30000_final.hdf5'%(dtype), 'r')[dtype]
-imgs = h5py.File('../moon-craters/datasets/HEAD/final_data/%s_images_final.hdf5'%(dtype), 'r')
-craters = pd.HDFStore('../moon-craters/datasets/HEAD/final_data/%s_craters_final.hdf5'%(dir,dtype), 'r')
+imgs = h5py.File('../moon-craters/datasets/HEAD/%s_images_final.hdf5'%(dtype), 'r')
+craters = pd.HDFStore('../moon-craters/datasets/HEAD/%s_craters_final.hdf5'%(dir,dtype), 'r')
 
 llbd, pbd, distcoeff = ('longlat_bounds', 'pix_bounds', 'pix_distortion_coefficient')
 
@@ -59,6 +59,7 @@ target_thresh = 0.1
 
 i = -1
 while i < n_imgs:
+    print(i)
     i += 1
     
     templ_coords = template_match_t(preds[i], minrad, maxrad, longlat_thresh2, rad_thresh, template_thresh, target_thresh)
