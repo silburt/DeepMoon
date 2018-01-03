@@ -6,12 +6,12 @@ import matplotlib.pyplot as plt
 import glob
 from progress.bar import Bar
 
-def get_GT(truth_datatype, radcut=0):
+def get_GT(truth_datatype, minrad=0, maxrad=100):
     #prepare GT
     truthalan = pd.read_csv('catalogues/LROCCraters.csv')
     truthhead = pd.read_csv('catalogues/HeadCraters.csv')
-    truthhead = truthhead[(truthhead['Lat']>=-60)&(truthhead['Lat']<=60)&(truthhead['Diam_km']>2*radcut)]
-    truthalan = truthalan[(truthalan['Lat']>=-60)&(truthalan['Lat']<=60)&(truthalan['Diameter (km)']>2*radcut)]
+    truthhead = truthhead[(truthhead['Lat']>=-60)&(truthhead['Lat']<=60)&(truthhead['Diam_km']>2*minrad)&(truthhead['Diam_km']<2*maxrad)]
+    truthalan = truthalan[(truthalan['Lat']>=-60)&(truthalan['Lat']<=60)&(truthalan['Diameter (km)']>2*minrad)&(truthalan['Diameter (km)']<2*maxrad)]
     if truth_datatype == 'train':
         truthalan = truthalan[truthalan['Long']<-60]        #region of train data
         truthhead = truthhead[(truthhead['Lon']<-60)&(truthhead['Diam_km']>20.)]
@@ -25,9 +25,9 @@ def get_GT(truth_datatype, radcut=0):
                      np.concatenate((truthalan['Lat'].values, truthhead['Lat'].values)),
                      np.concatenate((truthalan['Diameter (km)'].values/2.,truthhead['Diam_km'].values/2.)))).T
 
-def get_stats(filename, csv_coords, thresh_longlat2, thresh_rad2, radcut):
+def get_stats(filename, csv_coords, thresh_longlat2, thresh_rad2, minrad, maxrad):
     pred = np.load(filename)
-    pred = pred[pred.T[2] > radcut]
+    pred = pred[(pred.T[2] > minrad)&(pred.T[2] < maxrad)]
     
     csv_duplicates = []
     N_match, err_lo, err_la, err_r, beta = 0, 0, 0, 0, 1
@@ -79,10 +79,11 @@ if __name__ == '__main__':
     dtype = 'test'
     min_csv_rad = 2
     
-    radcut = 0
-    #radcut = min_csv_rad
+    minrad = 0
+    #minrad = min_csv_rad
     
-    csv_coords = get_GT(dtype, radcut+0.25)
+    maxrad = 35
+    csv_coords = get_GT(dtype, minrad+0.25, maxrad-2)
     
     files = glob.glob('../moon-craters/datasets/HEAD/HEAD_%s*final.npy'%dtype)
     #files = ['../moon-craters/datasets/HEAD/HEAD_test_craterdist_llt1.60_rt0.30_final.npy']
@@ -93,7 +94,7 @@ if __name__ == '__main__':
     for f in files:
         longlat_thresh2 = float(f.split('_')[3].split('llt')[1])
         rad_thresh2 = float(f.split('_')[4].split('rt')[1])
-        p, r, f, elo, ela, er, frac_new = get_stats(f, csv_coords, longlat_thresh2, rad_thresh2, radcut)
+        p, r, f, elo, ela, er, frac_new = get_stats(f, csv_coords, longlat_thresh2, rad_thresh2, minrad, maxrad)
         
         precision.append(p)
         recall.append(r)
@@ -121,6 +122,6 @@ if __name__ == '__main__':
     for i in range(len(llt2)):
         plt.text(llt2[i], rt2[i], "f=%.3f"%(f1[i]), fontsize=6)
 
-    plt.savefig('images/global_f1score_%s_radcut%d.png'%(dtype,radcut))
+    plt.savefig('images/global_f1score_%s_minrad%d_maxrad%d.png'%(dtype,minrad,maxrad))
     plt.show()
 

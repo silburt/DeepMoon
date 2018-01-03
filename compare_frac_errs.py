@@ -125,7 +125,7 @@ while n_processed < 1:
         # remove csv so it can't be re-matched again
         csv_coords = csv_coords[np.where(index == False)]
         if len(csv_coords) == 0:
-        break
+            break
 
 print(list(zip(err_lo_pix, err_lo_real)))
 print(list(zip(err_la_pix, err_la_real)))
