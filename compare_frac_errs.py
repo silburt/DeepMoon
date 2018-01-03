@@ -56,19 +56,9 @@ while i < 2:
                                     rad_thresh, template_thresh, target_thresh)
     # get csv coords
     cutrad, n_csvs = 0.8, 50
-    diam = 'Diameter (pix)'
     csv = craters[get_id(i)]
-    # remove small/large/half craters
-    csv = csv[(csv[diam] < 2 * maxrad) & (csv[diam] > 2 * minrad)]
-    csv = csv[(csv['x'] + cutrad * csv[diam] / 2 <= 256)]
-    csv = csv[(csv['y'] + cutrad * csv[diam] / 2 <= 256)]
-    csv = csv[(csv['x'] - cutrad * csv[diam] / 2 > 0)]
-    csv = csv[(csv['y'] - cutrad * csv[diam] / 2 > 0)]
-    if len(csv) < 3:    # Exclude csvs with few craters
-        continue
-    else:
-        csv_coords = np.asarray((csv['x'], csv['y'], csv[diam] / 2.)).T
-        csv_real = np.asarray((csv['Long'], csv['Lat'], csv['Diameter (km)']/2.)).T
+    csv_coords = np.asarray((csv['x'], csv['y'], csv['Diameter (pix)'] / 2.)).T
+    csv_real = np.asarray((csv['Long'], csv['Lat'], csv['Diameter (km)'] / 2.)).T
         
     # compare template-matched results to ground truth csv input data
     N_match = 0
