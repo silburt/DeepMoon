@@ -37,9 +37,9 @@ def estimate_longlatdiamkm(llbd, distcoeff, long_pix, lat_pix, radii_pix):
 dir = '../moon-craters/datasets/HEAD'
 dtype = 'test'
 
-preds = h5py.File('%s/HEAD_%spreds_n30000_final.hdf5'%(dir,dtype), 'r')[dtype]
-imgs = h5py.File('%s/%s_images_final.hdf5'%(dir,dtype), 'r')
-craters = pd.HDFStore('%s/%s_craters_final.hdf5'%(dir,dtype), 'r')
+preds = h5py.File('../moon-craters/datasets/HEAD/HEAD_%spreds_n30000_final.hdf5'%(dtype), 'r')[dtype]
+imgs = h5py.File('/scratch/m/mhvk/czhu/moondata/final_data/%s_images.hdf5'%(dtype), 'r')
+craters = pd.HDFStore('%s/%s_craters.hdf5'%(dir,dtype), 'r')
 
 llbd, pbd, distcoeff = ('longlat_bounds', 'pix_bounds', 'pix_distortion_coefficient')
 
@@ -49,27 +49,25 @@ rad_thresh = 1.0
 template_thresh = 0.5
 target_thresh = 0.1
 
-
-n_processed, i = 0, 0
-while n_processed < 1:
+i = -1
+while i < 2:
+    i += 1
     templ_coords = template_match_t(preds[i], minrad, maxrad, longlat_thresh2,
                                     rad_thresh, template_thresh, target_thresh)
-
     # get csv coords
     cutrad, n_csvs = 0.8, 50
     diam = 'Diameter (pix)'
     csv = craters[get_id(i)]
     # remove small/large/half craters
     csv = csv[(csv[diam] < 2 * maxrad) & (csv[diam] > 2 * minrad)]
-    csv = csv[(csv['x'] + cutrad * csv[diam] / 2 <= dim)]
-    csv = csv[(csv['y'] + cutrad * csv[diam] / 2 <= dim)]
+    csv = csv[(csv['x'] + cutrad * csv[diam] / 2 <= 256)]
+    csv = csv[(csv['y'] + cutrad * csv[diam] / 2 <= 256)]
     csv = csv[(csv['x'] - cutrad * csv[diam] / 2 > 0)]
     csv = csv[(csv['y'] - cutrad * csv[diam] / 2 > 0)]
     if len(csv) < 3:    # Exclude csvs with few craters
-        i += 1
         continue
     else:
-        csv_coords = np.asarray((csv['x'], csv['y'], csv[diam] / 2)).T
+        csv_coords = np.asarray((csv['x'], csv['y'], csv[diam] / 2.)).T
         csv_real = np.asarray((csv['Long'], csv['Lat'], csv['Diameter (km)']/2.)).T
         
     # compare template-matched results to ground truth csv input data
@@ -129,4 +127,4 @@ while n_processed < 1:
 
 print(list(zip(err_lo_pix, err_lo_real)))
 print(list(zip(err_la_pix, err_la_real)))
-print(list(zip(err_lr_pix, err_r_real)))
+print(list(zip(err_r_pix, err_r_real)))

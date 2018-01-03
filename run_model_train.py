@@ -11,7 +11,7 @@ import model_train as mt
 MP = {}
 
 # Directory of train/dev/test image and crater hdf5 files.
-MP['dir'] = 'catalogues/'
+MP['dir'] = '/scratch/m/mhvk/czhu/moondata/final_data/'
 
 # Image width/height, assuming square images.
 MP['dim'] = 256
