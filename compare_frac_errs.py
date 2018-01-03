@@ -37,11 +37,11 @@ def estimate_longlatdiamkm(llbd, distcoeff, long_pix, lat_pix, radii_pix):
 
 
 #os.system("sshfs silburt@rein005.utsc.utoronto.ca:/data_local/silburt/moon-craters/datasets/HEAD /Users/silburt/remotemount/")
-dir = '/Users/silburt/remotemount'
-#dir = '../moon-craters/datasets/HEAD'
+#dir = '/Users/silburt/remotemount'
+dir = '../moon-craters/datasets/HEAD'
 
 dtype = 'test'
-n_imgs = 1
+n_imgs = 10
 
 #preds = h5py.File('../moon-craters/datasets/HEAD/HEAD_%spreds_n30000_final.hdf5'%(dtype), 'r')[dtype]
 #imgs = h5py.File('/scratch/m/mhvk/czhu/moondata/final_data/%s_images.hdf5'%(dtype), 'r')
