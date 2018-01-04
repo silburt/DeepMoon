@@ -36,7 +36,7 @@ CP['dir_preds'] = '../moon-craters/datasets/HEAD/HEAD_%spreds_n%d_final.hdf5' % 
 
 # Location of where final unique crater distribution will be stored
 CP['dir_result'] = 'datasets/HEAD/HEAD_%s_craterdist_llt%.2f_rt%.2f_' \
-                   'final.npy' % (CP['datatype'], CP['llt2'], CP['rt2'])
+                   'flatmr3.npy' % (CP['datatype'], CP['llt2'], CP['rt2'])
 
 if __name__ == '__main__':
     craters_unique = np.empty([0, 3])
