@@ -76,12 +76,14 @@ def add_unique_craters(craters, craters_unique, thresh_longlat2, thresh_rad2):
     for j in range(len(craters)):
         lo, la, r = craters[j].T
         # Fractional long/lat change
-        diff_longlat = ((Long - lo)**2 + (Lat - la)**2) / (r * km_to_deg)**2
-        Rad_ = Rad[diff_longlat < thresh_longlat2]
+        dL1 = ((Long - lo)**2 + (Lat - la)**2) / (r * km_to_deg)**2
+        dL2 = ((Long - lo)**2 + (Lat - la)**2) / (Rad * km_to_deg)**2
+        Rad_ = Rad[(dL1 < thresh_longlat2) | (dL2 < thresh_longlat2)]
         if len(Rad_) > 0:
             # Fractional radius change
-            diff_rad = ((Rad_ - r) / r)**2
-            index = diff_rad < thresh_rad2
+            dR1 = ((Rad_ - r) / r)**2
+            dR2 = ((Rad_ - r) / Rad)**2
+            index = (dR1 < thresh_rad2) | (dR2 < thresh_rad2)
             if len(np.where(index == True)[0]) == 0:
                 craters_unique = np.vstack((craters_unique, craters[j]))
         else:
@@ -182,14 +184,14 @@ def extract_unique_craters(CP, craters_unique):
     for i in range(CP['n_imgs']):
         id = proc.get_id(i)
 
-        coords = tmt.template_match_t(preds[i], minrad=3)
-#        # sloped minrad
-#        rawlen = P[pbd][proc.get_id(i)][2] - P[pbd][proc.get_id(i)][0]
-#        if rawlen < 4000:
-#            minrad = int((3. / 1000.) * rawlen - 3)
-#            coords = tmt.template_match_t(preds[i], minrad=max(minrad, 3))
-#        elif rawlen >= 4000:
-#            coords = tmt.template_match_t(preds[i], minrad=9)
+#        coords = tmt.template_match_t(preds[i], minrad=3)
+        # sloped minrad
+        rawlen = P[pbd][proc.get_id(i)][2] - P[pbd][proc.get_id(i)][0]
+        if rawlen < 4000:
+            minrad = int((3. / 1000.) * rawlen - 3)
+            coords = tmt.template_match_t(preds[i], minrad=max(minrad, 3))
+        elif rawlen >= 4000:
+            coords = tmt.template_match_t(preds[i], minrad=9)
 
         # convert, add to master dist
         if len(coords) > 0:
