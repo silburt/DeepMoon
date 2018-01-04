@@ -73,8 +73,8 @@ catalogue][sala cat].
 ### Running DeepMoon
 
 Each stage of DeepMoon has a corresponding script: `run_input_data_gen.py` for
-generating input data, `run_model_training.py` to train the convnet, and
-`run_get_unique_craters.py` to validate predictions and generate a crater
+generating input data, `run_model_training.py` to build and train the convnet, 
+and `run_get_unique_craters.py` to validate predictions and generate a crater
 atlas.  User-defined parameters, and instructions on on how to use each script,
 can be found in the scripts themselves.
 
@@ -90,7 +90,9 @@ this repo to your Python path) instead of modifying them in the repo.
 
 ## License
 
-**CC or MIT?**
+Copyright 2018 Ari Silburt and Charles Zhu.
+
+DeepMoon is free software made available under the MIT License. For details see the LICENSE.md file.
 
 [lola dem]: https://astrogeology.usgs.gov/search/map/Moon/LRO/LOLA/Lunar_LRO_LrocKaguya_DEMmerge_60N60S_512ppd
 [lroc cat]: http://wms.lroc.asu.edu/lroc/rdr_product_select?filter%5Btext%5D=&filter%5Blat%5D=&filter%5Blon%5D=&filter%5Brad%5D=&filter%5Bwest%5D=&filter%5Beast%5D=&filter%5Bsouth%5D=&filter%5Bnorth%5D=&filter%5Btopographic%5D=either&filter%5Bprefix%5D%5B%5DSHAPEFILE&show_thumbs=0&per_page=100&commit=Search
