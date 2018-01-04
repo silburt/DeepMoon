@@ -6,14 +6,12 @@ import utils.processing as proc
 import utils.transform as trf
 import get_unique_craters as guc
 
-#from keras.models import load_model
-
 #os.system("sshfs silburt@rein005.utsc.utoronto.ca:/data_local/silburt/moon-craters/datasets/HEAD /Users/silburt/remotemount/")
 #dir = '/Users/silburt/remotemount'
 dir = '../moon-craters/datasets/HEAD'
 
 dtype = 'test'
-n_imgs = 1000
+n_imgs = 2000
 
 #preds = h5py.File('../moon-craters/datasets/HEAD/HEAD_%spreds_n30000_final.hdf5'%(dtype), 'r')[dtype]
 #imgs = h5py.File('/scratch/m/mhvk/czhu/moondata/final_data/%s_images.hdf5'%(dtype), 'r')
@@ -26,11 +24,12 @@ llbd, pbd, distcoeff = ('longlat_bounds', 'pix_bounds', 'pix_distortion_coeffici
 dim = (float(256), float(256))
 
 longlat_thresh2 = 70
-minrad, maxrad = 3, 40
+maxrad = 40
 rad_thresh = 1.0
 template_thresh = 0.5
 target_thresh = 0.1
 
+#from keras.models import load_model
 #model = load_model('models/DeepMoon_final.h5')
 #preds = model.predict(imgs['input_images'][0:n_imgs].reshape(n_imgs,256,256,1))
 
@@ -45,6 +44,11 @@ while i < n_imgs-1:
     id = proc.get_id(i)
     llbd_val, dist_val = imgs[llbd][id], imgs[distcoeff][id][0]
     
+    coords = template_match_t(preds[i], minrad, maxrad, longlat_thresh2, rad_thresh, template_thresh, target_thresh)
+    if len(coords) == 0:
+        continue
+    coords_conv = guc.estimate_longlatdiamkm(dim, llbd_val, dist_val, coords)
+    
     # get csv coords
     csv = craters[id]
     csv_coords = np.asarray((csv['x'], csv['y'], csv['Diameter (pix)'] / 2.)).T
@@ -56,9 +60,6 @@ while i < n_imgs-1:
         minrad = max(int((3. / 1000.) * rawlen - 3), 3)
     elif rawlen >= 4000:
         minrad=9
-    
-    coords = template_match_t(preds[i], minrad, maxrad, longlat_thresh2, rad_thresh, template_thresh, target_thresh)
-    coords_conv = guc.estimate_longlatdiamkm(dim, llbd_val, dist_val, coords)
     
     # compare template-matched results to ground truth csv input data
     N_match = 0
