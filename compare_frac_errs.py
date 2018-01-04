@@ -44,6 +44,12 @@ while i < n_imgs-1:
     id = proc.get_id(i)
     llbd_val, dist_val = imgs[llbd][id], imgs[distcoeff][id][0]
     
+    rawlen = imgs[pbd][id][2] - imgs[pbd][id][0]
+    if rawlen < 4000:
+        minrad = max(int((3. / 1000.) * rawlen - 3), 3)
+    else:
+        minrad=9
+    
     coords = template_match_t(preds[i], minrad, maxrad, longlat_thresh2, rad_thresh, template_thresh, target_thresh)
     if len(coords) == 0:
         continue
@@ -54,12 +60,6 @@ while i < n_imgs-1:
     csv_coords = np.asarray((csv['x'], csv['y'], csv['Diameter (pix)'] / 2.)).T
     csv_real = np.asarray((csv['Long'], csv['Lat'], csv['Diameter (km)'] / 2.)).T
     csv_conv = guc.estimate_longlatdiamkm(dim, llbd_val, dist_val, csv_coords)
-    
-    rawlen = imgs[pbd][id][2] - imgs[pbd][id][0]
-    if rawlen < 4000:
-        minrad = max(int((3. / 1000.) * rawlen - 3), 3)
-    elif rawlen >= 4000:
-        minrad=9
     
     # compare template-matched results to ground truth csv input data
     N_match = 0
