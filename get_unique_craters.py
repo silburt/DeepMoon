@@ -76,14 +76,12 @@ def add_unique_craters(craters, craters_unique, thresh_longlat2, thresh_rad2):
     for j in range(len(craters)):
         lo, la, r = craters[j].T
         # Fractional long/lat change
-        dL1 = ((Long - lo)**2 + (Lat - la)**2) / (r * km_to_deg)**2
-        dL2 = ((Long - lo)**2 + (Lat - la)**2) / (Rad * km_to_deg)**2
-        Rad_ = Rad[(dL1 < thresh_longlat2) | (dL2 < thresh_longlat2)]
+        dL = ((Long - lo)**2 + (Lat - la)**2) / (r * km_to_deg)**2
+        Rad_ = Rad[(dL < thresh_longlat2)]
         if len(Rad_) > 0:
             # Fractional radius change
-            dR1 = ((Rad_ - r) / r)**2
-            dR2 = ((Rad_ - r) / Rad_)**2
-            index = (dR1 < thresh_rad2) | (dR2 < thresh_rad2)
+            dR = ((Rad_ - r) / r)**2
+            index = dR < thresh_rad2
             if len(np.where(index == True)[0]) == 0:
                 craters_unique = np.vstack((craters_unique, craters[j]))
         else:
