@@ -182,14 +182,7 @@ def extract_unique_craters(CP, craters_unique):
     for i in range(CP['n_imgs']):
         id = proc.get_id(i)
 
-#        coords = tmt.template_match_t(preds[i], minrad=3)
-        # sloped minrad
-        rawlen = P[pbd][proc.get_id(i)][2] - P[pbd][proc.get_id(i)][0]
-        if rawlen < 4000:
-            minrad = int((3. / 1000.) * rawlen - 3)
-            coords = tmt.template_match_t(preds[i], minrad=max(minrad, 3))
-        elif rawlen >= 4000:
-            coords = tmt.template_match_t(preds[i], minrad=9)
+        coords = tmt.template_match_t(preds[i], minrad=CP['mr'])
 
         # convert, add to master dist
         if len(coords) > 0:

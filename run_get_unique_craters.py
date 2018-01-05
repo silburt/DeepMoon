@@ -15,7 +15,7 @@ CP = {}
 CP['dim'] = 256
 
 # Data type - train, dev, test
-CP['datatype'] = 'test'
+CP['datatype'] = 'dev'
 
 # Number of images to extract craters from
 CP['n_imgs'] = 30000
@@ -23,6 +23,7 @@ CP['n_imgs'] = 30000
 # Hyperparameters
 CP['llt2'] = float(sys.argv[1])    # D_{L,L} from Silburt et. al (2017)
 CP['rt2'] = float(sys.argv[2])     # D_{R} from Silburt et. al (2017)
+CP['mr'] = int(sys.argv[3])
 
 # Location of model to generate predictions (if they don't exist yet)
 CP['dir_model'] = '../moon-craters/models/HEAD_final.h5'
@@ -36,7 +37,8 @@ CP['dir_preds'] = '../moon-craters/datasets/HEAD/HEAD_%spreds_n%d_final.hdf5' % 
 
 # Location of where final unique crater distribution will be stored
 CP['dir_result'] = 'datasets/HEAD/HEAD_%s_craterdist_llt%.2f_rt%.2f_' \
-                   'doublecheck.npy' % (CP['datatype'], CP['llt2'], CP['rt2'])
+                   'mr%d_fin2.npy' % (CP['datatype'], CP['llt2'], CP['rt2']
+                                      CP['mr'])
 
 if __name__ == '__main__':
     craters_unique = np.empty([0, 3])
