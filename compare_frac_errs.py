@@ -11,7 +11,7 @@ import get_unique_craters as guc
 dir = '../moon-craters/datasets/HEAD'
 
 dtype = 'test'
-n_imgs = 2000
+n_imgs = 30000
 
 #preds = h5py.File('../moon-craters/datasets/HEAD/HEAD_%spreds_n30000_final.hdf5'%(dtype), 'r')[dtype]
 #imgs = h5py.File('/scratch/m/mhvk/czhu/moondata/final_data/%s_images.hdf5'%(dtype), 'r')
@@ -25,13 +25,10 @@ dim = (float(256), float(256))
 
 longlat_thresh2 = 70
 maxrad = 40
+minrad = 5
 rad_thresh = 1.0
 template_thresh = 0.5
 target_thresh = 0.1
-
-#from keras.models import load_model
-#model = load_model('models/DeepMoon_final.h5')
-#preds = model.predict(imgs['input_images'][0:n_imgs].reshape(n_imgs,256,256,1))
 
 err_lo_pix, err_la_pix, err_r_pix = [], [], []
 err_lo_deg, err_la_deg, err_r_deg = [], [], []
@@ -43,12 +40,6 @@ while i < n_imgs-1:
     print(i)
     id = proc.get_id(i)
     llbd_val, dist_val = imgs[llbd][id], imgs[distcoeff][id][0]
-    
-    rawlen = imgs[pbd][id][2] - imgs[pbd][id][0]
-    if rawlen < 4000:
-        minrad = max(int((3. / 1000.) * rawlen - 3), 3)
-    else:
-        minrad=9
     
     coords = template_match_t(preds[i], minrad, maxrad, longlat_thresh2, rad_thresh, template_thresh, target_thresh)
     if len(coords) == 0:
@@ -120,19 +111,19 @@ while i < n_imgs-1:
 
 # printing stuff
 print("Stats:")
-print("Mean err Longitude (pix) = %f +/- %f"%(np.mean(err_lo_pix), np.std(err_lo_pix)))
-print("Mean err Longitude (deg) = %f +/- %f"%(np.mean(err_lo_deg), np.std(err_lo_deg)))
-print("Mean err Longitude (csv) = %f +/- %f"%(np.mean(err_lo_csv), np.std(err_lo_csv)))
+print("Mean, median, err Longitude (pix) = %f, %f +/- %f"%(np.mean(err_lo_pix), np.median(err_lo_pix), np.std(err_lo_pix)))
+print("Mean, median, err Longitude (deg) = %f, %f +/- %f"%(np.mean(err_lo_deg), np.median(err_lo_deg), np.std(err_lo_deg)))
+print("Mean, median, err Longitude (csv) = %f, %f +/- %f"%(np.mean(err_lo_csv), np.median(err_lo_csv), np.std(err_lo_csv)))
 #print(list(zip(err_lo_pix, err_lo_deg)))
 
-print("Mean err Latitude (pix) = %f +/- %f"%(np.mean(err_la_pix), np.std(err_la_pix)))
-print("Mean err Latitude (deg) = %f +/- %f"%(np.mean(err_la_deg), np.std(err_la_deg)))
-print("Mean err Latitude (csv) = %f +/- %f"%(np.mean(err_la_csv), np.std(err_la_csv)))
+print("Mean, median, err Latitude (pix) = %f, %f +/- %f"%(np.mean(err_la_pix), np.median(err_la_pix), np.std(err_la_pix)))
+print("Mean, median, err Latitude (deg) = %f, %f +/- %f"%(np.mean(err_la_deg), np.median(err_la_deg), np.std(err_la_deg)))
+print("Mean, median, err Latitude (csv) = %f, %f +/- %f"%(np.mean(err_la_csv), np.median(err_la_csv), np.std(err_la_csv)))
 #print(list(zip(err_la_pix, err_la_deg)))
 
-print("Mean err Radius (pix) = %f +/- %f"%(np.mean(err_r_pix), np.std(err_r_pix)))
-print("Mean err Radius (deg) = %f +/- %f"%(np.mean(err_r_deg), np.std(err_r_deg)))
-print("Mean err Radius (csv) = %f +/- %f"%(np.mean(err_r_csv), np.std(err_r_csv)))
+print("Mean, median, err Radius (pix) = %f, %f +/- %f"%(np.mean(err_r_pix), np.median(err_r_pix), np.std(err_r_pix)))
+print("Mean, median, err Radius (deg) = %f, %f +/- %f"%(np.mean(err_r_deg), np.median(err_r_deg), np.std(err_r_deg)))
+print("Mean, median, err Radius (csv) = %f, %f +/- %f"%(np.mean(err_r_csv), np.median(err_r_csv), np.std(err_r_csv)))
 #print(list(zip(err_r_pix, err_r_deg)))
 
 """

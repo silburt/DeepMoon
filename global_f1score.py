@@ -76,7 +76,7 @@ def get_stats(filename, csv_coords, thresh_longlat2, thresh_rad2, minrad, maxrad
 
 
 if __name__ == '__main__':
-    dtype = 'test'
+    dtype = 'dev'
     min_csv_rad = 2
     
     minrad = 0
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     maxrad = 35
     csv_coords = get_GT(dtype, minrad+0.25, maxrad-2)
     
-    files = glob.glob('../moon-craters/datasets/HEAD/HEAD_%s*final.npy'%dtype)
+    files = glob.glob('../moon-craters/datasets/HEAD/HEAD_%s*fin2.npy'%dtype)
     #files = ['../moon-craters/datasets/HEAD/HEAD_test_craterdist_llt1.60_rt0.30_final.npy']
     
     llt2, rt2, precision, recall, f1 = [], [], [], [], []
@@ -94,6 +94,7 @@ if __name__ == '__main__':
     for f in files:
         longlat_thresh2 = float(f.split('_')[3].split('llt')[1])
         rad_thresh2 = float(f.split('_')[4].split('rt')[1])
+        mr = int(f.split('_')[5].split('mr')[1])
         p, r, f, elo, ela, er, frac_new = get_stats(f, csv_coords, longlat_thresh2, rad_thresh2, minrad, maxrad)
         
         precision.append(p)
@@ -106,7 +107,7 @@ if __name__ == '__main__':
         err_r.append(er)
         N_new.append(N_new)
         #if longlat_thresh2 == 1.6 and rad_thresh2 == 0.3:
-        print(longlat_thresh2, rad_thresh2)
+        print(longlat_thresh2, rad_thresh2, mr)
         print(elo, ela, er, frac_new, p, r, f)
         print("\n")
         
