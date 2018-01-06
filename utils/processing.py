@@ -1,6 +1,5 @@
 import numpy as np
 
-# Preprocessing
 def preprocess(Data, dim=256, low=0.1, hi=1.0):
     """Normalize and rescale (and optionally invert) images.
 
