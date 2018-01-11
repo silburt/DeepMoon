@@ -209,6 +209,7 @@ def extract_unique_craters(CP, craters_unique):
                 coords_new = coords[craters_new_index]
             else:
                 craters_new = np.concatenate((craters_unique, new_craters_unique))
+                coords_new = []
 
         if len(coords_new)>0:
             f, (ax1, ax2, ax3) = plt.subplots(1,3, figsize=[25, 10])
