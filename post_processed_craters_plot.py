@@ -218,7 +218,7 @@ if __name__ == '__main__':
     CP['dir_data'] = '../moon-craters/datasets/HEAD/%s_images_final.hdf5' % CP['datatype']
 
     # Location of where model predictions are/will be stored
-    CP['dir_preds'] = '../moon-craters/datasets/HEAD/HEAD_%spreds_n%d_final.hdf5' % (CP['datatype'],CP['n_imgs'])
+    CP['dir_preds'] = '../moon-craters/datasets/HEAD/HEAD_%spreds_n30000_final.hdf5' % (CP['datatype'],CP['n_imgs'])
 
     # Location of where final unique crater distribution will be stored
     CP['dir_result'] = 'datasets/HEAD/HEAD_%s_craterdist_llt%.2f_rt%.2f_mr%d_fin2.npy' % (CP['datatype'], CP['llt2'], CP['rt2'], CP['mr'])
