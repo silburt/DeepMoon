@@ -16,7 +16,6 @@ import pandas as pd
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
-np.random.seed(42)
 
 #########################
 def get_GT(truth_datatype, minrad=0, maxrad=100):
@@ -76,7 +75,7 @@ def add_unique_craters(craters, craters_unique, GT, thresh_longlat2, thresh_rad2
     craters_unique : array
         Modified master array of unique crater tuples with new crater entries.
     """
-    craters_unique_index = []
+    craters_new_index = []
     
     km_to_deg = 180. / (np.pi * 1737.4)
     Long, Lat, Rad = craters_unique.T
@@ -94,13 +93,13 @@ def add_unique_craters(craters, craters_unique, GT, thresh_longlat2, thresh_rad2
                 craters_unique = np.vstack((craters_unique, craters[j]))
                 N_match = new_crater_check(lo, la, r, GTLong, GTLat, GTRad, thresh_longlat2, thresh_rad2)
                 if N_match == 0:
-                    craters_unique_index.append(j)
+                    craters_new_index.append(j)
         else:
             craters_unique = np.vstack((craters_unique, craters[j]))
             N_match = new_crater_check(lo, la, r, GTLong, GTLat, GTRad, thresh_longlat2, thresh_rad2)
             if N_match == 0:
-                craters_unique_index.append(j)
-    return craters_unique, craters_unique_index
+                craters_new_index.append(j)
+    return craters_unique, craters_new_index
 
 #########################
 def estimate_longlatdiamkm(dim, llbd, distcoeff, coords):
@@ -190,7 +189,6 @@ def extract_unique_craters(CP, craters_unique):
     # prepare images, detect craters
     imgs = preprocess(P['input_images'][:CP['n_imgs']].astype('float32'))
     GT = get_GT(CP['datatype'])
-    rand = np.random.randint(0,CP['n_imgs'],100)
 
     N_matches_tot = 0
     for i in range(CP['n_imgs']):
@@ -207,19 +205,18 @@ def extract_unique_craters(CP, craters_unique):
 
             # Only add unique (non-duplicate) craters
             if len(craters_unique) > 0:
-                craters_unique, craters_unique_index = add_unique_craters(new_craters_unique, craters_unique, GT, CP['llt2'], CP['rt2'])
-                coords_unique = coords[craters_unique_index]
+                craters_unique, craters_new_index = add_unique_craters(new_craters_unique, craters_unique, GT, CP['llt2'], CP['rt2'])
+                coords_new = coords[craters_new_index]
             else:
-                craters_unique = np.concatenate((craters_unique, new_craters_unique))
-                coords_unique = coords
+                craters_new = np.concatenate((craters_unique, new_craters_unique))
 
-        if i in rand:
+        if len(coords_new)>0:
             f, (ax1, ax2, ax3) = plt.subplots(1,3, figsize=[25, 10])
             img = imgs[i].reshape(256,256)
             ax1.imshow(img, origin='upper', cmap="Greys_r")
             ax2.imshow(img, origin='upper', cmap="Greys_r")
 
-            x, y, r = coords_unique.T
+            x, y, r = coords_new.T
             for k in range(len(x)):
                 circle = plt.Circle((x[k], y[k]), r[k], color='blue', fill=False, linewidth=2, alpha=0.5)
                 ax2.add_artist(circle)
@@ -245,7 +242,7 @@ if __name__ == '__main__':
     CP['datatype'] = 'test'
 
     # Number of images to extract craters from
-    CP['n_imgs'] = 1000
+    CP['n_imgs'] = 10000
 
     # Hyperparameters
     CP['llt2'] = 1.80    # D_{L,L} from Silburt et. al (2017)
