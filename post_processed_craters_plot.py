@@ -211,23 +211,23 @@ def extract_unique_craters(CP, craters_unique):
                 craters_new = np.concatenate((craters_unique, new_craters_unique))
                 coords_new = []
 
-        if len(coords_new)>0:
-            f, (ax1, ax2, ax3) = plt.subplots(1,3, figsize=[25, 10])
-            img = imgs[i].reshape(256,256)
-            ax1.imshow(img, origin='upper', cmap="Greys_r")
-            ax2.imshow(img, origin='upper', cmap="Greys_r")
+        #if len(coords_new) > 0:
+        f, (ax1, ax2, ax3) = plt.subplots(1,3, figsize=[25, 10])
+        img = imgs[i].reshape(256,256)
+        ax1.imshow(img, origin='upper', cmap="Greys_r")
+        ax2.imshow(img, origin='upper', cmap="Greys_r")
 
-            x, y, r = coords_new.T
-            for k in range(len(x)):
-                circle = plt.Circle((x[k], y[k]), r[k], color='blue', fill=False, linewidth=2, alpha=0.5)
-                ax2.add_artist(circle)
-            ax3.imshow(preds[i], origin='upper', cmap="Greys_r")
-            fontsize = 30
-            ax1.set_title('Moon Image', fontsize=fontsize)
-            ax2.set_title('%d new CNN-Detected Craters'%len(x), fontsize=fontsize)
-            ax3.set_title('CNN-Pred', fontsize=fontsize)
-            plt.savefig('post_processed_imgs/%d.png'%i)
-            plt.close()
+        x, y, r = coords_new.T
+        for k in range(len(x)):
+            circle = plt.Circle((x[k], y[k]), r[k], color='blue', fill=False, linewidth=2, alpha=0.5)
+            ax2.add_artist(circle)
+        ax3.imshow(preds[i], origin='upper', cmap="Greys_r")
+        fontsize = 30
+        ax1.set_title('Moon Image', fontsize=fontsize)
+        ax2.set_title('%d new CNN-Detected Craters'%len(x), fontsize=fontsize)
+        ax3.set_title('CNN-Pred', fontsize=fontsize)
+        plt.savefig('post_processed_imgs/%d.png'%i)
+        plt.close()
 
     np.save(CP['dir_result'], craters_unique)
     return craters_unique
