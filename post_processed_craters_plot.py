@@ -175,9 +175,9 @@ def extract_unique_craters(CP, craters_unique):
                 craters_unique = np.concatenate((craters_unique, new_craters_unique))
                 coords_unique = coords
 
-        if j in rand:
+        if i in rand:
             f, (ax1, ax2, ax3) = plt.subplots(1,3, figsize=[25, 10])
-            img = imgs[j].reshape(256,256)
+            img = imgs[i].reshape(256,256)
             ax1.imshow(img, origin='upper', cmap="Greys_r")
             ax2.imshow(img, origin='upper', cmap="Greys_r")
 
@@ -185,7 +185,7 @@ def extract_unique_craters(CP, craters_unique):
             for k in range(len(x)):
                 circle = plt.Circle((x[k], y[k]), r[k], color='blue', fill=False, linewidth=2, alpha=0.5)
                 ax2.add_artist(circle)
-            ax3.imshow(preds[j], origin='upper', cmap="Greys_r")
+            ax3.imshow(preds[i], origin='upper', cmap="Greys_r")
             fontsize = 30
             ax1.set_title('Moon Image', fontsize=fontsize)
             ax2.set_title('%d new CNN-Detected Craters'%len(x), fontsize=fontsize)
