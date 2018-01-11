@@ -207,6 +207,7 @@ def extract_unique_craters(CP, craters_unique):
             # Only add unique (non-duplicate) craters
             if len(craters_unique) > 0:
                 craters_unique, craters_new_index = add_unique_craters(new_craters_unique, craters_unique, GT, CP['llt2'], CP['rt2'])
+                print(craters_new_index)
                 coords_new = coords[craters_new_index]
             else:
                 craters_new = np.concatenate((craters_unique, new_craters_unique))
