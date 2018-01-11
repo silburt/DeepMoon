@@ -15,6 +15,7 @@ import utils.transform as trf
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
+np.random.seed(42)
 
 #########################
 def preprocess(imgs, dim=256, low=0.1, hi=1.0):
@@ -190,7 +191,7 @@ def extract_unique_craters(CP, craters_unique):
             ax1.set_title('Moon Image', fontsize=fontsize)
             ax2.set_title('%d new CNN-Detected Craters'%len(x), fontsize=fontsize)
             ax3.set_title('CNN-Pred', fontsize=fontsize)
-            plt.savefig('post_processed_imgs/%d.png'%j)
+            plt.savefig('post_processed_imgs/%d.png'%i)
             plt.close()
 
     np.save(CP['dir_result'], craters_unique)
