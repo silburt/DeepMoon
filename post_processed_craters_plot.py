@@ -214,7 +214,7 @@ def extract_unique_craters(CP, craters_unique):
                 genuine_new_craters = []
                                             
             if len(genuine_new_craters) > 0:
-                f, (ax1, ax2, ax3, ax4) = plt.subplots(2,2, figsize=[20, 20])
+                f, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2,2, figsize=[20, 20])
                 img = imgs[i].reshape(256,256)
                 ax1.imshow(img, origin='upper', cmap="Greys_r")
                 ax2.imshow(img, origin='upper', cmap="Greys_r")
