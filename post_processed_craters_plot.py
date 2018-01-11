@@ -16,7 +16,7 @@ import pandas as pd
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
-np.random.seed(42)
+#np.random.seed(42)
 
 #########################
 def get_GT(truth_datatype, minrad=0, maxrad=100):
@@ -210,9 +210,9 @@ def extract_unique_craters(CP, craters_unique):
                 coords_unique = coords[craters_unique_index]
             else:
                 craters_unique = np.concatenate((craters_unique, new_craters_unique))
-                coords_unique = coords
+                coords_unique = []
                                             
-            if i in rand:
+            if len(coords_unique) > 0:
                 f, (ax1, ax2, ax3) = plt.subplots(1,3, figsize=[25, 10])
                 img = imgs[i].reshape(256,256)
                 ax1.imshow(img, origin='upper', cmap="Greys_r")
