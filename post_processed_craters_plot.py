@@ -213,7 +213,7 @@ def extract_unique_craters(CP, craters_unique):
                 coords_new = []
 
         #if len(coords_new) > 0:
-        if i in rand:
+        if i in rand and len(coords_new) > 0:
             f, (ax1, ax2, ax3) = plt.subplots(1,3, figsize=[25, 10])
             img = imgs[i].reshape(256,256)
             ax1.imshow(img, origin='upper', cmap="Greys_r")
