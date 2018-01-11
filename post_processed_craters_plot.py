@@ -150,9 +150,9 @@ def estimate_longlatdiamkm(dim, llbd, distcoeff, coords):
     lat_deg = lat_central - (deg_per_pix * (lat_pix - dim[1] / 2.) *
                              (np.pi * latdiff / 180.) /
                              np.sin(np.pi * latdiff / 180.))
-                             # Determine longitude using determined latitude.
-                             long_deg = long_central + (deg_per_pix * (long_pix - dim[0] / 2.) /
-                                                        np.cos(np.pi * lat_deg / 180.))
+    # Determine longitude using determined latitude.
+    long_deg = long_central + (deg_per_pix * (long_pix - dim[0] / 2.) /
+                               np.cos(np.pi * lat_deg / 180.))
                              
                              # Return combined long/lat/radius array.
     return np.column_stack((long_deg, lat_deg, radii_km))
