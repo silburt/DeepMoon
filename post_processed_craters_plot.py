@@ -224,4 +224,4 @@ if __name__ == '__main__':
     CP['dir_result'] = 'datasets/HEAD/HEAD_%s_craterdist_llt%.2f_rt%.2f_mr%d_fin2.npy' % (CP['datatype'], CP['llt2'], CP['rt2'], CP['mr'])
     
     craters_unique = np.empty([0, 3])
-    craters_unique = guc.extract_unique_craters(CP, craters_unique)
+    craters_unique = extract_unique_craters(CP, craters_unique)
