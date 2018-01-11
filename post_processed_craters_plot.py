@@ -76,7 +76,7 @@ def add_unique_craters(craters, craters_unique, GT, thresh_longlat2, thresh_rad2
         craters_unique : array
         Modified master array of unique crater tuples with new crater entries.
         """
-    craters_unique_index = []
+    genuine_new_index = []
     
     km_to_deg = 180. / (np.pi * 1737.4)
     Long, Lat, Rad = craters_unique.T
@@ -94,13 +94,13 @@ def add_unique_craters(craters, craters_unique, GT, thresh_longlat2, thresh_rad2
                 craters_unique = np.vstack((craters_unique, craters[j]))
                 N_match = new_crater_check(lo, la, r, GTLong, GTLat, GTRad, thresh_longlat2, thresh_rad2)
                 if N_match == 0:
-                    craters_unique_index.append(j)
+                    genuine_new_index.append(j)
         else:
             craters_unique = np.vstack((craters_unique, craters[j]))
             N_match = new_crater_check(lo, la, r, GTLong, GTLat, GTRad, thresh_longlat2, thresh_rad2)
             if N_match == 0:
-                craters_unique_index.append(j)
-    return craters_unique, craters_unique_index
+                genuine_new_index.append(j)
+    return craters_unique, genuine_new_index
 
 #########################
 def estimate_longlatdiamkm(dim, llbd, distcoeff, coords):
@@ -189,8 +189,9 @@ def extract_unique_craters(CP, craters_unique):
                             
     # prepare images, detect craters
     imgs = preprocess(P['input_images'][:CP['n_imgs']].astype('float32'))
+    tgts = P['target_masks'][:CP['n_imgs']].astype('float32')
     GT = get_GT(CP['datatype'])
-    rand = np.random.randint(0,CP['n_imgs'],100)
+    #rand = np.random.randint(0,CP['n_imgs'],100)
         
     N_matches_tot = 0
     for i in range(CP['n_imgs']):
@@ -206,19 +207,21 @@ def extract_unique_craters(CP, craters_unique):
                     
             # Only add unique (non-duplicate) craters
             if len(craters_unique) > 0:
-                craters_unique, craters_unique_index = add_unique_craters(new_craters_unique, craters_unique, GT, CP['llt2'], CP['rt2'])
-                coords_unique = coords[craters_unique_index]
+                craters_unique, genuine_new_index = add_unique_craters(new_craters_unique, craters_unique, GT, CP['llt2'], CP['rt2'])
+                genuine_new_craters = coords[genuine_new_index]
             else:
                 craters_unique = np.concatenate((craters_unique, new_craters_unique))
-                coords_unique = []
+                genuine_new_craters = []
                                             
-            if len(coords_unique) > 0:
-                f, (ax1, ax2, ax3) = plt.subplots(1,3, figsize=[25, 10])
+            if len(genuine_new_craters) > 0:
+                f, (ax1, ax2, ax3, ax4) = plt.subplots(1,4, figsize=[25, 10])
                 img = imgs[i].reshape(256,256)
                 ax1.imshow(img, origin='upper', cmap="Greys_r")
                 ax2.imshow(img, origin='upper', cmap="Greys_r")
+                ax4.imshow(img, origin='upper', cmap="Greys_r")
+                ax4.imshow(tgts[i], origin='upper', cmap="Greys_r", alpha=0.5)
                                 
-                x, y, r = coords_unique.T
+                x, y, r = genuine_new_craters.T
                 for k in range(len(x)):
                     circle = plt.Circle((x[k], y[k]), r[k], color='blue', fill=False, linewidth=2, alpha=0.5)
                     ax2.add_artist(circle)
@@ -227,6 +230,7 @@ def extract_unique_craters(CP, craters_unique):
                 ax1.set_title('Moon Image', fontsize=fontsize)
                 ax2.set_title('%d new CNN-Detected Craters'%len(x), fontsize=fontsize)
                 ax3.set_title('CNN-Pred', fontsize=fontsize)
+                ax4.set_title('target-output', fontsize=fontsize)
                 plt.savefig('post_processed_imgs/%d.png'%i)
                 plt.close()
 
