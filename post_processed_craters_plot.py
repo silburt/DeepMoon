@@ -18,6 +18,26 @@ import matplotlib.pyplot as plt
 np.random.seed(42)
 
 #########################
+def get_GT(truth_datatype, minrad=0, maxrad=100):
+    #prepare GT
+    truthalan = pd.read_csv('catalogues/LROCCraters.csv')
+    truthhead = pd.read_csv('catalogues/HeadCraters.csv')
+    truthhead = truthhead[(truthhead['Lat']>=-60)&(truthhead['Lat']<=60)&(truthhead['Diam_km']>2*minrad)&(truthhead['Diam_km']<2*maxrad)]
+    truthalan = truthalan[(truthalan['Lat']>=-60)&(truthalan['Lat']<=60)&(truthalan['Diameter (km)']>2*minrad)&(truthalan['Diameter (km)']<2*maxrad)]
+    if truth_datatype == 'train':
+        truthalan = truthalan[truthalan['Long']<-60]        #region of train data
+        truthhead = truthhead[(truthhead['Lon']<-60)&(truthhead['Diam_km']>20.)]
+    elif truth_datatype == 'test':
+        truthalan = truthalan[truthalan['Long']>60]        #region of test data
+        truthhead = truthhead[(truthhead['Lon']>60)&(truthhead['Diam_km']>20.)]
+    elif truth_datatype == 'dev':
+        truthalan = truthalan[(truthalan['Long']>-60)&(truthalan['Long']<60)]        #region of test data
+        truthhead = truthhead[(truthhead['Lon']<60)&(truthhead['Lon']>-60)&(truthhead['Diam_km']>20.)]
+    return np.array((np.concatenate((truthalan['Long'].values, truthhead['Lon'].values)),
+                     np.concatenate((truthalan['Lat'].values, truthhead['Lat'].values)),
+                     np.concatenate((truthalan['Diameter (km)'].values/2.,truthhead['Diam_km'].values/2.)))).T
+
+#########################
 def preprocess(imgs, dim=256, low=0.1, hi=1.0):
     for img in imgs:
         minn, maxx = np.min(img[img > 0]), np.max(img[img > 0])
@@ -25,7 +45,16 @@ def preprocess(imgs, dim=256, low=0.1, hi=1.0):
     return imgs
 
 #########################
-def add_unique_craters(craters, craters_unique, thresh_longlat2, thresh_rad2):
+def new_crater_check(lo, la, r, GTLong, GTLat, GTRad, thresh_longlat2, thresh_rad2):
+    km_to_deg = 180. / (np.pi * 1737.4)
+    dL = ((GTLong - lo)**2 + (GTLat - la)**2) / (r * km_to_deg)**2
+    dR = ((GTRad - r) / r)**2
+    index = (diff_longlat < thresh_longlat2) & (dR < thresh_rad2)
+    N_match = len(np.where(index == True)[0])
+    return N_match
+
+#########################
+def add_unique_craters(craters, craters_unique, GT, thresh_longlat2, thresh_rad2):
     """Generates unique crater distribution by filtering out duplicates.
 
     Parameters
@@ -50,6 +79,7 @@ def add_unique_craters(craters, craters_unique, thresh_longlat2, thresh_rad2):
     
     km_to_deg = 180. / (np.pi * 1737.4)
     Long, Lat, Rad = craters_unique.T
+    GTLong, GTLat, GTRad = GT.T
     for j in range(len(craters)):
         lo, la, r = craters[j].T
         # Fractional long/lat change
@@ -61,9 +91,14 @@ def add_unique_craters(craters, craters_unique, thresh_longlat2, thresh_rad2):
             index = dR < thresh_rad2
             if len(np.where(index == True)[0]) == 0:
                 craters_unique = np.vstack((craters_unique, craters[j]))
-                craters_unique_index.append(j)
+                N_match = new_crater_check(lo, la, r, GTLong, GTLat, GTRad, thresh_longlat2, thresh_rad2)
+                if N_match == 0:
+                    craters_unique_index.append(j)
         else:
             craters_unique = np.vstack((craters_unique, craters[j]))
+            N_match = new_crater_check(lo, la, r, GTLong, GTLat, GTRad, thresh_longlat2, thresh_rad2)
+            if N_match == 0:
+                craters_unique_index.append(j)
     return craters_unique, craters_unique_index
 
 #########################
@@ -153,6 +188,7 @@ def extract_unique_craters(CP, craters_unique):
 
     # prepare images, detect craters
     imgs = preprocess(P['input_images'][:CP['n_imgs']].astype('float32'))
+    GT = get_GT(CP['datatype'])
     rand = np.random.randint(0,CP['n_imgs'],100)
 
     N_matches_tot = 0
@@ -170,7 +206,7 @@ def extract_unique_craters(CP, craters_unique):
 
             # Only add unique (non-duplicate) craters
             if len(craters_unique) > 0:
-                craters_unique, craters_unique_index = add_unique_craters(new_craters_unique, craters_unique, CP['llt2'], CP['rt2'])
+                craters_unique, craters_unique_index = add_unique_craters(new_craters_unique, craters_unique, GT, CP['llt2'], CP['rt2'])
                 coords_unique = coords[craters_unique_index]
             else:
                 craters_unique = np.concatenate((craters_unique, new_craters_unique))
