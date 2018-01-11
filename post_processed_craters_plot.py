@@ -215,7 +215,7 @@ def extract_unique_craters(CP, craters_unique):
                                             
             if len(genuine_new_craters) > 0:
                 #f, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2,2, figsize=[20, 20])
-                f, (ax1, ax2, ax3) = plt.subplots(1,3, figsize=[20, 10])
+                f, (ax1, ax2, ax3) = plt.subplots(1,3, figsize=[24, 8])
                 img = imgs[i].reshape(256,256)
                 ax1.imshow(img, origin='upper', cmap="Greys_r")
                 ax2.imshow(img, origin='upper', cmap="Greys_r")
@@ -232,7 +232,7 @@ def extract_unique_craters(CP, craters_unique):
                 ax1.set_title('Moon Image', fontsize=fontsize)
                 ax2.set_title('%d new CNN-Detected Craters'%len(x), fontsize=fontsize)
                 ax3.set_title('CNN-Pred', fontsize=fontsize)
-                plt.savefig('post_processed_imgs/%d.png'%i)
+                plt.savefig('post_processed_imgs/%d.png'%i, bbox_inches='tight')
                 plt.close()
 
     np.save(CP['dir_result'], craters_unique)
@@ -249,7 +249,7 @@ if __name__ == '__main__':
     CP['datatype'] = 'test'
     
     # Number of images to extract craters from
-    CP['n_imgs'] = 10
+    CP['n_imgs'] = 1000
     
     # Hyperparameters
     CP['llt2'] = 1.80    # D_{L,L} from Silburt et. al (2017)
