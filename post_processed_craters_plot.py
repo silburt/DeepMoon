@@ -12,6 +12,7 @@ import sys
 import utils.template_match_target as tmt
 import utils.processing as proc
 import utils.transform as trf
+import pandas as pd
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
