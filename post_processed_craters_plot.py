@@ -50,7 +50,7 @@ def new_crater_check(lo, la, r, GTLong, GTLat, GTRad, thresh_longlat2, thresh_ra
     km_to_deg = 180. / (np.pi * 1737.4)
     dL = ((GTLong - lo)**2 + (GTLat - la)**2) / (r * km_to_deg)**2
     dR = ((GTRad - r) / r)**2
-    index = (diff_longlat < thresh_longlat2) & (dR < thresh_rad2)
+    index = (dL < thresh_longlat2) & (dR < thresh_rad2)
     N_match = len(np.where(index == True)[0])
     return N_match
 
