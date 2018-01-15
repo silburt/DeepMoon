@@ -345,7 +345,7 @@ def train_and_test_model(Data, Craters, MP, i_MP):
             model.fit_generator(
                 custom_image_generator(Data['train'][0], Data['train'][1],
                                        batch_size=bs),
-                steps_per_epoch=n_samples, epochs=1, verbose=1,
+                steps_per_epoch=n_samples/bs, epochs=1, verbose=1,
                 # validation_data=(Data['dev'][0],Data['dev'][1]), #no gen
                 validation_data=custom_image_generator(Data['dev'][0],
                                                        Data['dev'][1],
