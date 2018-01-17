@@ -167,7 +167,7 @@ def get_metrics(data, craters, dim, model, beta=1):
             continue
         (N_match, N_csv, N_detect, maxr,
          elo, ela, er, csv_duplicates) = tmt.template_match_t2c(preds[i], csvs[i],
-                                                                rmv_oor_csvs=1)
+                                                                rmv_oor_csvs=0)
         if N_match > 0:
             p = float(N_match) / float(N_match + (N_detect - N_match))
             r = float(N_match) / float(N_csv)
@@ -204,12 +204,15 @@ def get_metrics(data, craters, dim, model, beta=1):
         print("""mean and std of (N_detect - N_match)/N_csv (fraction of
               "craters that are new, 2) = %f, %f""" %
               (np.mean(frac_new2), np.std(frac_new2)))
-        print("mean and std fractional longitude difference = %f, %f" %
-              (np.mean(err_lo), np.std(err_lo)))
-        print("mean and std fractional latitude difference = %f, %f" %
-              (np.mean(err_la), np.std(err_la)))
-        print("mean and std fractional radius difference = %f, %f" %
-              (np.mean(err_r), np.std(err_r)))
+        print("median and IQR fractional longitude diff = %f, 0.25:%f, 0.75:%f" %
+              (np.median(err_lo), np.percentile(err_lo, 25),
+               np.percentile(err_lo, 75)))
+        print("median and IQR fractional latitude diff = %f, 0.25:%f, 0.75:%f" %
+              (np.median(err_la), np.percentile(err_la, 25),
+               np.percentile(err_la, 75)))
+        print("median and IQR fractional radius diff = %f, 0.25:%f, 0.75:%f" %
+              (np.median(err_r), np.percentile(err_r, 25),
+               np.percentile(err_r, 75)))
         print("""mean and std of maximum detected pixel radius in an image =
               %f, %f""" % (np.mean(maxrad), np.std(maxrad)))
         print("""absolute maximum detected pixel radius over all images =
