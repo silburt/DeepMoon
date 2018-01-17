@@ -6,7 +6,9 @@ import numpy as np
 import os
 
 #iterate parameters
-longlat_thresh2 = np.array([0.6,0.8,1.0,1.2,1.4,1.6,1.8])
+#longlat_thresh2 = np.array([0.6,0.8,1.0,1.2,1.4,1.6,1.8])
+#rad_thresh = np.array([0.2,0.4,0.6,0.8,1.0,1.2])
+longlat_thresh2 = np.array([2.0,2.2,2.4])
 rad_thresh = np.array([0.2,0.4,0.6,0.8,1.0,1.2])
 template_thresh = np.array([0.3,0.4,0.5,0.6,0.7])
 target_thresh = np.array([0.1])
