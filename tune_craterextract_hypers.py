@@ -41,7 +41,7 @@ def get_metrics(preds, csvs, nimgs, longlat_thresh2, rad_thresh, template_thresh
                                                                                          rad_thresh=rad_thresh,
                                                                                          template_thresh=template_thresh,
                                                                                          target_thresh=target_thresh,
-                                                                                         rmv_oob_csvs=1)
+                                                                                         rmv_oor_csvs=1)
         if N_match > 0:
             print(i, N_match, N_csv, N_templ, maxr, csv_duplicates)
             p = float(N_match)/float(N_match + (N_templ-N_match))   #assumes unmatched detected circles are FP
