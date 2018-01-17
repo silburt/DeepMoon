@@ -82,7 +82,7 @@ def add_unique_craters(craters, craters_unique, thresh_longlat2, thresh_rad):
         dL = (((Long - lo)/(minr * k2d / np.cos(np.pi * la_m / 180.)))**2
               + ((Lat - la)/(minr * k2d))**2)
         dR = np.abs(Rad - r) / minr
-        index = (dR < thresh_rad) & (dL < longlat_thresh2)
+        index = (dR < thresh_rad) & (dL < thresh_longlat2)
         
         if len(np.where(index == True)[0]) == 0:
             craters_unique = np.vstack((craters_unique, craters[j]))
