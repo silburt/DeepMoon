@@ -50,7 +50,7 @@ def get_model_preds(CP):
     return preds
 
 #########################
-def add_unique_craters(craters, craters_unique, thresh_longlat2, thresh_rad2):
+def add_unique_craters(craters, craters_unique, thresh_longlat2, thresh_rad):
     """Generates unique crater distribution by filtering out duplicates.
 
     Parameters
@@ -62,7 +62,7 @@ def add_unique_craters(craters, craters_unique, thresh_longlat2, thresh_rad2):
     thresh_longlat2 : float.
         Hyperparameter that controls the minimum squared longitude/latitude
         difference between craters to be considered unique entries.
-    thresh_rad2 : float
+    thresh_rad : float
         Hyperparaeter that controls the minimum squared radius difference
         between craters to be considered unique entries.
 
@@ -81,8 +81,8 @@ def add_unique_craters(craters, craters_unique, thresh_longlat2, thresh_rad2):
         # duplicate filtering criteria
         dL = (((Long - lo)/(minr * k2d / np.cos(np.pi * la_m / 180.)))**2
               + ((Lat - la)/(minr * k2d))**2)
-        dR = ((Rad_ - r) / minr)**2
-        index = (dR < thresh_rad2) & (dL < longlat_thresh2)
+        dR = np.abs(Rad - r) / minr
+        index = (dR < thresh_rad) & (dL < longlat_thresh2)
         
         if len(np.where(index == True)[0]) == 0:
             craters_unique = np.vstack((craters_unique, craters[j]))
@@ -182,7 +182,7 @@ def extract_unique_craters(CP, craters_unique):
     for i in range(CP['n_imgs']):
         id = proc.get_id(i)
 
-        coords = tmt.template_match_t(preds[i], minrad=CP['mr'])
+        coords = tmt.template_match_t(preds[i])
 
         # convert, add to master dist
         if len(coords) > 0:
@@ -195,7 +195,7 @@ def extract_unique_craters(CP, craters_unique):
             if len(craters_unique) > 0:
                 craters_unique = add_unique_craters(new_craters_unique,
                                                     craters_unique,
-                                                    CP['llt2'], CP['rt2'])
+                                                    CP['llt2'], CP['rt'])
             else:
                 craters_unique = np.concatenate((craters_unique,
                                                  new_craters_unique))

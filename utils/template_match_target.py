@@ -4,24 +4,32 @@ import cv2
 
 #####################################
 """
-    Crater Detection Hyperparameters
-    --------------------------------
+    Tuned Crater Detection Hyperparameters
+    --------------------------------------
     minrad, maxrad : ints
         radius range in match_template to search over.
     longlat_thresh2, rad_thresh : floats
-        if (x1-x2)^2 + (y1-y2)^2 < longlat_thresh2 and abs(r1-r2) < max(1.0,rad_thresh*r1)
-        remove (x2,y2,r2) circle (it is a duplicate of another crater candidate). In
-        addition, when matching CNN-detected rings to corresponding csvs (i.e.
-        template_match_target_to_csv), the same criteria is used to determine a match.
+        if ((x1-x2)^2 + (y1-y2)^2)/min(r1,r2) < longlat_thresh2 and 
+        abs(r1-r2) < max(min_rt, rad_thresh*min(r1,r2)) remove (x2,y2,r2) circle (it 
+        is a duplicate of another crater candidate). In addition, when matching
+        CNN-detected rings to corresponding csvs (i.e. template_match_target_to_csv), 
+        the same criteria is used to determine a match.
     template_thresh : float
         0-1 range. If match_template probability > template_thresh, count as detection.
     target_thresh : float
         0-1 range. target[target >= target_thresh] = 1, target[target < target_thresh] = 0
+        
+    Hardcoded Crater Detection Hyperparameters
+    ------------------------------------------
+    rw : int
+        thickness of rings for template match
+    min_rt : float
+        floor (r - Rad) value for rad_thresh criteria. 
 """
 minrad_ = 5
 maxrad_ = 40
-longlat_thresh2_ = 1.0
-rad_thresh_ = 1.0
+longlat_thresh2_ = 1.8
+rad_thresh_ = 0.8
 template_thresh_ = 0.5
 target_thresh_ = 0.1
 
