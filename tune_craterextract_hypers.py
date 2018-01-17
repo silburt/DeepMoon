@@ -61,7 +61,7 @@ def get_metrics(preds, csvs, nimgs, longlat_thresh2, rad_thresh, template_thresh
 
 if __name__ == '__main__':
     #data parameters
-    dir = 'datasets/HEAD/'    #location of model predictions. Exclude final '/' in path.
+    dir = '../moon-craters/datasets/HEAD/'    #location of model predictions. Exclude final '/' in path.
     datatype = 'dev'
     nimgs = 5000              #1000, 10016, 30016
     
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     rad_thresh = float(sys.argv[4])
     
     #load data
-    file = '../moon-craters/%sHEAD_%spreds_n30000_final.hdf5'%(dir,datatype)
+    file = '%sHEAD_%spreds_n30000_final.hdf5'%(dir,datatype)
     preds = h5py.File(file,'r')[datatype]
     craters = pd.HDFStore('%s%s_craters_final.hdf5'%(dir,datatype),'r')
 
