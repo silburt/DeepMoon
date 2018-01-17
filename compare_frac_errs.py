@@ -107,23 +107,21 @@ while i < n_imgs-1:
         if len(csv_coords) == 0:
             break
 
-
-
 # printing stuff
 print("Stats:")
-print("Mean, median, err Longitude (pix) = %f, %f +/- %f"%(np.mean(err_lo_pix), np.median(err_lo_pix), np.std(err_lo_pix)))
-print("Mean, median, err Longitude (deg) = %f, %f +/- %f"%(np.mean(err_lo_deg), np.median(err_lo_deg), np.std(err_lo_deg)))
-print("Mean, median, err Longitude (csv) = %f, %f +/- %f"%(np.mean(err_lo_csv), np.median(err_lo_csv), np.std(err_lo_csv)))
+print("median, err Longitude (pix) = %f, IQR: %f, %f"%(np.median(err_lo_pix), np.percentile(err_lo_pix, 25), np.percentile(err_lo_pix, 75)))
+print("median, err Longitude (deg) = %f, IQR: %f, %f"%(np.median(err_lo_deg), np.percentile(err_lo_deg, 25), np.percentile(err_lo_deg, 75)))
+print("median, err Longitude (csv) = %f, IQR: %f, %f"%(np.median(err_lo_csv), np.percentile(err_lo_csv, 25), np.percentile(err_lo_csv, 75)))
 #print(list(zip(err_lo_pix, err_lo_deg)))
 
-print("Mean, median, err Latitude (pix) = %f, %f +/- %f"%(np.mean(err_la_pix), np.median(err_la_pix), np.std(err_la_pix)))
-print("Mean, median, err Latitude (deg) = %f, %f +/- %f"%(np.mean(err_la_deg), np.median(err_la_deg), np.std(err_la_deg)))
-print("Mean, median, err Latitude (csv) = %f, %f +/- %f"%(np.mean(err_la_csv), np.median(err_la_csv), np.std(err_la_csv)))
+print("median, err Latitude (pix) = %f, IQR: %f, %f"%(np.median(err_la_pix), np.percentile(err_la_pix, 25), np.percentile(err_la_pix, 75)))
+print("median, err Latitude (deg) = %f, IQR: %f, %f"%(np.median(err_la_deg), np.percentile(err_la_deg, 25), np.percentile(err_la_deg, 75)))
+print("median, err Latitude (csv) = %f, IQR: %f, %f"%(np.median(err_la_csv), np.percentile(err_la_csv, 25), np.percentile(err_la_csv, 75)))
 #print(list(zip(err_la_pix, err_la_deg)))
 
-print("Mean, median, err Radius (pix) = %f, %f +/- %f"%(np.mean(err_r_pix), np.median(err_r_pix), np.std(err_r_pix)))
-print("Mean, median, err Radius (deg) = %f, %f +/- %f"%(np.mean(err_r_deg), np.median(err_r_deg), np.std(err_r_deg)))
-print("Mean, median, err Radius (csv) = %f, %f +/- %f"%(np.mean(err_r_csv), np.median(err_r_csv), np.std(err_r_csv)))
+print("median, err Radius (pix) = %f, IQR: %f, %f"%(np.median(err_r_pix), np.percentile(err_r_pix, 25), np.percentile(err_r_pix, 75)))
+print("median, err Radius (deg) = %f, IQR: %f, %f"%(np.median(err_r_deg), np.percentile(err_r_deg, 25), np.percentile(err_r_deg, 75)))
+print("median, err Radius (csv) = %f, IQR: %f, %f"%(np.median(err_r_csv), np.percentile(err_r_csv, 25), np.percentile(err_r_csv, 75)))
 #print(list(zip(err_r_pix, err_r_deg)))
 
 """
