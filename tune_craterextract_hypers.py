@@ -69,7 +69,7 @@ if __name__ == '__main__':
     longlat_thresh2 = float(sys.argv[1])
     rad_thresh = float(sys.argv[2])
     template_thresh = float(sys.argv[3])
-    rad_thresh = float(sys.argv[4])
+    target_thresh = float(sys.argv[4])
     
     #load data
     file = '%sHEAD_%spreds_n30000_final.hdf5'%(dir,datatype)
