@@ -8,8 +8,8 @@ import cv2
 # TARGET_THRESH: 0-1 range, set pixel values > target_thresh to 1, and pixel values < target_thresh -> 0
 # MINRAD/MAXRAD are the radii to search over during template matching. For minrad, keep in mind that if the predicted target has thick rings, a small ring of diameter ~ rw could be detected by match_filter.
 minrad_ = 3
-maxrad_ = 50
-longlat_thresh2_ = 70
+maxrad_ = 40
+longlat_thresh2_ = 1.0
 rad_thresh_ = 1.0
 template_thresh_ = 0.5
 target_thresh_ = 0.1
