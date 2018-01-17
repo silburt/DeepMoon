@@ -178,7 +178,8 @@ def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
         
         dL = ((csvLong - lo)**2 + (csvLat - la)**2) / minr
         dR = abs(csvRad - r)
-        index = (dR < max(min_rt, rad_thresh * minr)) & (dL < longlat_thresh2)
+        index = ((dR < np.maximum(min_rt, rad_thresh * minr))
+                 & (dL < longlat_thresh2))
         index_True = np.where(index == True)[0]
         N = len(index_True)
         if N > 1: # more than one csv match to extracted crater
