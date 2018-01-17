@@ -33,7 +33,7 @@ target_thresh = 0.1
 err_lo_pix, err_la_pix, err_r_pix = [], [], []
 err_lo_deg, err_la_deg, err_r_deg = [], [], []
 err_lo_csv, err_la_csv, err_r_csv = [], [], []
-km_to_deg = 180. / (np.pi * 1737.4)
+k2d = 180. / (np.pi * 1737.4)
 i = -1
 while i < n_imgs-1:
     i += 1
@@ -86,18 +86,17 @@ while i < n_imgs-1:
             Loo_, Laa_, Rr_ = csv_conv[index_True[0]].T
             
             dL_pix = abs(Lo - lo) / r
-            dL_deg = abs(Lo_ - lo_) / (r_* km_to_deg)
-            dL_csv = abs(Lo_ - Loo_) / (R_* km_to_deg)
-            #print("dL_pix=%f, dL_deg=%f, dL_csv=%f"%(dL_pix, dL_deg, dL_csv))
+            dL_deg = abs(Lo_ - lo_) / (r_* k2d / np.cos(np.pi * la_ / 180.))
+            dL_csv = abs(Lo_ - Loo_) / (R_* k2d / np.cos(np.pi * Laa_ / 180.)
             
             err_lo_pix.append(dL_pix)
             err_la_pix.append(abs(La - la) / r)
             err_r_pix.append(abs(R - r) / r)
             err_lo_deg.append(dL_deg)
-            err_la_deg.append(abs(La_ - la_) / (r_* km_to_deg))
+            err_la_deg.append(abs(La_ - la_) / (r_* k2d))
             err_r_deg.append(abs(R_ - r_) / r_)
             err_lo_csv.append(dL_csv)
-            err_la_csv.append(abs(La_ - Laa_) / (R_* km_to_deg))
+            err_la_csv.append(abs(La_ - Laa_) / (R_* k2d))
             err_r_csv.append(abs(R_ - Rr_) / R_)
         N_match += min(1, N)
         # remove csv so it can't be re-matched again

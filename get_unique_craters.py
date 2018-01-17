@@ -71,20 +71,20 @@ def add_unique_craters(craters, craters_unique, thresh_longlat2, thresh_rad2):
     craters_unique : array
         Modified master array of unique crater tuples with new crater entries.
     """
-    km_to_deg = 180. / (np.pi * 1737.4)
+    k2d = 180. / (np.pi * 1737.4)       # km to deg
     Long, Lat, Rad = craters_unique.T
     for j in range(len(craters)):
         lo, la, r = craters[j].T
-        # Fractional long/lat change
-        dL = ((Long - lo)**2 + (Lat - la)**2) / (r * km_to_deg)**2
-        Rad_ = Rad[(dL < thresh_longlat2)]
-        if len(Rad_) > 0:
-            # Fractional radius change
-            dR = ((Rad_ - r) / r)**2
-            index = dR < thresh_rad2
-            if len(np.where(index == True)[0]) == 0:
-                craters_unique = np.vstack((craters_unique, craters[j]))
-        else:
+        la_m = (la + Lat) / 2.
+        minr = np.minimum(r, Rad)
+        
+        # duplicate filtering criteria
+        dL = (((Long - lo)/(minr * k2d / np.cos(np.pi * la_m / 180.)))**2
+              + ((Lat - la)/(minr * k2d))**2)
+        dR = ((Rad_ - r) / minr)**2
+        index = (dR < thresh_rad2) & (dL < longlat_thresh2)
+        
+        if len(np.where(index == True)[0]) == 0:
             craters_unique = np.vstack((craters_unique, craters[j]))
     return craters_unique
 
