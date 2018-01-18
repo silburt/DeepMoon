@@ -24,7 +24,8 @@ import cv2
     rw : int
         thickness of rings for template match
     min_rt : float
-        floor (r - Rad) value for rad_thresh criteria. 
+        floor (r - Rad) value for rad_thresh criteria. When matching CNN and ground-truth
+        coordinates, we want at least 1 pixel leeway. 
 """
 minrad_ = 5
 maxrad_ = 40

@@ -33,7 +33,7 @@ for llt2,rt,tmpt,targt in params:
         f.write('module load gcc/5.3.1 python/2.7.8\n')
         f.write('source /storage/home/ajs725/venv/bin/activate\n')
         f.write('cd $PBS_O_WORKDIR\n')
-        f.write('python tune_craterextract_hypers.py %f %f %f %f > %s.txt\n'%(llt2,rt,tmpt,targt,name))
+        f.write('python tune_craterextract_hypers.py %f %f %f %f > tune_craterextract/%s.txt\n'%(llt2,rt,tmpt,targt,name))
     f.close()
 
     if submit_jobs == 1:
