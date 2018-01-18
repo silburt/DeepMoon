@@ -204,13 +204,13 @@ def get_metrics(data, craters, dim, model, beta=1):
         print("""mean and std of (N_detect - N_match)/N_csv (fraction of
               "craters that are new, 2) = %f, %f""" %
               (np.mean(frac_new2), np.std(frac_new2)))
-        print("median and IQR fractional longitude diff = %f, 0.25:%f, 0.75:%f" %
+        print("median and IQR fractional longitude diff = %f, 25:%f, 75:%f" %
               (np.median(err_lo), np.percentile(err_lo, 25),
                np.percentile(err_lo, 75)))
-        print("median and IQR fractional latitude diff = %f, 0.25:%f, 0.75:%f" %
+        print("median and IQR fractional latitude diff = %f, 25:%f, 75:%f" %
               (np.median(err_la), np.percentile(err_la, 25),
                np.percentile(err_la, 75)))
-        print("median and IQR fractional radius diff = %f, 0.25:%f, 0.75:%f" %
+        print("median and IQR fractional radius diff = %f, 25:%f, 75:%f" %
               (np.median(err_r), np.percentile(err_r, 25),
                np.percentile(err_r, 75)))
         print("""mean and std of maximum detected pixel radius in an image =

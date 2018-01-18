@@ -12,7 +12,7 @@ import sys
 import utils.template_match_target as tmt
 import utils.processing as proc
 import utils.transform as trf
-from keras.models import load_model
+#from keras.models import load_model
 
 #########################
 def get_model_preds(CP):

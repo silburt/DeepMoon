@@ -35,7 +35,7 @@ target_thresh_ = 0.1
 
 # hardcoded hypers
 rw = 2          # thickness of rings for the templates.
-min_rt = 2.01   # minimum (r - Rad) rad_thresh for duplicates
+min_rt = 1.01   # minimum (r - Rad) rad_thresh for duplicates
 
 #####################################
 def template_match_t(target, minrad=minrad_, maxrad=maxrad_,
