@@ -6,10 +6,8 @@ import numpy as np
 import os
 
 #iterate parameters
-#longlat_thresh2 = np.array([0.6,0.8,1.0,1.2,1.4,1.6,1.8])
-#rad_thresh = np.array([0.2,0.4,0.6,0.8,1.0,1.2])
-longlat_thresh2 = np.array([2.6,2.8,3.0,3.2,3.4])
-rad_thresh = np.array([0.6,0.8,1.0,1.2])
+longlat_thresh2 = np.array([0.6,1.0,1.4,1.8,2.2,2.6,3.0])
+rad_thresh = np.array([0.4,0.6,0.8,1.0,1.2,1.4])
 template_thresh = np.array([0.4,0.5,0.6])
 target_thresh = np.array([0.1])
 
@@ -28,7 +26,7 @@ for llt2,rt,tmpt,targt in params:
     with open('%s/%s'%(jobs_dir,pbs_script_name), 'w') as f:
         f.write('#!/bin/bash\n')
         f.write('#PBS -l nodes=1:ppn=1\n')
-        f.write('#PBS -l walltime=12:00:00\n')
+        f.write('#PBS -l walltime=3:00:00\n')
         f.write('#PBS -l pmem=2gb\n')
         f.write('#PBS -A ebf11_a_g_sc_default\n')
         f.write('#PBS -j oe\n')
