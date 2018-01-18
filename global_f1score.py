@@ -82,7 +82,7 @@ def get_stats(filename, csv_coords, thresh_longlat2, thresh_rad, minrad, maxrad)
 
 
 if __name__ == '__main__':
-    dtype = 'dev'
+    dtype = 'test'
     min_csv_rad = 2
     
     minrad = 0
@@ -117,9 +117,9 @@ if __name__ == '__main__':
             print(frac_new, p, r, f)
             print("\n")
             print("error stats:")
-            print("long: median=%.5f, quartiles(5, 25, 75, 95) = %.5f, %.5f, %.5f, %.5f"%(np.median(elo), np.percentile(elo, 5), np.percentile(elo, 25), np.percentile(elo, 75), np.percentile(elo, 95)))
-            print("lat: median=%.5f, quartiles(5, 25, 75, 95) = %.5f, %.5f, %.5f, %.5f"%(np.median(ela), np.percentile(ela, 5), np.percentile(ela, 25), np.percentile(ela, 75), np.percentile(ela, 95)))
-            print("rad: median=%.5f, quartiles(5, 25, 75, 95) = %.5f, %.5f, %.5f, %.5f"%(np.median(er), np.percentile(er, 5), np.percentile(er, 25), np.percentile(er, 75), np.percentile(er, 95)))
+            print("long: median=%.5f, median - quartiles(5, 25, 75, 95) = %.5f, %.5f, %.5f, %.5f"%(np.median(elo), np.median(elo)-np.percentile(elo, 5), np.median(elo)-np.percentile(elo, 25), np.percentile(elo, 75)-np.median(elo), np.percentile(elo, 95)-np.median(elo)))
+            print("lat: median=%.5f, median - quartiles(5, 25, 75, 95) = %.5f, %.5f, %.5f, %.5f"%(np.median(ela), np.median(ela)-np.percentile(ela, 5), np.median(ela)-np.percentile(ela, 25), np.percentile(ela, 75)-np.median(ela), np.percentile(ela, 95)-np.median(ela)))
+            print("rad: median=%.5f, median - quartiles(5, 25, 75, 95) = %.5f, %.5f, %.5f, %.5f"%(np.median(er), np.median(er)-np.percentile(er, 5), np.median(er)-np.percentile(er, 25), np.percentile(er, 75)-np.median(er), np.percentile(er, 95)-np.median(er)))
 
 # plot
 #    fig = plt.figure()
