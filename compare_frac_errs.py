@@ -23,6 +23,10 @@ craters = pd.HDFStore('%s/%s_craters_final.hdf5'%(dir,dtype), 'r')
 llbd, pbd, distcoeff = ('longlat_bounds', 'pix_bounds', 'pix_distortion_coefficient')
 dim = (float(256), float(256))
 
+#hypers
+longlat_thresh2 = 1.8
+rad_thresh = 1.0
+
 err_lo_pix, err_la_pix, err_r_pix = [], [], []
 err_lo_deg, err_la_deg, err_r_deg = [], [], []
 err_lo_csv, err_la_csv, err_r_csv = [], [], []
@@ -35,7 +39,8 @@ while i < n_imgs-1:
     llbd_val, dist_val = imgs[llbd][id], imgs[distcoeff][id][0]
     
     # get CNN-craters and create array of degree/km conversions
-    coords = template_match_t(preds[i])
+    coords = template_match_t(preds[i], longlat_thresh2=longlat_thresh2,
+                              rad_thresh=rad_thresh)
     if len(coords) == 0:
         continue
     coords_conv = guc.estimate_longlatdiamkm(dim, llbd_val, dist_val, coords)
