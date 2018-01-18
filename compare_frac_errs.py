@@ -23,13 +23,6 @@ craters = pd.HDFStore('%s/%s_craters_final.hdf5'%(dir,dtype), 'r')
 llbd, pbd, distcoeff = ('longlat_bounds', 'pix_bounds', 'pix_distortion_coefficient')
 dim = (float(256), float(256))
 
-longlat_thresh2 = 70
-maxrad = 40
-minrad = 5
-rad_thresh = 1.0
-template_thresh = 0.5
-target_thresh = 0.1
-
 err_lo_pix, err_la_pix, err_r_pix = [], [], []
 err_lo_deg, err_la_deg, err_r_deg = [], [], []
 err_lo_csv, err_la_csv, err_r_csv = [], [], []
@@ -41,7 +34,8 @@ while i < n_imgs-1:
     id = proc.get_id(i)
     llbd_val, dist_val = imgs[llbd][id], imgs[distcoeff][id][0]
     
-    coords = template_match_t(preds[i], minrad, maxrad, longlat_thresh2, rad_thresh, template_thresh, target_thresh)
+    # get CNN-craters and create array of degree/km conversions
+    coords = template_match_t(preds[i])
     if len(coords) == 0:
         continue
     coords_conv = guc.estimate_longlatdiamkm(dim, llbd_val, dist_val, coords)
@@ -59,45 +53,53 @@ while i < n_imgs-1:
     for j in range(len(coords)):
         lo, la, r = coords[j]
         csvLong, csvLat, csvRad = csv_coords.T
-        diff_longlat = (csvLong - lo)**2 + (csvLat - la)**2
-        diff_rad = abs(csvRad - r)
-        index = (diff_rad < max(1.01, rad_thresh * r)) & (diff_longlat < longlat_thresh2)
+        minr = np.minimum(r, csvRad)
+        
+        dL = ((csvLong - lo)**2 + (csvLat - la)**2) / minr
+        dR = abs(csvRad - r)
+        index = ((dR < np.maximum(1.01, rad_thresh * minr))
+                 & (dL < longlat_thresh2))
         index_True = np.where(index == True)[0]
         N = len(index_True)
         if N > 1:
             cratervals = np.array((lo, la, r))
             id_keep = index_True[0]
+            index[id_keep] = False
             diff = np.sum((csv_coords[id_keep] - cratervals)**2)
             csv_duplicates.append(csv_coords[id_keep])
             for id in index_True[1:]:
-                dupevals = csv_coords[id]
                 index[id] = False
-                csv_duplicates.append(dupevals)
-                diff_ = np.sum((dupevals - cratervals)**2)
+                diff_ = np.sum((csv_coords[id] - cratervals)**2)
                 if diff_ < diff:
                     id_keep = id
                     diff = diff_
-            index[id_keep] = True       # keep only closest match as true
+                csv_duplicates.append(csv_coords[id])
+            index[id_keep] = True   # keep only closest match as true
         elif N == 1:
-            Lo, La, R = csv_coords[index_True[0]].T
+            Lo, La, R = csv_coords[index_True[0]].T             #csv coord in pixels
+            lo_deg, la_deg, r_km = coords_conv[j].T             #CNN coord converted to degrees/km
+            Lo_deg, La_deg, R_km = csv_real[index_True[0]].T    #csv coord already in degrees/km
+            Lo_degc, La_degc, R_kmc = csv_conv[index_True[0]].T #csv coord converted to degrees/km
             
-            lo_, la_, r_ = coords_conv[j].T
-            Lo_, La_, R_ = csv_real[index_True[0]].T
-            Loo_, Laa_, Rr_ = csv_conv[index_True[0]].T
+            meanr = (R + r) / 2.                #pixel mean
+            meanr_km = (r_km + R_km) / 2.       #CNN/csv deg mean
+            meanR_km = (R_kmc + R_km) / 2.      #csv/csv_converted deg mean
+            meanla_deg = (la_deg + La_deg) / 2.
+            meanLa_deg = (La_degc + La_deg) / 2.
             
-            dL_pix = abs(Lo - lo) / r
-            dL_deg = abs(Lo_ - lo_) / (r_* k2d / np.cos(np.pi * la_ / 180.))
-            dL_csv = abs(Lo_ - Loo_) / (R_* k2d / np.cos(np.pi * Laa_ / 180.)
+            dL_pix = abs(Lo - lo) / meanr
+            dL_deg = abs(Lo_deg - lo_deg) / (meanr_km * k2d / np.cos(np.pi * meanla_deg / 180.))
+            dL_csv = abs(Lo_deg - Lo_degc) / (meanR_km * k2d / np.cos(np.pi * meanLa_deg / 180.))
             
             err_lo_pix.append(dL_pix)
-            err_la_pix.append(abs(La - la) / r)
-            err_r_pix.append(abs(R - r) / r)
             err_lo_deg.append(dL_deg)
-            err_la_deg.append(abs(La_ - la_) / (r_* k2d))
-            err_r_deg.append(abs(R_ - r_) / r_)
             err_lo_csv.append(dL_csv)
-            err_la_csv.append(abs(La_ - Laa_) / (R_* k2d))
-            err_r_csv.append(abs(R_ - Rr_) / R_)
+            err_la_pix.append(abs(La - la) / meanr)
+            err_la_deg.append(abs(La_deg - la_deg) / (meanr_km * k2d))
+            err_la_csv.append(abs(La_deg - La_degc) / (meanR_km * k2d))
+            err_r_pix.append(abs(R - r) / meanr)
+            err_r_deg.append(abs(R_km - r_km) / meanr_km)
+            err_r_csv.append(abs(R_km - R_kmc) / meanR_km)
         N_match += min(1, N)
         # remove csv so it can't be re-matched again
         csv_coords = csv_coords[np.where(index == False)]
