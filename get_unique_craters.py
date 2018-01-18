@@ -50,7 +50,7 @@ def get_model_preds(CP):
     return preds
 
 #########################
-def add_unique_craters(craters, craters_unique, thresh_longlat2, thresh_rad2):
+def add_unique_craters(craters, craters_unique, thresh_longlat2, thresh_rad):
     """Generates unique crater distribution by filtering out duplicates.
 
     Parameters
@@ -62,7 +62,7 @@ def add_unique_craters(craters, craters_unique, thresh_longlat2, thresh_rad2):
     thresh_longlat2 : float.
         Hyperparameter that controls the minimum squared longitude/latitude
         difference between craters to be considered unique entries.
-    thresh_rad2 : float
+    thresh_rad : float
         Hyperparaeter that controls the minimum squared radius difference
         between craters to be considered unique entries.
 
@@ -71,20 +71,20 @@ def add_unique_craters(craters, craters_unique, thresh_longlat2, thresh_rad2):
     craters_unique : array
         Modified master array of unique crater tuples with new crater entries.
     """
-    km_to_deg = 180. / (np.pi * 1737.4)
+    k2d = 180. / (np.pi * 1737.4)       # km to deg
     Long, Lat, Rad = craters_unique.T
     for j in range(len(craters)):
         lo, la, r = craters[j].T
-        # Fractional long/lat change
-        diff_longlat = ((Long - lo)**2 + (Lat - la)**2) / (r * km_to_deg)**2
-        Rad_ = Rad[diff_longlat < thresh_longlat2]
-        if len(Rad_) > 0:
-            # Fractional radius change
-            diff_rad = ((Rad_ - r) / r)**2
-            index = diff_rad < thresh_rad2
-            if len(np.where(index == True)[0]) == 0:
-                craters_unique = np.vstack((craters_unique, craters[j]))
-        else:
+        la_m = (la + Lat) / 2.
+        minr = np.minimum(r, Rad)
+        
+        # duplicate filtering criteria
+        dL = (((Long - lo)/(minr * k2d / np.cos(np.pi * la_m / 180.)))**2
+              + ((Lat - la)/(minr * k2d))**2)
+        dR = np.abs(Rad - r) / minr
+        index = (dR < thresh_rad) & (dL < thresh_longlat2)
+        
+        if len(np.where(index == True)[0]) == 0:
             craters_unique = np.vstack((craters_unique, craters[j]))
     return craters_unique
 
@@ -182,7 +182,6 @@ def extract_unique_craters(CP, craters_unique):
     for i in range(CP['n_imgs']):
         id = proc.get_id(i)
 
-        # detect craters from CNN-predicted image
         coords = tmt.template_match_t(preds[i])
 
         # convert, add to master dist
@@ -196,7 +195,7 @@ def extract_unique_craters(CP, craters_unique):
             if len(craters_unique) > 0:
                 craters_unique = add_unique_craters(new_craters_unique,
                                                     craters_unique,
-                                                    CP['llt2'], CP['rt2'])
+                                                    CP['llt2'], CP['rt'])
             else:
                 craters_unique = np.concatenate((craters_unique,
                                                  new_craters_unique))

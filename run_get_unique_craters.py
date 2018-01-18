@@ -25,18 +25,17 @@ CP['llt2'] = float(sys.argv[1])    # D_{L,L} from Silburt et. al (2017)
 CP['rt2'] = float(sys.argv[2])     # D_{R} from Silburt et. al (2017)
 
 # Location of model to generate predictions (if they don't exist yet)
-CP['dir_model'] = '../moon-craters/models/HEAD_final.h5'
+CP['dir_model'] = 'models/model.h5'
 
 # Location of where hdf5 data images are stored
-CP['dir_data'] = '../moon-craters/datasets/HEAD/%s_images_final.hdf5' % CP['datatype']
+CP['dir_data'] = 'catalogues/%s_images.hdf5' % CP['datatype']
 
 # Location of where model predictions are/will be stored
-CP['dir_preds'] = '../moon-craters/datasets/HEAD/HEAD_%spreds_n%d_final.hdf5' % (CP['datatype'],
-                                                                 CP['n_imgs'])
+CP['dir_preds'] = 'catalogues/%s_preds_n%d.hdf5' % (CP['datatype'],
+                                                    CP['n_imgs'])
 
 # Location of where final unique crater distribution will be stored
-CP['dir_result'] = 'datasets/HEAD/HEAD_%s_craterdist_llt%.2f_rt%.2f_' \
-                   'final.npy' % (CP['datatype'], CP['llt2'], CP['rt2'])
+CP['dir_result'] = 'catalogues/%s_craterdist.npy' % (CP['datatype'])
 
 if __name__ == '__main__':
     craters_unique = np.empty([0, 3])

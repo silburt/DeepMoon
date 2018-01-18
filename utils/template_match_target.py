@@ -4,26 +4,37 @@ import cv2
 
 #####################################
 """
-Crater Detection Hyperparameters 
---------------------------------
+Tuned Crater Detection Hyperparameters
+--------------------------------------
 minrad, maxrad : ints
     radius range in match_template to search over.
 longlat_thresh2, rad_thresh : floats
-    if (x1-x2)^2 + (y1-y2)^2 < longlat_thresh2 and abs(r1-r2) < max(1.0,rad_thresh*r1)
-    remove (x2,y2,r2) circle (it is a duplicate of another crater candidate). In 
-    addition, when matching CNN-detected rings to corresponding csvs (i.e.
-    template_match_target_to_csv), the same criteria is used to determine a match. 
+    if ((x1-x2)^2 + (y1-y2)^2)/min(r1,r2) < longlat_thresh2 and 
+    abs(r1-r2) < max(min_rt, rad_thresh*min(r1,r2)) remove (x2,y2,r2) circle (it 
+    is a duplicate of another crater candidate). In addition, when matching
+    CNN-detected rings to corresponding csvs (i.e. template_match_target_to_csv), 
+    the same criteria is used to determine a match.
 template_thresh : float
     0-1 range. If match_template probability > template_thresh, count as detection.
-target_thresh : float 
+target_thresh : float
     0-1 range. target[target >= target_thresh] = 1, target[target < target_thresh] = 0
+    
+Hardcoded Crater Detection Hyperparameters
+------------------------------------------
+rw : int
+    thickness of rings for template match
+min_rt : float
+    floor (r - Rad) value for rad_thresh criteria. 
 """
 minrad_ = 5
-maxrad_ = 50
-longlat_thresh2_ = 70
+maxrad_ = 40
+longlat_thresh2_ = 1.8
 rad_thresh_ = 1.0
 template_thresh_ = 0.5
 target_thresh_ = 0.1
+#------------------
+rw = 2
+min_rt = 1.01
 
 #####################################
 def template_match_t(target, minrad=minrad_, maxrad=maxrad_,
@@ -61,9 +72,6 @@ def template_match_t(target, minrad=minrad_, maxrad=maxrad_,
         Pixel coordinates of successfully detected craters in predicted target.
     """
 
-    # thickness of rings for the templates.
-    rw = 2
-
     # threshold target
     target[target >= target_thresh] = 1
     target[target < target_thresh] = 0
@@ -96,9 +104,12 @@ def template_match_t(target, minrad=minrad_, maxrad=maxrad_,
     while i < N:
         Long, Lat, Rad = coords.T
         lo, la, r = coords[i]
-        diff_longlat = (Long - lo)**2 + (Lat - la)**2
-        diff_rad = abs(Rad - r)
-        index = (diff_rad < max(2.01, rad_thresh * r)) & (diff_longlat < longlat_thresh2)
+        minr = np.minimum(r, Rad)
+        
+        dL = ((Long - lo)**2 + (Lat - la)**2) / minr
+        dR = abs(Rad - r)
+        index = ((dR < np.maximum(min_rt, rad_thresh * minr))
+                 & (dL < longlat_thresh2))
         if len(np.where(index == True)[0]) > 1:
             # replace current coord with max match probability coord in
             # duplicate list
@@ -111,7 +122,7 @@ def template_match_t(target, minrad=minrad_, maxrad=maxrad_,
 
     return coords
 
-#####################################
+
 def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
                        longlat_thresh2=longlat_thresh2_,
                        rad_thresh=rad_thresh_, template_thresh=template_thresh_,
@@ -181,37 +192,42 @@ def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
     N_csv, N_detect = len(csv_coords), len(templ_coords)
     for lo, la, r in templ_coords:
         csvLong, csvLat, csvRad = csv_coords.T
-        diff_longlat = (csvLong - lo)**2 + (csvLat - la)**2
-        diff_rad = abs(csvRad - r)
-        index = (diff_rad < max(1.01, rad_thresh * r)) & (diff_longlat < longlat_thresh2)
+        minr = np.minimum(r, csvRad)
+        
+        dL = ((csvLong - lo)**2 + (csvLat - la)**2) / minr
+        dR = abs(csvRad - r)
+        index = ((dR < np.maximum(min_rt, rad_thresh * minr))
+                 & (dL < longlat_thresh2))
         index_True = np.where(index == True)[0]
         N = len(index_True)
-        if N > 1:
+        if N > 1: # more than one csv match to extracted crater
             cratervals = np.array((lo, la, r))
             id_keep = index_True[0]
+            index[id_keep] = False
             diff = np.sum((csv_coords[id_keep] - cratervals)**2)
             csv_duplicates.append(csv_coords[id_keep])
             for id in index_True[1:]:
-                dupevals = csv_coords[id]
                 index[id] = False
-                csv_duplicates.append(dupevals)
-                diff_ = np.sum((dupevals - cratervals)**2)
+                diff_ = np.sum((csv_coords[id] - cratervals)**2)
                 if diff_ < diff:
                     id_keep = id
                     diff = diff_
-            index[id_keep] = True       # keep only closest match as true
+                csv_duplicates.append(csv_coords[id])
+            index[id_keep] = True   # keep only closest match as true
             Lo, La, R = csv_coords[id_keep].T
-            err_lo += abs(Lo - lo) / r
-            err_la += abs(La - la) / r
-            err_r += abs(R - r) / r
+            meanr = (R + r) / 2.
+            err_lo += abs(Lo - lo) / meanr
+            err_la += abs(La - la) / meanr
+            err_r += abs(R - r) / meanr
             print("""%d GT entries matched to (%d,%d,%d) ring... counted
                 (%f,%f,%f) as the match.""" % (N, lo, la, r, Lo, La, r))
             print(csv_duplicates)
         elif N == 1:
             Lo, La, R = csv_coords[index_True[0]].T
-            err_lo += abs(Lo - lo) / r
-            err_la += abs(La - la) / r
-            err_r += abs(R - r) / r
+            meanr = (R + r) / 2.
+            err_lo += abs(Lo - lo) / meanr
+            err_la += abs(La - la) / meanr
+            err_r += abs(R - r) / meanr
         N_match += min(1, N)
         # remove csv so it can't be re-matched again
         csv_coords = csv_coords[np.where(index == False)]
@@ -219,9 +235,8 @@ def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
             break
 
     if rmv_oor_csvs == 1:
-        #upper = maxr
         upper = 15
-        lower = minrad
+        lower = minrad_
         N_large_unmatched = len(np.where((csv_coords.T[2] > upper) |
                                          (csv_coords.T[2] < lower))[0])
         if N_large_unmatched < N_csv:

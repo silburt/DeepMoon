@@ -24,12 +24,12 @@ MP['epochs'] = 4
 
 # Number of train/valid/test samples, needs to be a multiple of batch size.
 MP['n_train'] = 30000
-MP['n_dev'] = 1000
+MP['n_dev'] = 5000
 MP['n_test'] = 5000
 
 # Save model (binary flag) and directory.
 MP['save_models'] = 1
-MP['save_dir'] = 'models/DeepMoon.h5'
+MP['save_dir'] = 'models/model.h5'
 
 # Model Parameters (to potentially iterate over, keep in lists).
 MP['N_runs'] = 1                # Number of runs
