@@ -81,6 +81,11 @@ can be found in the scripts themselves.
 We recommend copying these scripts into a new working directory (and appending
 this repo to your Python path) instead of modifying them in the repo.
 
+Our model with default parameters was trained on a 16GB Tesla P100 GPU, however
+12GB GPUs are more standard. Therefore, our default model may not run on many 
+systems without reducing the batch size, number of filters, etc., which can 
+affect final model convergence. 
+
 ## Authors
 
 * **Ari Silburt** - convnet architecture, crater extraction and post-processing
