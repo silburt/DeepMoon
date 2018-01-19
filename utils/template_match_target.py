@@ -166,7 +166,7 @@ def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
         Mean latitude error between detected craters and csvs.
     err_r : float
         Mean radius error between detected craters and csvs.
-    dcounter : float
+    frac_dupes : float
         Fraction of craters with multiple csv matches.
     """
     # get coordinates from template matching
@@ -180,7 +180,7 @@ def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
 
     # compare template-matched results to ground truth csv input data
     N_match = 0
-    dcounter = 0
+    frac_dupes = 0
     err_lo, err_la, err_r = 0, 0, 0
     N_csv, N_detect = len(csv_coords), len(templ_coords)
     for lo, la, r in templ_coords:
@@ -199,7 +199,7 @@ def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
             err_la += abs(La - la) / meanr
             err_r += abs(R - r) / meanr
             if N > 1: # duplicate entries hurt recall
-                dcounter += (N-1) / float(len(templ_coords))
+                frac_dupes += (N-1) / float(len(templ_coords))
         N_match += min(1, N)
         # remove csv so it can't be re-matched again
         csv_coords = csv_coords[np.where(index == False)]
@@ -219,4 +219,4 @@ def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
         err_la = err_la / N_match
         err_r = err_r / N_match
 
-    return N_match, N_csv, N_detect, maxr, err_lo, err_la, err_r, dcounter
+    return N_match, N_csv, N_detect, maxr, err_lo, err_la, err_r, frac_dupes

@@ -161,13 +161,14 @@ def get_metrics(data, craters, dim, model, beta=1):
     recall, precision, fscore = [], [], []
     frac_new, frac_new2, maxrad = [], [], []
     err_lo, err_la, err_r = [], [], []
+    frac_duplicates = []
     preds = model.predict(X)
     for i in range(n_csvs):
         if len(csvs[i]) < 3:
             continue
         (N_match, N_csv, N_detect, maxr,
-         elo, ela, er, csv_duplicates) = tmt.template_match_t2c(preds[i], csvs[i],
-                                                                rmv_oor_csvs=0)
+         elo, ela, er, frac_dupes) = tmt.template_match_t2c(preds[i], csvs[i],
+                                                            rmv_oor_csvs=0)
         if N_match > 0:
             p = float(N_match) / float(N_match + (N_detect - N_match))
             r = float(N_match) / float(N_csv)
@@ -184,8 +185,7 @@ def get_metrics(data, craters, dim, model, beta=1):
             err_lo.append(elo)
             err_la.append(ela)
             err_r.append(er)
-            if len(csv_duplicates) > 0:
-                print("duplicate(s) (shown above) found in image %d" % i)
+            frac_duplicates.append(frac_dupes)
         else:
             print("skipping iteration %d,N_csv=%d,N_detect=%d,N_match=%d" %
                   (i, N_csv, N_detect, N_match))
@@ -213,6 +213,8 @@ def get_metrics(data, craters, dim, model, beta=1):
         print("median and IQR fractional radius diff = %f, 25:%f, 75:%f" %
               (np.median(err_r), np.percentile(err_r, 25),
                np.percentile(err_r, 75)))
+        print("mean and std of frac_duplicates: %f, %f" %
+              (np.mean(frac_duplicates), np.std(frac_duplicates)))
         print("""mean and std of maximum detected pixel radius in an image =
               %f, %f""" % (np.mean(maxrad), np.std(maxrad)))
         print("""absolute maximum detected pixel radius over all images =
