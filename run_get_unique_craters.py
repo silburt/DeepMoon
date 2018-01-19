@@ -18,7 +18,7 @@ CP['dim'] = 256
 CP['datatype'] = 'dev'
 
 # Number of images to extract craters from
-CP['n_imgs'] = 30000
+CP['n_imgs'] = 10000
 
 # Hyperparameters
 CP['llt2'] = float(sys.argv[1])    # D_{L,L} from Silburt et. al (2017)
@@ -31,8 +31,7 @@ CP['dir_model'] = '../moon-craters/models/HEAD_final.h5'
 CP['dir_data'] = '../moon-craters/datasets/HEAD/%s_images_final.hdf5' % CP['datatype']
 
 # Location of where model predictions are/will be stored
-CP['dir_preds'] = '../moon-craters/datasets/HEAD/HEAD_%spreds_n%d_final.hdf5' % (CP['datatype'],
-                                                                 CP['n_imgs'])
+CP['dir_preds'] = '../moon-craters/datasets/HEAD/HEAD_30000preds_n%d_final.hdf5' % (CP['datatype'])
 
 # Location of where final unique crater distribution will be stored
 CP['dir_result'] = 'datasets/HEAD/HEAD_%s_craterdist_llt%.2f_rt%.2f_' \

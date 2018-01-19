@@ -9,23 +9,16 @@ import cv2
     minrad, maxrad : ints
         radius range in match_template to search over.
     longlat_thresh2, rad_thresh : floats
-        if ((x1-x2)^2 + (y1-y2)^2)/min(r1,r2) < longlat_thresh2 and 
-        abs(r1-r2) < max(min_rt, rad_thresh*min(r1,r2)) remove (x2,y2,r2) circle (it 
-        is a duplicate of another crater candidate). In addition, when matching
-        CNN-detected rings to corresponding csvs (i.e. template_match_target_to_csv), 
+        if ((x1-x2)^2 + (y1-y2)^2) / min(r1,r2)^2 < longlat_thresh2 and
+        abs(r1-r2) / min(r1,r2) < rad_thresh, remove (x2,y2,r2) circle (it is
+        a duplicate of another crater candidate). In addition, when matching
+        CNN-detected rings to corresponding csvs (i.e. template_match_t2c),
         the same criteria is used to determine a match.
     template_thresh : float
-        0-1 range. If match_template probability > template_thresh, count as detection.
+        0-1 range. If match_template probability > template_thresh, count as 
+        detection.
     target_thresh : float
-        0-1 range. target[target >= target_thresh] = 1, target[target < target_thresh] = 0
-        
-    Hardcoded Crater Detection Hyperparameters
-    ------------------------------------------
-    rw : int
-        thickness of rings for template match
-    min_rt : float
-        floor (r - Rad) value for rad_thresh criteria. When matching CNN and ground-truth
-        coordinates, we want at least 1 pixel leeway. 
+        0-1 range. target[target > target_thresh] = 1, otherwise 0
 """
 minrad_ = 5
 maxrad_ = 40
@@ -33,9 +26,6 @@ longlat_thresh2_ = 1.8
 rad_thresh_ = 1.0
 template_thresh_ = 0.5
 target_thresh_ = 0.1
-#------------------
-rw = 2
-min_rt = 1.01
 
 #####################################
 def template_match_t(target, minrad=minrad_, maxrad=maxrad_,
@@ -72,6 +62,9 @@ def template_match_t(target, minrad=minrad_, maxrad=maxrad_,
     coords : array
         Pixel coordinates of successfully detected craters in predicted target.
     """
+    
+    # thickness of rings for template match
+    rw = 2
 
     # threshold target
     target[target >= target_thresh] = 1
@@ -173,8 +166,8 @@ def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
         Mean latitude error between detected craters and csvs.
     err_r : float
         Mean radius error between detected craters and csvs.
-    csv_duplicates : list
-        List of multiple csv entries that matched to single detected crater.
+    dcounter : float
+        Fraction of craters with multiple csv matches.
     """
     # get coordinates from template matching
     templ_coords = template_match_t(target, minrad, maxrad, longlat_thresh2,
