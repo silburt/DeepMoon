@@ -6,8 +6,8 @@ import numpy as np
 import os
 
 #iterate parameters
-longlat_thresh2 = np.array([1.2,1.4,1.6,1.8,2.0,2.2,2.4])
-rad_thresh = np.array([0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.9])
+longlat_thresh2 = np.array([2.0,2.2,2.4,2.6,2.8,3.0,3.2,3.4])
+rad_thresh = np.array([0.9,1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7])
 
 #all combinations of above params
 params = list(itertools.product(*[longlat_thresh2, rad_thresh]))
