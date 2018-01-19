@@ -29,46 +29,30 @@ def get_stats(filename, csv_coords, thresh_longlat2, thresh_rad, minrad, maxrad)
     pred = np.load(filename)
     pred = pred[(pred.T[2] > minrad)&(pred.T[2] < maxrad)]
     
-    csv_duplicates = []
+    duplicate_counter = 0
     beta = 1
     N_match, err_lo, err_la, err_r = 0, [], [], []
     N_csv, N_detect = len(csv_coords), len(pred)
     k2d = 180. / (np.pi * 1737.4)
     for lo, la, r in pred:
-        csvLong, csvLat, csvRad = csv_coords.T
-        minr = np.minimum(r, csvRad)
+        Long, Lat, Rad = csv_coords.T
+        minr = np.minimum(r, Rad)
+        la_m = (la + Lat) / 2.
         
-        dL = ((csvLong - lo)**2 + (csvLat - la)**2) / minr
-        dR = abs(csvRad - r)
-        index = ((dR < np.maximum(1.01, rad_thresh * minr))
-                 & (dL < longlat_thresh2))
+        dL = (((Long - lo)/(minr * k2d / np.cos(np.pi * la_m / 180.)))**2
+              + ((Lat - la)/(minr * k2d))**2)
+        dR = np.abs(Rad - r) / minr
+        index = (dR < rad_thresh) & (dL < longlat_thresh2)
         index_True = np.where(index == True)[0]
         N = len(index_True)
-        if N > 1:
-            cratervals = np.array((lo, la, r))
-            id_keep = index_True[0]
-            index[id_keep] = False
-            diff = np.sum((csv_coords[id_keep] - cratervals)**2)
-            csv_duplicates.append(csv_coords[id_keep])
-            for id in index_True[1:]:
-                index[id] = False
-                diff_ = np.sum((csv_coords[id] - cratervals)**2)
-                if diff_ < diff:
-                    id_keep = id
-                    diff = diff_
-                csv_duplicates.append(csv_coords[id])
-            index[id_keep] = True   # keep only closest match as true
-            Lo, La, R = csv_coords[id_keep].T
-            meanr = (R + r) / 2.
-            err_lo.append(abs(Lo - lo) / (meanr * k2d))
-            err_la.append(abs(La - la) / (meanr * k2d))
-            err_r.append(abs(R - r) / meanr)
-        elif N == 1:
+        if N >= 1:
             Lo, La, R = csv_coords[index_True[0]].T
             meanr = (R + r) / 2.
             err_lo.append(abs(Lo - lo) / (meanr * k2d))
             err_la.append(abs(La - la) / (meanr * k2d))
             err_r.append(abs(R - r) / meanr)
+            if N > 1:
+                duplicate_counter += 1
         N_match += min(1, N)
         # remove csv so it can't be re-matched again
         csv_coords = csv_coords[np.where(index == False)]
@@ -78,17 +62,17 @@ def get_stats(filename, csv_coords, thresh_longlat2, thresh_rad, minrad, maxrad)
     p = float(N_match) / float(N_match + (N_detect - N_match))
     r = float(N_match) / float(N_csv)
     f = (1 + beta**2) * (r * p) / (p * beta**2 + r)
-    return p, r, f, err_lo, err_la, err_r, (N_detect - N_match)/(float(N_csv) + (N_detect - N_match))
+    return p, r, f, err_lo, err_la, err_r, (N_detect - N_match)/(float(N_csv) + (N_detect - N_match)), duplicate_counter/float(len(pred))
 
 
 if __name__ == '__main__':
-    dtype = 'test'
+    dtype = 'dev'
     min_csv_rad = 2
     
     minrad = 0
     #minrad = min_csv_rad
     
-    maxrad = 35
+    maxrad = 50
     csv_coords = get_GT(dtype, minrad+0.25, maxrad-2)
     
     files = glob.glob('datasets/HEAD/HEAD_%s*fin3.npy'%dtype)
@@ -99,22 +83,22 @@ if __name__ == '__main__':
     for f in files:
         longlat_thresh2 = float(f.split('_')[3].split('llt')[1])
         rad_thresh = float(f.split('_')[4].split('rt')[1])
-            #if longlat_thresh2 == 1.4 and rad_thresh == 0.6:
-        p, r, f, elo, ela, er, frac_new = get_stats(f, csv_coords, longlat_thresh2, rad_thresh, minrad, maxrad)
-        
-        precision.append(p)
-        recall.append(r)
-        f1.append(f)
-        llt2.append(longlat_thresh2)
-        rt2.append(rad_thresh)
-        err_lo.append(elo)
-        err_la.append(ela)
-        err_r.append(er)
-        N_new.append(N_new)
-        #if longlat_thresh2 == 1.6 and rad_thresh == 0.3:
-        print(longlat_thresh2, rad_thresh)
-        print(frac_new, p, r, f)
-        print("\n")
+        if longlat_thresh2 > 2 and rad_thresh > 1:
+            p, r, f, elo, ela, er, frac_new, dupe_frac = get_stats(f, csv_coords, longlat_thresh2, rad_thresh, minrad, maxrad)
+            
+            precision.append(p)
+            recall.append(r)
+            f1.append(f)
+            llt2.append(longlat_thresh2)
+            rt2.append(rad_thresh)
+            err_lo.append(elo)
+            err_la.append(ela)
+            err_r.append(er)
+            N_new.append(N_new)
+            #if longlat_thresh2 == 1.6 and rad_thresh == 0.3:
+            print(longlat_thresh2, rad_thresh)
+            print(frac_new, p, r, f, dupe_frac)
+            print("\n")
 #        print("error stats:")
 #        print("long: median=%.5f, median - quartiles(5, 25, 75, 95) = %.5f, %.5f, %.5f, %.5f"%(np.median(elo), np.median(elo)-np.percentile(elo, 5), np.median(elo)-np.percentile(elo, 25), np.percentile(elo, 75)-np.median(elo), np.percentile(elo, 95)-np.median(elo)))
 #        print("lat: median=%.5f, median - quartiles(5, 25, 75, 95) = %.5f, %.5f, %.5f, %.5f"%(np.median(ela), np.median(ela)-np.percentile(ela, 5), np.median(ela)-np.percentile(ela, 25), np.percentile(ela, 75)-np.median(ela), np.percentile(ela, 95)-np.median(ela)))
@@ -130,6 +114,6 @@ if __name__ == '__main__':
     for i in range(len(llt2)):
         plt.text(llt2[i], rt2[i], "f=%.3f"%(f1[i]), fontsize=6)
 
-    plt.savefig('images/global_f1score_%s_minrad%d_maxrad%d.png'%(dtype,minrad,maxrad))
+    plt.savefig('images/global_f1score_%s_minimum.png'%(dtype))
 #    plt.show()
 

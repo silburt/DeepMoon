@@ -76,7 +76,7 @@ def add_unique_craters(craters, craters_unique, thresh_longlat2, thresh_rad):
     for j in range(len(craters)):
         lo, la, r = craters[j].T
         la_m = (la + Lat) / 2.
-        minr = np.minimum(r, Rad)
+        minr = np.minimum(r, Rad)       # be liberal when filtering dupes
         
         # duplicate filtering criteria
         dL = (((Long - lo)/(minr * k2d / np.cos(np.pi * la_m / 180.)))**2

@@ -188,7 +188,7 @@ def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
 
     # compare template-matched results to ground truth csv input data
     N_match = 0
-    csv_duplicates = []
+    dcounter = 0
     err_lo, err_la, err_r = 0, 0, 0
     N_csv, N_detect = len(csv_coords), len(templ_coords)
     for lo, la, r in templ_coords:
@@ -201,34 +201,36 @@ def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
                  & (dL < longlat_thresh2))
         index_True = np.where(index == True)[0]
         N = len(index_True)
-        if N > 1: # more than one csv match to extracted crater
-            cratervals = np.array((lo, la, r))
-            id_keep = index_True[0]
-            index[id_keep] = False
-            diff = np.sum((csv_coords[id_keep] - cratervals)**2)
-            csv_duplicates.append(csv_coords[id_keep])
-            for id in index_True[1:]:
-                index[id] = False
-                diff_ = np.sum((csv_coords[id] - cratervals)**2)
-                if diff_ < diff:
-                    id_keep = id
-                    diff = diff_
-                csv_duplicates.append(csv_coords[id])
-            index[id_keep] = True   # keep only closest match as true
-            Lo, La, R = csv_coords[id_keep].T
-            meanr = (R + r) / 2.
-            err_lo += abs(Lo - lo) / meanr
-            err_la += abs(La - la) / meanr
-            err_r += abs(R - r) / meanr
-            print("""%d GT entries matched to (%d,%d,%d) ring... counted
-                (%f,%f,%f) as the match.""" % (N, lo, la, r, Lo, La, r))
-            print(csv_duplicates)
-        elif N == 1:
+#        if N > 1: # more than one csv match to extracted crater
+#            cratervals = np.array((lo, la, r))
+#            id_keep = index_True[0]
+#            index[id_keep] = False
+#            diff = np.sum((csv_coords[id_keep] - cratervals)**2)
+#            csv_duplicates.append(csv_coords[id_keep])
+#            for id in index_True[1:]:
+#                index[id] = False
+#                diff_ = np.sum((csv_coords[id] - cratervals)**2)
+#                if diff_ < diff:
+#                    id_keep = id
+#                    diff = diff_
+#                csv_duplicates.append(csv_coords[id])
+#            index[id_keep] = True   # keep only closest match as true
+#            Lo, La, R = csv_coords[id_keep].T
+#            meanr = (R + r) / 2.
+#            err_lo += abs(Lo - lo) / meanr
+#            err_la += abs(La - la) / meanr
+#            err_r += abs(R - r) / meanr
+#            print("""%d GT entries matched to (%d,%d,%d) ring... counted
+#                (%f,%f,%f) as the match.""" % (N, lo, la, r, Lo, La, r))
+#            print(csv_duplicates)
+        if N >= 1:
             Lo, La, R = csv_coords[index_True[0]].T
             meanr = (R + r) / 2.
             err_lo += abs(Lo - lo) / meanr
             err_la += abs(La - la) / meanr
             err_r += abs(R - r) / meanr
+            if N > 1: # duplicate entries hurt recall
+                dcounter += (N-1) / float(len(templ_coords))
         N_match += min(1, N)
         # remove csv so it can't be re-matched again
         csv_coords = csv_coords[np.where(index == False)]
@@ -248,4 +250,4 @@ def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
         err_la = err_la / N_match
         err_r = err_r / N_match
 
-    return N_match, N_csv, N_detect, maxr, err_lo, err_la, err_r, csv_duplicates
+    return N_match, N_csv, N_detect, maxr, err_lo, err_la, err_r, dcounter
