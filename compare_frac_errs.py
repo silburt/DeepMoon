@@ -60,10 +60,9 @@ while i < n_imgs-1:
         csvLong, csvLat, csvRad = csv_coords.T
         minr = np.minimum(r, csvRad)
         
-        dL = ((csvLong - lo)**2 + (csvLat - la)**2) / minr
-        dR = abs(csvRad - r)
-        index = ((dR < np.maximum(1.01, rad_thresh * minr))
-                 & (dL < longlat_thresh2))
+        dL = ((csvLong - lo)**2 + (csvLat - la)**2) / minr**2
+        dR = abs(csvRad - r) / minr
+        index = (dR < rad_thresh) & (dL < longlat_thresh2)
         index_True = np.where(index == True)[0]
         N = len(index_True)
         if N > 1:

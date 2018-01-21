@@ -51,7 +51,7 @@ def get_stats(filename, csv_coords, thresh_longlat2, thresh_rad, minrad, maxrad)
             err_lo.append(abs(Lo - lo) / (meanr * k2d))
             err_la.append(abs(La - la) / (meanr * k2d))
             err_r.append(abs(R - r) / meanr)
-            if N > 1:
+            if N > 1: # duplicates hurt recall
                 duplicate_counter += 1
         N_match += min(1, N)
         # remove csv so it can't be re-matched again
@@ -66,7 +66,7 @@ def get_stats(filename, csv_coords, thresh_longlat2, thresh_rad, minrad, maxrad)
 
 
 if __name__ == '__main__':
-    dtype = 'dev'
+    dtype = 'test'
     min_csv_rad = 2
     
     minrad = 0
@@ -83,25 +83,26 @@ if __name__ == '__main__':
     for f in files:
         longlat_thresh2 = float(f.split('_')[3].split('llt')[1])
         rad_thresh = float(f.split('_')[4].split('rt')[1])
-        p, r, f, elo, ela, er, frac_new, dupe_frac = get_stats(f, csv_coords, longlat_thresh2, rad_thresh, minrad, maxrad)
-        
-        precision.append(p)
-        recall.append(r)
-        f1.append(f)
-        llt2.append(longlat_thresh2)
-        rt2.append(rad_thresh)
-        err_lo.append(elo)
-        err_la.append(ela)
-        err_r.append(er)
-        N_new.append(N_new)
-        #if longlat_thresh2 == 1.6 and rad_thresh == 0.3:
-        print(longlat_thresh2, rad_thresh)
-        print(frac_new, p, r, f, dupe_frac)
-        print("\n")
-#        print("error stats:")
-#        print("long: median=%.5f, median - quartiles(5, 25, 75, 95) = %.5f, %.5f, %.5f, %.5f"%(np.median(elo), np.median(elo)-np.percentile(elo, 5), np.median(elo)-np.percentile(elo, 25), np.percentile(elo, 75)-np.median(elo), np.percentile(elo, 95)-np.median(elo)))
-#        print("lat: median=%.5f, median - quartiles(5, 25, 75, 95) = %.5f, %.5f, %.5f, %.5f"%(np.median(ela), np.median(ela)-np.percentile(ela, 5), np.median(ela)-np.percentile(ela, 25), np.percentile(ela, 75)-np.median(ela), np.percentile(ela, 95)-np.median(ela)))
-#        print("rad: median=%.5f, median - quartiles(5, 25, 75, 95) = %.5f, %.5f, %.5f, %.5f"%(np.median(er), np.median(er)-np.percentile(er, 5), np.median(er)-np.percentile(er, 25), np.percentile(er, 75)-np.median(er), np.percentile(er, 95)-np.median(er)))
+        if longlat_thresh2 == 2.6 and rad_thresh == 1.8:
+            p, r, f, elo, ela, er, frac_new, dupe_frac = get_stats(f, csv_coords, longlat_thresh2, rad_thresh, minrad, maxrad)
+            
+            precision.append(p)
+            recall.append(r)
+            f1.append(f)
+            llt2.append(longlat_thresh2)
+            rt2.append(rad_thresh)
+            err_lo.append(elo)
+            err_la.append(ela)
+            err_r.append(er)
+            N_new.append(N_new)
+            #if longlat_thresh2 == 1.6 and rad_thresh == 0.3:
+            print(longlat_thresh2, rad_thresh)
+            print(frac_new, p, r, f, dupe_frac)
+            print("\n")
+            print("error stats:")
+            print("long: median=%.5f, median - quartiles(5, 25, 75, 95) = %.5f, %.5f, %.5f, %.5f"%(np.median(elo), np.median(elo)-np.percentile(elo, 5), np.median(elo)-np.percentile(elo, 25), np.percentile(elo, 75)-np.median(elo), np.percentile(elo, 95)-np.median(elo)))
+            print("lat: median=%.5f, median - quartiles(5, 25, 75, 95) = %.5f, %.5f, %.5f, %.5f"%(np.median(ela), np.median(ela)-np.percentile(ela, 5), np.median(ela)-np.percentile(ela, 25), np.percentile(ela, 75)-np.median(ela), np.percentile(ela, 95)-np.median(ela)))
+            print("rad: median=%.5f, median - quartiles(5, 25, 75, 95) = %.5f, %.5f, %.5f, %.5f"%(np.median(er), np.median(er)-np.percentile(er, 5), np.median(er)-np.percentile(er, 25), np.percentile(er, 75)-np.median(er), np.percentile(er, 95)-np.median(er)))
 
     # plot
     fig = plt.figure()

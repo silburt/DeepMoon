@@ -201,7 +201,7 @@ def template_match_t2c(target, csv_coords, minrad=minrad_, maxrad=maxrad_,
             if N > 1: # duplicate entries hurt recall
                 frac_dupes += (N-1) / float(len(templ_coords))
         N_match += min(1, N)
-        # remove csv so it can't be re-matched again
+        # remove csv(s) so it can't be re-matched again
         csv_coords = csv_coords[np.where(index == False)]
         if len(csv_coords) == 0:
             break
