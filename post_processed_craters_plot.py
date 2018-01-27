@@ -224,17 +224,17 @@ def extract_unique_craters(CP, craters_unique):
                 ax2.imshow(img, origin='upper', cmap="Greys_r")
                 ax4.imshow(img, origin='upper', cmap="Greys_r")
                 ax4.imshow(tgts[i], origin='upper', cmap="Greys_r", alpha=0.5)
-                ax4.set_title('target-output', fontsize=fontsize)
+                ax4.set_title('Moon Target', fontsize=fontsize)
                                 
                 x, y, r = genuine_new_craters.T
                 for k in range(len(x)):
                     circle = plt.Circle((x[k], y[k]), r[k], color='blue', fill=False, linewidth=2, alpha=0.5)
                     ax2.add_artist(circle)
                 ax3.imshow(preds[i], origin='upper', cmap="Greys_r")
-                ax1.set_title('Moon Image', fontsize=fontsize)
-                ax2.set_title('%d new CNN-Detected Craters'%len(x), fontsize=fontsize)
-                ax3.set_title('CNN-Pred', fontsize=fontsize)
-                plt.savefig('post_processed_imgs/%d_fullcheck.png'%i, bbox_inches='tight')
+                ax1.set_title('Moon DEM Image', fontsize=fontsize)
+                ax2.set_title('%d New CNN-Identified Craters'%len(x), fontsize=fontsize)
+                ax3.set_title('CNN Target Prediction', fontsize=fontsize)
+                plt.savefig('post_processed_imgs_zenodo/%d_fullcheck.png'%i, bbox_inches='tight')
                 plt.close()
 
 if __name__ == '__main__':
