@@ -93,9 +93,15 @@ affect final model convergence.
 * **Charles Zhu** - input image generation, data ingestion and post-processing
   [cczhu](https://github.com/cczhu)
 
+### Contributors
+
+* Mohamad Ali-Dib
+* Kristen Menou
+* Alan Jackson
+
 ## License
 
-Copyright 2018 Ari Silburt and Charles Zhu.
+Copyright 2018 Ari Silburt, Charles Zhu and contributors.
 
 DeepMoon is free software made available under the MIT License. For details see the LICENSE.md file.
 
