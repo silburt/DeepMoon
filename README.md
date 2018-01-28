@@ -95,7 +95,7 @@ affect final model convergence.
 
 ### Contributors
 
-* Mohamad Ali-Dib
+* Mohamad Ali-Dib - [malidib](https://github.com/malidib/)
 * Kristen Menou
 * Alan Jackson
 
