@@ -55,7 +55,7 @@ amt = 30000
 # will be scaled down to ilen). For Orthogonal projection, larger images are
 # distorted at their edges, so there is some trade-off between ensuring images
 # have minimal distortion, and including the largest craters in the image.
-rawlen_range = [300, 4000]
+rawlen_range = [500, 6500]
 
 # Distribution to sample from rawlen_range - "uniform" for uniform, and "log"
 # for loguniform.
