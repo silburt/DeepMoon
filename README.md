@@ -43,6 +43,9 @@ respectively.)
 This list can also be found in the `requirements.txt`.
 
 ### Data Sources
+Our train, validation and test datasets, global DEM, post-processed
+crater distribution on the test set, best model, and sample output
+images can be found [here](https://doi.org/10.5281/zenodo.1133969).
 
 #### Digital Elevation Maps
 
@@ -56,7 +59,7 @@ gdal_translate -of PNG -scale -21138 21138 -co worldfile=no
     LunarLROLrocKaguya_118mperpix_int16.tif LunarLROLrocKaguya_118mperpix.png
 ```
 
-A copy of our global DEM can be found at **XXXXX**.
+A copy of our global DEM can be found at https://doi.org/10.5281/zenodo.1133969.
 
 #### Crater Catalogues
 
