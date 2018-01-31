@@ -59,8 +59,6 @@ gdal_translate -of PNG -scale -21138 21138 -co worldfile=no
     LunarLROLrocKaguya_118mperpix_int16.tif LunarLROLrocKaguya_118mperpix.png
 ```
 
-A copy of our global DEM can be found at https://doi.org/10.5281/zenodo.1133969.
-
 #### Crater Catalogues
 
 For the ground truth longitude / latitude locations and sizes of craters, we
