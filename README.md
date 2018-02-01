@@ -97,7 +97,7 @@ affect final model convergence.
 ### Contributors
 
 * Mohamad Ali-Dib - [malidib](https://github.com/malidib/)
-* Kristen Menou
+* Kristen Menou - [kmenou](https://www.kaggle.com/kmenou)
 * Alan Jackson
 
 ## License
