@@ -5,8 +5,13 @@
 *.so
 __pycache__
 
+# ipynb stuff
+.ipynb_checkpoints/
+docs/.ipynb_checkpoints/
+
 # Other
 .cache
+.ipynb_checkpoints/
 *~
 
 # Mac OSX
