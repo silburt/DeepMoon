@@ -23,8 +23,8 @@ To first order, our CNN activates regions with high negative gradients, i.e.
 pixels that decrease in value as you move across the image. Below illustrates 
 two examples of this, the first is a genuine DEM Lunar image from our dataset, 
 the second is a sample image taken from the web.
-![CNN1](tests/CNN1.png?raw=true)
-![CNN2](tests/CNN2.png?raw=true)
+![CNN1](docs/CNN1.png?raw=true)
+![CNN2](docs/CNN2.png?raw=true)
 
 ### Dependences
 
