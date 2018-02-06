@@ -87,6 +87,16 @@ Our model with default parameters was trained on a 16GB Tesla P100 GPU, however
 systems without reducing the batch size, number of filters, etc., which can 
 affect final model convergence. 
 
+### CNN Intuition
+It is often hard to interpret the features created by a neural network, and 
+acquiring a basic intuition for the input/outing mapping is useful. To first 
+order our CNN activates regions with high negative gradients, i.e. decreasing 
+pixel values as you move across the image. Below illustrates two examples of 
+this, one is a genuine DEM Lunar image, the other is a sample image taken from 
+the web.
+![CNN1](tests/CNN1.png?raw=true)
+![CNN2](tests/CNN2.png?raw=true)
+
 ## Authors
 
 * **Ari Silburt** - convnet architecture, crater extraction and post-processing
