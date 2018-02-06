@@ -54,8 +54,8 @@ Our train, validation and test datasets, global DEM, post-processed
 crater distribution on the test set, best model, and sample output
 images can be found [on Zenodo](https://doi.org/10.5281/zenodo.1133969).
 
-Examples of how to read these data can be found in `docs/Using Zenodo Data.ipynb`
-IPython notebook.
+Examples of how to read these data can be found in the
+`docs/Using Zenodo Data.ipynb` IPython notebook.
 
 #### Digital Elevation Maps
 

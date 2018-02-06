@@ -523,7 +523,7 @@ def ringmaker(r=10., dr=1):
 
 
 def get_merge_indices(cen, imglen, ks_h, ker_shp):
-    """Helper function that returns indices for merging gaussian with base
+    """Helper function that returns indices for merging stencil with base
     image, including edge case handling.  x and y are identical, so code is
     axis-neutral.
 
@@ -533,8 +533,8 @@ def get_merge_indices(cen, imglen, ks_h, ker_shp):
     left = cen - ks_h
     right = cen + ks_h + 1
 
-    # Handle edge cases.  If left side of gaussian is beyond the left end of
-    # the image, for example, crop gaussian and shift image index to lefthand
+    # Handle edge cases.  If left side of stencil is beyond the left end of
+    # the image, for example, crop stencil and shift image index to lefthand
     # side.
     if left < 0:
         img_l = 0
