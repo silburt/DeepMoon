@@ -19,6 +19,13 @@ from the DEM, with corresponding crater positions and radii.  The second
 trains a convnet using this data.  The third validates the convnet's
 predictions.
 
+To first order, our CNN activates regions with high negative gradients, i.e.
+pixels that decrease in value as you move across the image. Below illustrates 
+two examples of this, the first is a genuine DEM Lunar image from our dataset, 
+the second is a sample image taken from the web.
+![CNN1](tests/CNN1.png?raw=true)
+![CNN2](tests/CNN2.png?raw=true)
+
 ### Dependences
 
 DeepMoon requires the following packages to function:
@@ -86,16 +93,6 @@ Our model with default parameters was trained on a 16GB Tesla P100 GPU, however
 12GB GPUs are more standard. Therefore, our default model may not run on many 
 systems without reducing the batch size, number of filters, etc., which can 
 affect final model convergence. 
-
-### CNN Intuition
-It is often hard to interpret the features created by a neural network, and 
-acquiring a basic intuition for the input/outing mapping is useful. To first 
-order our CNN activates regions with high negative gradients, i.e. decreasing 
-pixel values as you move across the image. Below illustrates two examples of 
-this, one is a genuine DEM Lunar image, the other is a sample image taken from 
-the web.
-![CNN1](tests/CNN1.png?raw=true)
-![CNN2](tests/CNN2.png?raw=true)
 
 ## Authors
 
