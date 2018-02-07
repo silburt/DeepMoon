@@ -94,6 +94,11 @@ Our model with default parameters was trained on a 16GB Tesla P100 GPU, however
 systems without reducing the batch size, number of filters, etc., which can 
 affect final model convergence. 
 
+### Quick Usage
+See docs/Using Zenodo Data.ipynb for an ipython notebook showing some basic
+examples on loading models, generating sample datasets and model predictions, 
+etc. 
+
 ## Authors
 
 * **Ari Silburt** - convnet architecture, crater extraction and post-processing
