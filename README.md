@@ -3,7 +3,7 @@ Center for Planetary Sciences / Department of Astronomy & Astrophysics / Canadia
 University of Toronto
 
 DeepMoon is a TensorFlow-based pipeline for training a convolutional neural
-network to recognize craters on the Moon, and determine their positions and
+network (CNN) to recognize craters on the Moon, and determine their positions and
 radii.  It is the companion repo to Silburt et al. in preparation, which
 describes the motivation and development of the code, as well as initial
 results.
@@ -52,7 +52,10 @@ This list can also be found in the `requirements.txt`.
 ### Data Sources
 Our train, validation and test datasets, global DEM, post-processed
 crater distribution on the test set, best model, and sample output
-images can be found [here](https://doi.org/10.5281/zenodo.1133969).
+images can be found [on Zenodo](https://doi.org/10.5281/zenodo.1133969).
+
+Examples of how to read these data can be found in `docs/Using Zenodo Data.ipynb`
+IPython notebook.
 
 #### Digital Elevation Maps
 
@@ -95,9 +98,10 @@ systems without reducing the batch size, number of filters, etc., which can
 affect final model convergence. 
 
 ### Quick Usage
-See docs/Using Zenodo Data.ipynb for an ipython notebook showing some basic
-examples on loading models, generating sample datasets and model predictions, 
-etc. 
+
+See `docs/Using Zenodo Data.ipynb` for basic examples on generating sample
+datasets, loading a pre-trained CNN and using it to make predictions on
+samples.
 
 ## Authors
 
@@ -116,7 +120,8 @@ etc.
 
 Copyright 2018 Ari Silburt, Charles Zhu and contributors.
 
-DeepMoon is free software made available under the MIT License. For details see the LICENSE.md file.
+DeepMoon is free software made available under the MIT License. For details see
+the LICENSE.md file.
 
 [lola dem]: https://astrogeology.usgs.gov/search/map/Moon/LRO/LOLA/Lunar_LRO_LrocKaguya_DEMmerge_60N60S_512ppd
 [lroc cat]: http://wms.lroc.asu.edu/lroc/rdr_product_select?filter%5Btext%5D=&filter%5Blat%5D=&filter%5Blon%5D=&filter%5Brad%5D=&filter%5Bwest%5D=&filter%5Beast%5D=&filter%5Bsouth%5D=&filter%5Bnorth%5D=&filter%5Btopographic%5D=either&filter%5Bprefix%5D%5B%5DSHAPEFILE&show_thumbs=0&per_page=100&commit=Search
