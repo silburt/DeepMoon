@@ -340,7 +340,7 @@ def WarpCraterLoc(craters, geoproj, oproj, oextent, imgdim, llbd=None,
 
 ############# Warp Plate Carree to Orthographic ###############
 
-def PlateCarree_to_Orthographic(img, oname, llbd, craters, iglobe=None,
+def PlateCarree_to_Orthographic(img, llbd, craters, iglobe=None,
                                 ctr_sub=False, arad=1737.4, origin="upper",
                                 rgcoeff=1.2, slivercut=0.):
     """Transform Plate Carree image and associated csv file into Orthographic.
@@ -349,8 +349,6 @@ def PlateCarree_to_Orthographic(img, oname, llbd, craters, iglobe=None,
     ----------
     img : PIL.Image.image or str
         File or filename.
-    oname : str
-        Output filename.
     llbd : list-like
         Long/lat limits (long_min, long_max, lat_min, lat_max) of image.
     craters : pandas.DataFrame
@@ -676,7 +674,8 @@ def ResampleCraters(craters, llbd, imgheight, arad=1737.4, minpix=0):
 
         # Remove craters smaller than pixel limit.
         ctr_sub = ctr_sub[ctr_sub["Diameter (km)"] >= minkm]
-        ctr_sub.reset_index(inplace=True, drop=True)
+
+    ctr_sub.reset_index(inplace=True, drop=True)
 
     return ctr_sub
 
@@ -857,7 +856,7 @@ def GenDataset(img, craters, outhead, rawlen_range=[1000, 2000],
         # Convert Plate Carree to Orthographic.
         [imgo, ctr_xy, distortion_coefficient, clonglat_xy] = (
             PlateCarree_to_Orthographic(
-                im, None, llbd, ctr_sub, iglobe=iglobe, ctr_sub=True,
+                im, llbd, ctr_sub, iglobe=iglobe, ctr_sub=True,
                 arad=arad, origin=origin, rgcoeff=1.2, slivercut=0.5))
 
         if imgo is None:
@@ -894,7 +893,6 @@ def GenDataset(img, craters, outhead, rawlen_range=[1000, 2000],
 
         imgs_h5.flush()
         craters_h5.flush()
-        i += 1
 
     imgs_h5.close()
     craters_h5.close()

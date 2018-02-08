@@ -305,7 +305,7 @@ class TestImageTransforms(object):
         centrallonglat_xy.loc[:, "y"] += offset[1]
 
         img_pc, ctr_pc, dc_pc, cll_pc = igen.PlateCarree_to_Orthographic(
-            self.img.crop(box), None, llbd, self.craters, iglobe=self.iglobe,
+            self.img.crop(box), llbd, self.craters, iglobe=self.iglobe,
             ctr_sub=False, arad=1737.4, origin="upper", rgcoeff=1.2,
             slivercut=0.)
 
@@ -421,8 +421,7 @@ class TestAuxFunctions(object):
         pixperkm = trf.km2pix(imgheight, llbd[3] - llbd[2])
         minkm = minpix / pixperkm
         ctr_sub = ctr_sub[ctr_sub['Diameter (km)'] >= minkm]
-        if minkm > 0.:      # Silly that we only do it when minkm > 0!
-            ctr_sub.reset_index(drop=True, inplace=True)
+        ctr_sub.reset_index(drop=True, inplace=True)
         ctr_rs = igen.ResampleCraters(self.craters, llbd, imgheight,
                                       minpix=minpix)
         assert np.all(ctr_rs == ctr_sub)
@@ -506,7 +505,7 @@ class TestGenDataset(object):
             # Convert Plate Carree to Orthographic.
             [imgo, ctr_xy, distortion_coefficient, clonglat_xy] = (
                 igen.PlateCarree_to_Orthographic(
-                    im, None, llbd, ctr_sub, iglobe=self.iglobe, ctr_sub=True,
+                    im, llbd, ctr_sub, iglobe=self.iglobe, ctr_sub=True,
                     slivercut=0.5))
             imgo_arr = np.asanyarray(imgo)
 
