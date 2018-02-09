@@ -20,7 +20,8 @@ pytest test_get_unique_craters.py
 
 - `LunarLROLrocKaguya_1180mperpix_downsamp.png`: the LROC-Kaguya DEM,
 downsampled to 9216 x 3072 pixels, or 1180 m per pixel.
-- `sample.hdf5`: **ARI**
+- `sample_template_match.hdf5`: Contains two csv crater ground truth arrays 
+and corresponding CNN-predicted targets. 
 - `sample_crater_csv.hdf5`: Pandas HDFStore file containing the crater
 data table for the 6th image (`img_00005`) in the test dataset.
 - `sample_crater_csv_metadata.hdf5`: metadata for the 6th image in the test
