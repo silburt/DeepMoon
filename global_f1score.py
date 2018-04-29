@@ -62,7 +62,7 @@ def get_stats(filename, csv_coords, thresh_longlat2, thresh_rad, minrad, maxrad)
     p = float(N_match) / float(N_match + (N_detect - N_match))
     r = float(N_match) / float(N_csv)
     f = (1 + beta**2) * (r * p) / (p * beta**2 + r)
-    return p, r, f, err_lo, err_la, err_r, (N_detect - N_match)/(float(N_csv) + (N_detect - N_match)), duplicate_counter/float(len(pred))
+    return p, r, f, err_lo, err_la, err_r, (N_detect - N_match)/(float(N_csv) + (N_detect - N_match)), duplicate_counter/float(len(pred)), N_detect - N_match, N_match
 
 
 if __name__ == '__main__':
@@ -84,7 +84,7 @@ if __name__ == '__main__':
         longlat_thresh2 = float(f.split('_')[3].split('llt')[1])
         rad_thresh = float(f.split('_')[4].split('rt')[1])
         if longlat_thresh2 == 2.6 and rad_thresh == 1.8:
-            p, r, f, elo, ela, er, frac_new, dupe_frac = get_stats(f, csv_coords, longlat_thresh2, rad_thresh, minrad, maxrad)
+            p, r, f, elo, ela, er, frac_new, dupe_frac, tot_new, tot = get_stats(f, csv_coords, longlat_thresh2, rad_thresh, minrad, maxrad)
             
             precision.append(p)
             recall.append(r)
@@ -103,6 +103,8 @@ if __name__ == '__main__':
             print("long: median=%.5f, median - quartiles(5, 25, 75, 95) = %.5f, %.5f, %.5f, %.5f"%(np.median(elo), np.median(elo)-np.percentile(elo, 5), np.median(elo)-np.percentile(elo, 25), np.percentile(elo, 75)-np.median(elo), np.percentile(elo, 95)-np.median(elo)))
             print("lat: median=%.5f, median - quartiles(5, 25, 75, 95) = %.5f, %.5f, %.5f, %.5f"%(np.median(ela), np.median(ela)-np.percentile(ela, 5), np.median(ela)-np.percentile(ela, 25), np.percentile(ela, 75)-np.median(ela), np.percentile(ela, 95)-np.median(ela)))
             print("rad: median=%.5f, median - quartiles(5, 25, 75, 95) = %.5f, %.5f, %.5f, %.5f"%(np.median(er), np.median(er)-np.percentile(er, 5), np.median(er)-np.percentile(er, 25), np.percentile(er, 75)-np.median(er), np.percentile(er, 95)-np.median(er)))
+            print("total number of new craters on test set = %f"%tot_new)
+            print("total number of detected craters on test set = %f"%tot)
 
     # plot
     fig = plt.figure()
