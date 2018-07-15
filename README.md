@@ -4,9 +4,9 @@ University of Toronto
 
 DeepMoon is a TensorFlow-based pipeline for training a convolutional neural
 network (CNN) to recognize craters on the Moon, and determine their positions and
-radii.  It is the companion repo to Silburt et al. in preparation, which
-describes the motivation and development of the code, as well as initial
-results.
+radii.  It is the companion repo to the paper 
+[Lunar Crater Identification via Deep Learning](https://arxiv.org/abs/1803.02192), which
+describes the motivation and development of the code, as well as results.
 
 ## Getting Started
 
