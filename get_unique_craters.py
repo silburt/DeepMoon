@@ -144,6 +144,76 @@ def estimate_longlatdiamkm(dim, llbd, distcoeff, coords):
     return np.column_stack((long_deg, lat_deg, radii_km))
 
 
+def estimate_longlatdiamkm_cropped(dim_pc, dim, llbd_pc, pixperkm, cll_xy,
+                                   coords, test_base_cll=False):
+    """First-order estimation of long/lat, and radius (km) from
+    (Orthographic) x/y position and radius (pix), for CROPPED images.
+
+    Parameters
+    ----------
+    dim_pc : tuple or list
+        (width, height) of pre-cropped input images.
+    dim : tuple or list
+        (width, height) of post-cropped input images.
+    llbd_pc : tuple or list
+        Long/lat limits (long_min, long_max, lat_min, lat_max) of pre-cropped
+        image.
+    pixperkm : float
+        Ratio between the central heights of the transformed image and original
+        image.
+    cll_xy : numpy.ndarray
+        Pixel coordinates of central long / lat within CROP image.
+    coords : numpy.ndarray
+        Array of crater x coordinates, y coordinates, and pixel radii.
+    test_base_cll : bool, optional
+        DIAGNOSTIC PURPOSES ONLY.
+
+    Returns
+    -------
+    craters_longlatdiamkm : numpy.ndarray
+        Array of crater longitude, latitude and radii in km.
+    """
+    # Expand coords.
+    long_pix, lat_pix, radii_pix = coords.T.copy()
+
+    # Calculate offset, as in PlateCarree_to_Orthographic_Cropped, and
+    # apply it to the x,y coords.
+    offset = [(dim_pc[0] - dim[0]) // 2, (dim_pc[1] - dim[1]) // 2]
+    if test_base_cll:
+        cll_xy = cll_xy = (dim_pc[0] / 2., dim_pc[1] / 2.)
+    else:
+        cll_xy = cll_xy.copy()
+        cll_xy[0] += offset[0]
+        cll_xy[1] += offset[1]
+
+    long_pix += offset[0]
+    lat_pix += offset[1]
+
+    # Determine radius (km).
+    km_per_pix = 1. / pixperkm
+    radii_km = radii_pix / pixperkm
+
+    # Determine long/lat.
+    deg_per_pix = km_per_pix * 180. / (np.pi * 1737.4)
+    long_central = 0.5 * (llbd_pc[0] + llbd_pc[1])
+    lat_central = 0.5 * (llbd_pc[2] + llbd_pc[3])
+
+    # Iterative method for determining latitude.
+    lat_deg_firstest = lat_central - deg_per_pix * (lat_pix - cll_xy[1])
+    latdiff = abs(lat_central - lat_deg_firstest)
+    # Protect against latdiff = 0 situation.
+    latdiff[latdiff < 1e-7] = 1e-7
+    lat_deg = lat_central - (deg_per_pix * (lat_pix - cll_xy[1]) *
+                             (np.pi * latdiff / 180.) /
+                             np.sin(np.pi * latdiff / 180.))
+    # Determine longitude using determined latitude.
+    long_deg = long_central + (deg_per_pix * (long_pix - cll_xy[0]) /
+                               np.cos(np.pi * lat_deg / 180.))
+
+    # Return combined long/lat/radius array.
+    return np.column_stack((long_deg, lat_deg, radii_km))
+
+
 def extract_unique_craters(CP, craters_unique):
     """Top level function that extracts craters from model predictions,
     converts craters from pixel to real (degree, km) coordinates, and filters

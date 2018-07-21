@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Input Image Dataset Generator
+"""(Cropped) Input Image Dataset Generator
 
 Script for generating input datasets from Lunar global digital elevation maps 
 (DEMs) and crater catalogs.
@@ -61,6 +61,10 @@ rawlen_range = [500, 6500]
 # for loguniform.
 rawlen_dist = 'log'
 
+# [x_coeff, y_coeff] multipliers used to sample from source - this governs the
+# amount of padding we can crop away.
+rawlen_coeff = [2., 1.5]
+
 # Size of input images.
 ilen = 256
 
@@ -121,11 +125,12 @@ if __name__ == '__main__':
     craters = igen.ResampleCraters(craters, sub_cdim, None, arad=R_km)
 
     # Generate input images.
-    igen.GenDataset(img, craters, outhead, rawlen_range=rawlen_range,
-                    rawlen_dist=rawlen_dist, ilen=ilen, cdim=sub_cdim,
-                    arad=R_km, minpix=minpix, tglen=tglen, binary=True,
-                    rings=True, ringwidth=ringwidth, truncate=truncate,
-                    amt=amt, istart=istart, verbose=verbose)
+    igen.GenCroppedDataset(
+        img, craters, outhead, rawlen_range=rawlen_range,
+        rawlen_dist=rawlen_dist, rawlen_coeff=rawlen_coeff, ilen=ilen,
+        cdim=sub_cdim, arad=R_km, minpix=minpix, tglen=tglen,
+        ringwidth=ringwidth, truncate=truncate, amt=amt, istart=istart,
+        verbose=verbose)
 
     elapsed_time = time.time() - start_time
     if verbose:
