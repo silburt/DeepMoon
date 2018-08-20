@@ -8,6 +8,11 @@ radii.  It is the companion repo to the paper
 [Lunar Crater Identification via Deep Learning](https://arxiv.org/abs/1803.02192), which
 describes the motivation and development of the code, as well as results.
 
+**This experimental branch generates input images and target masks without any
+padding.  This is done by first transforming a larger image, then cropping to
+retain only its central region.  It does not have a test suite, so use at your
+own risk!**
+
 ## Getting Started
 
 ### Overview
