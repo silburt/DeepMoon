@@ -12,7 +12,7 @@ import sys
 import utils.template_match_target as tmt
 import utils.processing as proc
 import utils.transform as trf
-#from keras.models import load_model
+from keras.models import load_model
 
 #########################
 def get_model_preds(CP):
@@ -77,13 +77,13 @@ def add_unique_craters(craters, craters_unique, thresh_longlat2, thresh_rad):
         lo, la, r = craters[j].T
         la_m = (la + Lat) / 2.
         minr = np.minimum(r, Rad)       # be liberal when filtering dupes
-        
+
         # duplicate filtering criteria
         dL = (((Long - lo) / (minr * k2d / np.cos(np.pi * la_m / 180.)))**2
               + ((Lat - la) / (minr * k2d))**2)
         dR = np.abs(Rad - r) / minr
         index = (dR < thresh_rad) & (dL < thresh_longlat2)
-        
+
         if len(np.where(index == True)[0]) == 0:
             craters_unique = np.vstack((craters_unique, craters[j]))
     return craters_unique
@@ -154,7 +154,7 @@ def extract_unique_craters(CP, craters_unique):
     CP : dict
         Crater Parameters needed to run the code.
     craters_unique : array
-        Empty master array of unique crater tuples in the form 
+        Empty master array of unique crater tuples in the form
         (long, lat, radius).
 
     Returns

@@ -540,6 +540,7 @@ def get_merge_indices(cen, imglen, ks_h, ker_shp):
     else:
         img_l = left
         g_l = 0
+
     if right > imglen:
         img_r = imglen
         g_r = ker_shp - (right - imglen)
@@ -613,7 +614,7 @@ def make_mask(craters, img, binary=True, rings=False, ringwidth=1,
 
 ############# Create dataset (and helper functions) #############
 
-def AddPlateCarree_XY(craters, imgdim, cdim=[-180., 180., -90., 90.], 
+def AddPlateCarree_XY(craters, imgdim, cdim=[-180., 180., -90., 90.],
                       origin="upper"):
     """Adds x and y pixel locations to craters dataframe.
 
@@ -631,8 +632,8 @@ def AddPlateCarree_XY(craters, imgdim, cdim=[-180., 180., -90., 90.],
         "upper" means that [0,0] is upper-left corner of image;
         "lower" means it is bottom-left.
     """
-    x, y = trf.coord2pix(craters["Long"].as_matrix(),
-                         craters["Lat"].as_matrix(),
+    x, y = trf.coord2pix(craters["Long"].to_numpy(),
+                         craters["Lat"].to_numpy(),
                          cdim, imgdim, origin=origin)
     craters["x"] = x
     craters["y"] = y

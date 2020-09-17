@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Input Image Dataset Generator
 
-Script for generating input datasets from Lunar global digital elevation maps 
+Script for generating input datasets from Lunar global digital elevation maps
 (DEMs) and crater catalogs.
 
 This script is designed to use the LRO-Kaguya DEM and a combination of the
@@ -25,6 +25,8 @@ writes `amt` number of images to its own file.
 from __future__ import absolute_import, division, print_function
 
 from PIL import Image
+Image.MAX_IMAGE_PIXELS = 2831155200
+
 import input_data_gen as igen
 import time
 
@@ -34,7 +36,7 @@ import time
 use_mpi4py = False
 
 # Source image path.
-source_image_path = "LunarLROLrocKaguya_118mperpix.png"
+source_image_path = "./tests/LunarLROLrocKaguya_118mperpix.png"
 
 # LROC crater catalog csv path.
 lroc_csv_path = "./catalogues/LROCCraters.csv"
