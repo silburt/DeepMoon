@@ -5,7 +5,9 @@ from torch.nn.modules.batchnorm import _BatchNorm
 from torch.nn.init import kaiming_uniform_
 from torch import (cat, reshape, add)
 from torch.nn.functional import batch_norm
-
+from torch.nn import BCEWithLogitsLoss
+from torch.optim import Adam
+import pytorch_lightning as pl
 
 def passthrough(x, **kwargs):
     return x
@@ -138,9 +140,13 @@ class OutTransition(Module):
         return out
 
 
-class Crater_VNet(Module):
-    def __init__(self, relu="relu", dropout=.15):
+class Crater_VNet(pl.LightningModule):
+    def __init__(self, relu="relu", dropout=.15, lr=0.02):
         super().__init__()
+
+        self.criterion = BCEWithLogitsLoss()
+        self.lerning_rate = lr
+
         self.in_tr = InputTransition(relu)
         self.down_32 = DownTransition(16, 1, relu)
         self.down_64 = DownTransition(32, 1, relu)
@@ -166,3 +172,26 @@ class Crater_VNet(Module):
         out = self.out_tr(out)
 
         return out
+
+    def configure_optimizers(self):
+        optimizer = Adam(self.parameters(), lr=self.lerning_rate)
+        return optimizer
+
+    def training_step(self, train_batch, batch_idx):
+        # data to device
+        x, y = train_batch
+        
+        x_hat = self(x)
+        loss = self.criterion(x_hat, y)
+
+        self.log('train_loss', loss)
+        return loss
+
+    def validation_step(self, val_batch, batch_idx):
+        x, y = val_batch
+        
+        x_hat = self(x)
+        loss = self.criterion(x_hat, y)
+
+        self.log('val_loss', loss)
+               
