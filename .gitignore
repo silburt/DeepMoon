@@ -5,6 +5,8 @@
 *.so
 __pycache__
 
+.vscode
+
 # ipynb stuff
 .ipynb_checkpoints/
 docs/.ipynb_checkpoints/
