@@ -78,8 +78,6 @@ def training(path, img_size, learning_rate, batch_size, num_worker, epoch,
                          #default_root_dir=f'{output}/checkpoints',
                          callbacks=[checkpointmodel])
 
-
-
     trainer.fit(model,
                 train_dataloader=moon_crater_training,
                 val_dataloaders=moon_crater_validation)
