@@ -5,6 +5,7 @@ import sys
 import click
 
 import torch
+import pytorch_lightning as pl
 
 if __debug__:
     scriptPath = os.path.realpath(os.path.dirname(__file__))
@@ -58,8 +59,13 @@ from deepmoon.learning.training import training
 @click.option("--dropout", "-d", default=.15, type=float, help="dropout value")
 @click.argument("input_files_root_path")
 @click.argument("output")
+@click.argument("checkpoint", re)
 def main(shuffle, num_worker, batch_size, epoch, learning_rate, split,
-         filter_len, number_of_filters, dropout, img_size, input_files_root_path, output):
+         filter_len, number_of_filters, dropout, img_size, input_files_root_path, output, checkpoint):
+
+    if checkpoint is None:
+        checkpoint = None
+
     print("\n\n")
     print("*" * 25, "   DEEPMOON   ", "*" * 25)
     print('__Python VERSION:', sys.version)
@@ -72,11 +78,13 @@ def main(shuffle, num_worker, batch_size, epoch, learning_rate, split,
     print('Active CUDA Device: GPU', torch.cuda.current_device())
     print('Available devices ', torch.cuda.device_count())
     print('Current cuda device ', torch.cuda.current_device())
+    print('Current cuda device ', torch.cuda.current_device())
+    print("pytorch lighning", pl.__version__)
     print("*" * 60)
     print("\n\n")
 
     training(input_files_root_path, img_size, learning_rate, batch_size, num_worker,
-             epoch, split, shuffle, filter_len, number_of_filters, dropout, output)
+             epoch, split, shuffle, filter_len, number_of_filters, dropout, output, checkpoint)
 
 
 if __name__ == '__main__':

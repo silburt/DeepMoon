@@ -1,5 +1,3 @@
-import pathlib
-import shutil
 import numpy as np
 
 import torch
@@ -53,15 +51,7 @@ def load_split_datasets(dataset, validataion_size, batch_size, shuffle,
 
 
 def training(path, img_size, learning_rate, batch_size, num_worker, epoch,
-             split, shuffle, filter_len, number_of_filters, dropout, output):
-
-    checkpoint = ModelCheckpoint(dirpath=f"{output}/log/",
-                                 verbose=True,
-                                 monitor="val_acc",
-                                 mode="max")
-
-    device_name = "cuda:0" if torch.cuda.is_available() else "cpu"
-    #device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+             split, shuffle, filter_len, number_of_filters, dropout, output, checkpoint=None):
 
     moon_crater_dataset = MoonCrater(root=path,
                                      transform=ToTensor(),
@@ -76,20 +66,19 @@ def training(path, img_size, learning_rate, batch_size, num_worker, epoch,
 
     model = Crater_VNet("relu", dropout, lr=learning_rate)
 
-    tb_logger = pl_loggers.TensorBoardLogger(f'{output}/logs/')
+    checkpoint = ModelCheckpoint(dirpath=f"{output}/log/checkpoints/",
+                                 verbose=True,
+                                 monitor="val_acc",
+                                 mode="max")
 
-    if "cuda" in device_name:
-        trainer = pl.Trainer(gpus=1,
-                             max_epochs=epoch,
-                             checkpoint_callback=checkpoint,
-                             logger=tb_logger,
-                             default_root_dir=f'{output}/checkpoints')
-    else:
-        trainer = pl.Trainer(gpus=0,
-                             max_epochs=epoch,
-                             checkpoint_callback=checkpoint,
-                             logger=tb_logger,
-                             default_root_dir=f'{output}/checkpoints')
+    trainer = pl.Trainer(gpus=1 if torch.cuda.is_available() else 0,
+                         max_epochs=epoch,
+                         logger=pl_loggers.TensorBoardLogger(f'{output}/logs/tb/'),
+                         resume_from_checkpoint=f'{output}/log/checkpoints/{checkpoint}.ckpt' if checkpoint is not None else None,
+                         #default_root_dir=f'{output}/checkpoints',
+                         callbacks=[checkpoint])
+
+
 
     trainer.fit(model,
                 train_dataloader=moon_crater_training,

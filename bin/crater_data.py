@@ -70,12 +70,12 @@ from deepmoon.preprocessing.trainingset import GenTrainingSet
 @click.option("--sub_cdim",
               "-x",
               type=str,
-              help="imge regon source dimension",
+              help="image region source dimension",
               default="-180,180,-60,60")
 @click.option("--ring",
               "-r",
               is_flag=True,
-              help="filled cicles or rings",
+              help="filled circles or rings",
               default=True)
 @click.option("--processes",
               "-p",
@@ -95,6 +95,7 @@ def main(number, dist_crop, target_size, image_size, distribution,
          diameter_of_crater, planet_radius, truncate, ringwidth, source_cdim,
          sub_cdim, ring, processes, verbose, image_file, crater_lroc,
          crater_head, output_folder):
+         
     # first check outputfolder
     output_folder = pathlib.Path(output_folder)
     if not output_folder.is_dir():

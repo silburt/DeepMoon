@@ -20,8 +20,13 @@ class MoonCrater(Dataset):
 
         self.img_size = (image_size, image_size)
 
-        with open(self.root / "data_rec.json", "r", encoding="utf8") as jsonfile:
-            self.info = tuple(json.load(jsonfile))
+        data_file=self.root / "data_rec.json"
+
+        assert data_file.is_file(), f"file: {data_file.is_file()} not found"
+
+        with open(data_file, "r", encoding="utf8") as jsonfile:
+                self.info = tuple(json.load(jsonfile))
+        
 
     def __len__(self) -> int:
         return len(self.info)
