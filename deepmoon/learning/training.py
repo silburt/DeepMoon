@@ -69,10 +69,12 @@ def training(path, img_size, learning_rate, batch_size, num_worker, epoch,
                          logger=pl_loggers.TensorBoardLogger(f'{output}/logs/tb/'),
                          resume_from_checkpoint=f'{output}/log/checkpoints/{checkpoint}.ckpt' if checkpoint is not None else None,
                          #default_root_dir=f'{output}/checkpoints',
-                         callbacks=[ModelCheckpoint(dirpath=f"{output}/log/checkpoints/",
+                         callbacks=[
+                            ModelCheckpoint(dirpath=f"{output}/log/checkpoints/",
                                  verbose=True,
                                  monitor="val_acc",
-                                 mode="max")])
+                                 mode="max")]
+                        )
 
     trainer.fit(Crater_VNet("relu", dropout, lr=learning_rate),
                 train_dataloader=moon_crater_training,
