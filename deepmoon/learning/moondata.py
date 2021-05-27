@@ -20,16 +20,14 @@ class MoonCrater(Dataset):
 
         self.img_size = (image_size, image_size)
 
-        data_file=root / "data_rec.json"
-
-        assert data_file.is_file(), f"file: {data_file.is_file()} not found"
-
-        with open(data_file, "r", encoding="utf8") as jsonfile:
-                info = list(json.load(jsonfile))
+        #data_file=root / "data_rec.json"
+        #assert data_file.is_file(), f"file: {data_file.is_file()} not found"
+        #with open(data_file, "r", encoding="utf8") as jsonfile:
+        #        info = list(json.load(jsonfile))
         
         files = set()
 
-        for element in info:
+        for element in (root / "mask").glob("*.png"):
             index = int(element["name"])
             image = root / f"{index}.png"
             mask = root / "mask" / f"{index}.png"
