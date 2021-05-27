@@ -15,28 +15,40 @@ class MoonCrater(Dataset):
                  root: str,
                  transform: Optional[Callable] = None,
                  image_size=256) -> None:
-        self.root = Path(root)
+        root = Path(root)
         self.transform = transform
 
         self.img_size = (image_size, image_size)
 
-        data_file=self.root / "data_rec.json"
+        data_file=root / "data_rec.json"
 
         assert data_file.is_file(), f"file: {data_file.is_file()} not found"
 
         with open(data_file, "r", encoding="utf8") as jsonfile:
-                self.info = tuple(json.load(jsonfile))
+                info = list(json.load(jsonfile))
         
+        files = set()
+
+        for element in info:
+            index = int(element["name"])
+            image = root / f"{index}.png"
+            mask = root / "mask" / f"{index}.png"
+            if image.is_file() and mask.is_file() :
+                files.add(tuple((image, mask)))
+
+        self.files = tuple(files)
 
     def __len__(self) -> int:
-        return len(self.info)
+        return len(self.files)
 
     def __getitem__(self, index: int) -> tuple:
         if torch.is_tensor(index):
             index = index.tolist()
 
-        image = Image.open(self.root / f"{index}.png")
-        mask = Image.open(self.root / "mask" / f"{index}.png")
+        data = self.files[index]
+
+        image = Image.open(data[0])
+        mask = Image.open(data[1])
 
         if self.transform:
             image = self.transform(image)

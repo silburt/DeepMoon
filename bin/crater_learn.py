@@ -59,7 +59,7 @@ from deepmoon.learning.training import training
 @click.option("--dropout", "-d", default=.15, type=float, help="dropout value")
 @click.argument("input_files_root_path")
 @click.argument("output")
-@click.argument("checkpoint", re)
+@click.argument("checkpoint", required=False)
 def main(shuffle, num_worker, batch_size, epoch, learning_rate, split,
          filter_len, number_of_filters, dropout, img_size, input_files_root_path, output, checkpoint):
 
