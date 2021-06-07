@@ -7,7 +7,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 import pytorch_lightning as pl
 from pytorch_lightning import loggers as pl_loggers
 
-from deepmoon.learning.moondata import MoonCrater
+from deepmoon.learning.moondata import (MoonCrater, MoonCraterH5)
 from deepmoon.learning.model import Crater_VNet
 
 
@@ -51,11 +51,16 @@ def load_split_datasets(dataset, validataion_size, batch_size, shuffle,
 
 
 def training(path, img_size, learning_rate, batch_size, num_worker, epoch,
-             split, shuffle, filter_len, number_of_filters, dropout, output, checkpoint=None):
+             split, shuffle, filter_len, number_of_filters, dropout, output, h5=False, checkpoint=None):
 
-    moon_crater_dataset = MoonCrater(root=path,
+    if h5:
+        moon_crater_dataset = MoonCraterH5(root=path,
+                                     transform=ToTensor())
+    else:
+        moon_crater_dataset = MoonCrater(root=path,
                                      transform=ToTensor(),
                                      image_size=img_size)
+
 
     (moon_crater_training,
      moon_crater_validation) = load_split_datasets(dataset=moon_crater_dataset,
@@ -64,16 +69,18 @@ def training(path, img_size, learning_rate, batch_size, num_worker, epoch,
                                                    shuffle=shuffle,
                                                    num_worker=num_worker)
 
+    checkpointModel = ModelCheckpoint(dirpath=f"{output}/logs/checkpoints/",
+                                filename='DeepMoon-{epoch:02d}-{val_loss:.2f}',
+                                monitor="val_loss",
+                                verbose=True,
+                                save_top_k=3)
+
     trainer = pl.Trainer(gpus=1 if torch.cuda.is_available() else 0,
                          max_epochs=epoch,
                          logger=pl_loggers.TensorBoardLogger(f'{output}/logs/tb/'),
-                         resume_from_checkpoint=f'{output}/log/checkpoints/{checkpoint}.ckpt' if checkpoint is not None else None,
+                         resume_from_checkpoint=f'{output}/logs/checkpoints/{checkpoint}.ckpt' if checkpoint is not None else None,
                          #default_root_dir=f'{output}/checkpoints',
-                         callbacks=[
-                            ModelCheckpoint(dirpath=f"{output}/log/checkpoints/",
-                                 verbose=True,
-                                 monitor="val_acc",
-                                 mode="max")]
+                         callbacks=[checkpointModel]
                         )
 
     trainer.fit(Crater_VNet("relu", dropout, lr=learning_rate),

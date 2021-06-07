@@ -13,13 +13,17 @@ if __debug__:
 
 from deepmoon.learning.training import training
 
-
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
 @click.option("--shuffle",
               "-s",
               default=True,
               is_flag=True,
               help="set shuffle for dataloader")
+@click.option("--h5",
+              "-5",
+              default=False,
+              is_flag=True,
+              help="use h5 dataset")
 @click.option("--num_worker",
               "-c",
               default=4,
@@ -60,7 +64,7 @@ from deepmoon.learning.training import training
 @click.argument("input_files_root_path")
 @click.argument("output")
 @click.argument("checkpoint", required=False)
-def main(shuffle, num_worker, batch_size, epoch, learning_rate, split,
+def main(shuffle, h5, num_worker, batch_size, epoch, learning_rate, split,
          filter_len, number_of_filters, dropout, img_size, input_files_root_path, output, checkpoint):
 
     if checkpoint is None:
@@ -84,7 +88,7 @@ def main(shuffle, num_worker, batch_size, epoch, learning_rate, split,
     print("\n\n")
 
     training(input_files_root_path, img_size, learning_rate, batch_size, num_worker,
-             epoch, split, shuffle, filter_len, number_of_filters, dropout, output, checkpoint)
+             epoch, split, shuffle, filter_len, number_of_filters, dropout, output, h5, checkpoint)
 
 
 if __name__ == '__main__':

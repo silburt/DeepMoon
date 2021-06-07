@@ -4,6 +4,7 @@ from PIL import Image
 
 import numpy as np
 import json
+import h5py
 
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -47,6 +48,36 @@ class MoonCrater(Dataset):
 
         image = Image.open(data[0])
         mask = Image.open(data[1])
+
+        if self.transform:
+            image = self.transform(image)
+            mask = self.transform(mask)
+
+        return (image, mask)
+
+class MoonCraterH5(Dataset):
+    def __init__(self,
+                 root: str,
+                 transform: Optional[Callable] = None) -> None:
+        root = Path(root)
+        self.transform = transform
+        
+        self.h5file = h5py.File(root, "r")
+        self.images = self.h5file["image"]
+        self.masks = self.h5file["mask"]
+
+    def __del__(self):
+        self.h5file.close()
+
+    def __len__(self) -> int:
+        return self.images.shape[0]
+
+    def __getitem__(self, index: int) -> tuple:
+        if torch.is_tensor(index):
+            index = index.tolist()
+
+        image = Image.fromarray(self.images[index,...])
+        mask = Image.fromarray(self.masks[index,...])
 
         if self.transform:
             image = self.transform(image)

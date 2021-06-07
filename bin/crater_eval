@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+
+import os, sys
+
+from torch import tensor
+
+if __debug__:
+    scriptPath = os.path.realpath(os.path.dirname(__file__))
+    sys.path.append(scriptPath + "/..")
+
+from pathlib import Path
+import click
+from PIL import Image
+
+from tqdm import tqdm
+
+import torchvision.transforms as transforms
+
+from deepmoon.learning.model import Crater_VNet
+
+
+@click.command(context_settings=dict(help_option_names=['-h', '--help']))
+@click.argument("image_files")
+@click.argument("checkpoint")
+@click.argument("output")
+def main(image_files, checkpoint, output):
+      image_files = Path(image_files)
+      checkpoint = Path(checkpoint)
+      output = Path(output)
+
+      if not output.is_dir():
+            output.mkdir(exist_ok=True, parents=True)
+
+      if not checkpoint.is_file():
+            raise SystemExit(f"checkpoint not found")
+
+      model = Crater_VNet.load_from_checkpoint(checkpoint)
+      model.eval()
+
+      file_list = list(image_files.iterdir())
+
+      for image in tqdm(file_list):
+            if image.absolute().is_dir():
+                  continue
+            input_image = Image.open(image.absolute())
+            tensor = transforms.ToTensor()(input_image).unsqueeze(0)
+            predictions = model(tensor)
+
+            eval_img = transforms.ToPILImage()(predictions.squeeze()).convert("L")
+            eval_img.save(output / f"{image.stem}_eval.png")
+
+            input_image = Image.blend(input_image, eval_img, alpha=0.5)
+            input_image.save(output / f"{image.stem}_img.png")
+
+if __name__=="__main__":
+      main()
+         

@@ -141,6 +141,7 @@ class OutTransition(Module):
 class Crater_VNet(pl.LightningModule):
     def __init__(self, relu="relu", dropout=.15, lr=0.02):
         super().__init__()
+        self.save_hyperparameters()
 
         self.criterion = BCEWithLogitsLoss()
         self.lerning_rate = lr

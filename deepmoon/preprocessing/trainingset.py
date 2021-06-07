@@ -217,7 +217,7 @@ def run_element(i, img, cdim, origin, verbose, ilen, tglen, random_sampler,
     crater_out = output_path / "crater"
     if not crater_out.is_dir():
         crater_out.mkdir(parents=True, exist_ok=True)
-    ctr_xy.to_pickle(f"{crater_out}/{img_number}.pkl")
+    ctr_xy.to_json(f"{crater_out}/{img_number}.json", orient="split") #.to_pickle(f"{crater_out}/{img_number}.pkl")
 
     with lock:
         return {

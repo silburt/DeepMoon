@@ -5,6 +5,7 @@ import sys
 import ast
 import click
 import pathlib
+import h5py
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
 

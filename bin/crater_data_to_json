@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+
+from pathlib import Path
+
+import pickle
+import click
+import tqdm
+
+@click.command()
+@click.argument("input")
+def main(input):
+    elements = list(Path(input).glob("*.pkl"))
+    
+    for file in tqdm.tqdm(elements):
+        with open(file,"rb") as pickle_file:
+            data = pickle.load(pickle_file)
+            data.to_json(file.with_suffix(".json"), orient='split')
+        file.unlink()
+
+if __name__=="__main__":
+    main()
