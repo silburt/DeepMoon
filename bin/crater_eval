@@ -2,7 +2,7 @@
 
 import os, sys
 
-from torch import tensor
+import torch
 
 if __debug__:
     scriptPath = os.path.realpath(os.path.dirname(__file__))
@@ -11,7 +11,7 @@ if __debug__:
 from pathlib import Path
 import click
 from PIL import Image
-
+from random import shuffle
 from tqdm import tqdm
 
 import torchvision.transforms as transforms
@@ -34,14 +34,14 @@ def main(image_files, checkpoint, output):
       if not checkpoint.is_file():
             raise SystemExit(f"checkpoint not found")
 
-      model = Crater_VNet.load_from_checkpoint(checkpoint)
+      location= torch.device('cuda') if torch.cuda.is_available() else torch.device("cpu")
+      model = Crater_VNet.load_from_checkpoint(checkpoint,map_location=location)
       model.eval()
 
-      file_list = list(image_files.iterdir())
+      file_list = [item for item in image_files.iterdir() if not item.absolute().is_dir()][::3]
+      shuffle(file_list)
 
       for image in tqdm(file_list):
-            if image.absolute().is_dir():
-                  continue
             input_image = Image.open(image.absolute())
             tensor = transforms.ToTensor()(input_image).unsqueeze(0)
             predictions = model(tensor)
@@ -49,7 +49,7 @@ def main(image_files, checkpoint, output):
             eval_img = transforms.ToPILImage()(predictions.squeeze()).convert("L")
             eval_img.save(output / f"{image.stem}_eval.png")
 
-            input_image = Image.blend(input_image, eval_img, alpha=0.5)
+            input_image = Image.blend(input_image, eval_img, alpha=0.2)
             input_image.save(output / f"{image.stem}_img.png")
 
 if __name__=="__main__":
