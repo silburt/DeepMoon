@@ -1,8 +1,9 @@
 from torch.nn import (Module, Conv2d, ReLU, PReLU, ELU, Sequential, Dropout2d,
                       ConvTranspose2d, UpsamplingNearest2d)
 from torch.nn.init import xavier_uniform
+from torch.nn.modules.activation import Sigmoid
 from torch.nn.modules.batchnorm import _BatchNorm
-from torch import (cat, add)
+from torch import (cat, add, reshape)
 from torch.nn.functional import batch_norm
 from torch.nn import BCEWithLogitsLoss
 from torch.nn.modules.dropout import Dropout
@@ -200,7 +201,7 @@ class Crater_VNet(pl.LightningModule):
 
 
 class DeepMoon(pl.LightningModule):
-    def __init__(self, number_of_filter, filter_length, lmbda, init, activation="relu", dropout=.15, lr=0.02):
+    def __init__(self, number_of_filter, filter_length, lmbda, init, activation="relu", dim = 256, dropout=.15, lr=0.02):
         super().__init__()
         self.save_hyperparameters()
 
@@ -209,6 +210,7 @@ class DeepMoon(pl.LightningModule):
         self.lmbda = lmbda
         self.init_ = init
         self.dropout = dropout
+        self.dim = dim
 
         self.down_0 = Sequential(
             Conv2d( in_channels=number_of_filter, 
@@ -248,7 +250,6 @@ class DeepMoon(pl.LightningModule):
                     kernel_size=filter_length,
                     stride=filter_length ),
             Activation(activation, number_of_filter_4),
-            MaxPool2d(kernel_size=(2,2), stride=(2,2))
         )
         self.down_3 = Sequential(
             Conv2d( in_channels=number_of_filter_4, 
@@ -259,7 +260,7 @@ class DeepMoon(pl.LightningModule):
                     out_channels=number_of_filter_4,
                     kernel_size=filter_length,
                     stride=filter_length ),
-            UpsamplingNearest2d(size=(2,2))
+            Activation(activation, number_of_filter_4)
         )
 
         self.down_0.apply(self.init_weights)
@@ -267,17 +268,83 @@ class DeepMoon(pl.LightningModule):
         self.down_2.apply(self.init_weights)
         self.down_3.apply(self.init_weights)
 
+        self.up_1 = Sequential(
+            Conv2d( in_channels=number_of_filter_4, 
+                    out_channels=number_of_filter_2,
+                    kernel_size=filter_length,
+                    stride=filter_length ),
+            Conv2d( in_channels=number_of_filter_2, 
+                    out_channels=number_of_filter_2,
+                    kernel_size=filter_length,
+                    stride=filter_length ),
+            Activation(activation, number_of_filter_2)
+        )
+
+        self.up_2 = Sequential(
+            Conv2d( in_channels=number_of_filter_2, 
+                    out_channels=number_of_filter,
+                    kernel_size=filter_length,
+                    stride=filter_length ),
+            Conv2d( in_channels=number_of_filter, 
+                    out_channels=number_of_filter,
+                    kernel_size=filter_length,
+                    stride=filter_length ),
+            Activation(activation, number_of_filter)
+        )
+
+
+        self.up_3 = Sequential(
+            Conv2d( in_channels=number_of_filter_2, 
+                    out_channels=number_of_filter,
+                    kernel_size=filter_length,
+                    stride=filter_length ),
+            Conv2d( in_channels=number_of_filter, 
+                    out_channels=number_of_filter,
+                    kernel_size=filter_length,
+                    stride=filter_length ),
+            Activation(activation, number_of_filter)
+        )
+
+        self.up_1.apply(self.init_weights)
+        self.up_2.apply(self.init_weights)
+        self.up_3.apply(self.init_weights)
+
+        self.out_conv = Conv2d(in_channels=number_of_filter, out_channels=1)
+
+        self.out_conv.apply(self.init_weights)
+
     def forward(self, idata):
         d0 = self.down_0(idata)
-        d1 = self.down_1(d0)
-        d2 = self.down_2(d1)
+        max_1 = MaxPool2d(kernel_size=(2,2), stride=(2,2))(d0)
+        d1 = self.down_1(max_1)
+        max_2 = MaxPool2d(kernel_size=(2,2), stride=(2,2))(d1)
+        d2 = self.down_2(max_2)
+        max_3 = MaxPool2d(kernel_size=(2,2), stride=(2,2))(d2)
 
-        u = merge(layers=(self.down_2, self.down_3), cat_axis=-1)
-        if self.dropout is not None and self.dropout > 0:
-            u = Dropout2d(p=self.dropout, inplace=True)(u)
-               
+        u = self.down_3(max_3),
+        u = UpsamplingNearest2d(size=(2,2))(u)
+        u = merge(layers=(d2,u), cat_axis=-1)
+        u = self.dropout_reg(u)
 
-        return None
+        u = self.up_1(u)
+        u = UpsamplingNearest2d(size=(2,2))(u)
+        u = merge(layers=(d1,u), cat_axis=-1) # -1 should be last axis
+        u = self.dropout_reg(u)
+
+        u = self.up_2(u)
+        u = UpsamplingNearest2d(u)
+        u = merge(layers=(d0, u), cat_axis=-1)
+        u = self.dropout_reg(u)
+
+        u = self.up_3(u)
+
+        u = self.out_conv(u)
+        u = Sigmoid()(u)
+
+        return reshape(input=u, shape=(self.dim, self.dim))
+
+    def dropout_reg(self, u):
+        return Dropout2d(p=self.dropout, inplace=True)(u) if self.dropout is not None and self.dropout > 0 else u
 
     def init_weights(self, m):
         if isinstance(m, Conv2d):
