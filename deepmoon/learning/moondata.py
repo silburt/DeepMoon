@@ -29,7 +29,7 @@ class MoonCrater(Dataset):
         files = set()
 
         for element in (root / "mask").glob("*.png"):
-            index = int(element["name"])
+            index = int(element.stem)
             image = root / f"{index}.png"
             mask = root / "mask" / f"{index}.png"
             if image.is_file() and mask.is_file() :

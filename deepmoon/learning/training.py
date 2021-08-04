@@ -8,7 +8,7 @@ import pytorch_lightning as pl
 from pytorch_lightning import loggers as pl_loggers
 
 from deepmoon.learning.moondata import (MoonCrater, MoonCraterH5)
-from deepmoon.learning.model import Crater_VNet
+from deepmoon.learning.model import (Crater_VNet, DeepMoon)
 
 
 def load_split_datasets(dataset, validataion_size, batch_size, shuffle,
@@ -50,8 +50,21 @@ def load_split_datasets(dataset, validataion_size, batch_size, shuffle,
     return (train_loader, validation_loader)
 
 
-def training(path, img_size, learning_rate, batch_size, num_worker, epoch,
-             split, shuffle, filter_len, number_of_filters, dropout, output, h5=False, checkpoint=None):
+def training(path, 
+             img_size, 
+             learning_rate, 
+             batch_size, 
+             num_worker, 
+             epoch, 
+             lmdba, 
+             split, 
+             shuffle, 
+             filter_len, 
+             number_of_filters, 
+             dropout, 
+             output, 
+             h5=False, 
+             checkpoint=None):
 
     if h5:
         moon_crater_dataset = MoonCraterH5(root=path,
@@ -83,6 +96,9 @@ def training(path, img_size, learning_rate, batch_size, num_worker, epoch,
                          callbacks=[checkpointModel]
                         )
 
-    trainer.fit(Crater_VNet("relu", dropout, lr=learning_rate),
+    #model = Crater_VNet("relu", dropout, lr=learning_rate)
+    model = DeepMoon(number_of_filter=number_of_filters, filter_length=filter_len, lmbda=lmdba, lr=learning_rate, dropout=dropout)
+
+    trainer.fit(model,
                 train_dataloader=moon_crater_training,
                 val_dataloaders=moon_crater_validation)

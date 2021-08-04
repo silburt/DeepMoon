@@ -57,7 +57,7 @@ from deepmoon.learning.training import training
               help="filter size")
 @click.option("--img_size",
               "-z",
-              default=256,
+              default=112,
               type=int,
               help="image size")
 @click.option("--dropout", "-d", default=.15, type=float, help="dropout value")
@@ -87,8 +87,22 @@ def main(shuffle, h5, num_worker, batch_size, epoch, learning_rate, split,
     print("*" * 60)
     print("\n\n")
 
-    training(input_files_root_path, img_size, learning_rate, batch_size, num_worker,
-             epoch, split, shuffle, filter_len, number_of_filters, dropout, output, h5, checkpoint)
+    training(
+        path=input_files_root_path, 
+        img_size=img_size, 
+        learning_rate=learning_rate, 
+        batch_size=batch_size, 
+        num_worker=num_worker,
+        epoch=epoch, 
+        lmdba=1e-6, 
+        split=split,
+        shuffle=shuffle, 
+        filter_len=filter_len,
+        number_of_filters=number_of_filters,
+        dropout=dropout, 
+        output=output,
+        h5=h5,
+        checkpoint=checkpoint)
 
 
 if __name__ == '__main__':
