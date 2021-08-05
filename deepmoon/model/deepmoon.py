@@ -8,6 +8,7 @@ from torch.optim import Adam
 import pytorch_lightning as pl
 
 from deepmoon.model.activations import Activation
+from deepmoon.model.conv import ConvBlock
 
 class DeepMoon(pl.LightningModule):
     def __init__(self, number_of_filter, filter_length, lmbda, activation="relu", dim = 256, dropout=.15, lr=0.02):

@@ -1,45 +1,13 @@
 from torch.nn import (Module, Conv2d, Sequential, Dropout2d, ConvTranspose2d)
 from torch.nn.init import xavier_uniform
-from torch.nn.modules.batchnorm import _BatchNorm
 from torch import (cat, add)
-from torch.nn.functional import batch_norm
 from torch.nn import BCEWithLogitsLoss
 from torch.optim import Adam
 import pytorch_lightning as pl
 
 from deepmoon.model.activations import Activation
-from deepmoon.model.util import passthrough
-
-#normalization between sub_volumes.
-class ContBatchNorm2d(_BatchNorm):
-    def _check_input_dim(self, idata):
-        if idata.dim() != 4:
-            raise ValueError(f"expected 4d input. I got {idata.dim()}")
-
-    def forward(self, idata):
-        self._check_input_dim(idata)
-        return batch_norm(idata, self.running_mean, self.running_var,
-                          self.weight, self.bias, True, self.momentum,
-                          self.eps)
-
-class LUConv(Module):
-    def __init__(self, nchan, relu):
-        super().__init__()
-        self.relu1 = Activation(relu, nchan)
-        self.conv1 = Conv2d(nchan, nchan, kernel_size=5, padding=2)
-        self.bn1 = ContBatchNorm2d(nchan)
-
-    def forward(self, idata):
-        idata = self.relu1(self.bn1(self.conv1(idata)))
-        return idata
-
-
-def _make_Conv(nchan, depth, relu):
-    layers = list()
-    for _ in range(depth):
-        layers.append(LUConv(nchan, relu))
-    return Sequential(*layers)
-
+from deepmoon.model.util import (passthrough, ContBatchNorm2d)
+from deepmoon.model.conv import make_Conv
 
 class InputTransition(Module):
     def __init__(self, relu):
@@ -70,7 +38,7 @@ class DownTransition(Module):
         if dropout > 0:
             self.do1 = Dropout2d(dropout)
 
-        self.ops = _make_Conv(outchan, nConvs, relu)
+        self.ops = make_Conv(outchan, nConvs, relu)
 
     def forward(self, idata):
         down = self.relu1(self.bn1(self.down_conv(idata)))
@@ -97,7 +65,7 @@ class UpTransition(Module):
         if dropout > 0:
             self.do1 = Dropout2d(dropout)
 
-        self.ops = _make_Conv(outchan, nConvs, relu)
+        self.ops = make_Conv(outchan, nConvs, relu)
 
     def forward(self, idata, skipx):
         up = self.do1(idata)
