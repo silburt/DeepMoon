@@ -2,13 +2,10 @@ from pathlib import Path
 from typing import Optional, Callable
 from PIL import Image
 
-import numpy as np
-import json
 import h5py
 
 import torch
-from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms, utils
+from torch.utils.data import Dataset
 
 
 class MoonCrater(Dataset):

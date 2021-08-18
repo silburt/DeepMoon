@@ -1,5 +1,4 @@
-from torch.nn import (Module, Conv2d, Sequential, Dropout2d, ConvTranspose2d)
-from torch.nn.init import xavier_uniform
+from torch.nn import (Module, Conv2d, Dropout2d, ConvTranspose2d)
 from torch import (cat, add)
 from torch.nn import BCEWithLogitsLoss
 from torch.optim import Adam
@@ -94,23 +93,30 @@ class OutTransition(Module):
         return out
 
 class Crater_VNet(pl.LightningModule):
-    def __init__(self, relu="relu", dropout=.15, lr=0.02):
+    def __init__(self, 
+                 number_of_filter, 
+                 filter_length, 
+                 lmbda,
+                 dim = 256,
+                 activation="relu", 
+                 dropout=.15, 
+                 lr=0.02):
         super().__init__()
         self.save_hyperparameters()
 
         self.criterion = BCEWithLogitsLoss()
         self.lerning_rate = lr
 
-        self.in_tr = InputTransition(relu)
-        self.down_32 = DownTransition(16, 1, relu)
-        self.down_64 = DownTransition(32, 1, relu)
-        self.down_128 = DownTransition(64, 2, relu, dropout)
-        self.down_256 = DownTransition(128, 2, relu, dropout)
-        self.up_256 = UpTransition(256, 256, 2, relu, dropout)
-        self.up_128 = UpTransition(256, 128, 2, relu, dropout)
-        self.up_64 = UpTransition(128, 64, 1, relu)
-        self.up_32 = UpTransition(64, 32, 1, relu)
-        self.out_tr = OutTransition(32, relu)
+        self.in_tr = InputTransition(activation)
+        self.down_32 = DownTransition(16, 1, activation)
+        self.down_64 = DownTransition(32, 1, activation)
+        self.down_128 = DownTransition(64, 2, activation, dropout)
+        self.down_256 = DownTransition(128, 2, activation, dropout)
+        self.up_256 = UpTransition(256, 256, 2, activation, dropout)
+        self.up_128 = UpTransition(256, 128, 2, activation, dropout)
+        self.up_64 = UpTransition(128, 64, 1, activation)
+        self.up_32 = UpTransition(64, 32, 1, activation)
+        self.out_tr = OutTransition(32, activation)
 
     def forward(self, idata):
         out16 = self.in_tr(idata)

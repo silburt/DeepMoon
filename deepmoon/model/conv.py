@@ -1,5 +1,6 @@
 from deepmoon.model.activations import Activation
 from torch.nn import (Module, Conv2d, Sequential)
+from torch.nn.init import *
 
 from deepmoon.model.util import ContBatchNorm2d
 
@@ -20,6 +21,7 @@ def make_Conv(nchan, depth, relu):
     for _ in range(depth):
         layers.append(LUConv(nchan, relu))
     return Sequential(*layers)
+
 
 class ConvBlock(Module):
     def __init__(self, ichan, ochan, relu):

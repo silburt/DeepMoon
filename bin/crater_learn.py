@@ -29,7 +29,7 @@ from deepmoon.learning.training import training
               default=4,
               type=int,
               help="number of workers")
-@click.option("--batch_size", "-b", default=16, type=int, help="batch size")
+@click.option("--batch_size", "-b", default=4, type=int, help="batch size")
 @click.option("--epoch",
               "-e",
               default=100,
@@ -53,8 +53,13 @@ from deepmoon.learning.training import training
 @click.option("--number_of_filters",
               "-n",
               type=int,
-              default=3,
+              default=112,
               help="filter size")
+@click.option("--model",
+              "-m",
+              default="cratervnet",
+              type=click.Choice(['cratervnet', 'deepmoon'], case_sensitive=True),
+              help="model")
 @click.option("--img_size",
               "-z",
               default=112,
@@ -65,7 +70,7 @@ from deepmoon.learning.training import training
 @click.argument("output")
 @click.argument("checkpoint", required=False)
 def main(shuffle, h5, num_worker, batch_size, epoch, learning_rate, split,
-         filter_len, number_of_filters, dropout, img_size, input_files_root_path, output, checkpoint):
+         filter_len, number_of_filters, dropout, model, img_size, input_files_root_path, output, checkpoint):
 
     if checkpoint is None:
         checkpoint = None
@@ -102,7 +107,8 @@ def main(shuffle, h5, num_worker, batch_size, epoch, learning_rate, split,
         dropout=dropout, 
         output=output,
         h5=h5,
-        checkpoint=checkpoint)
+        checkpoint=checkpoint,
+        model=model)
 
 
 if __name__ == '__main__':
