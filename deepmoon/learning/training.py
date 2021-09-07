@@ -84,7 +84,7 @@ def training(path,
                                                    num_worker=num_worker)
 
     checkpointModel = ModelCheckpoint(dirpath=f"{output}/logs/checkpoints/",
-                                filename='DeepMoon-{epoch:02d}-{val_loss:.2f}',
+                                filename='DeepMoon-{model}-{epoch:02d}-{val_loss:.2f}',
                                 monitor="val_loss",
                                 verbose=True,
                                 save_top_k=3)

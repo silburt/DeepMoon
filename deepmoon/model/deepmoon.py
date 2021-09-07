@@ -188,3 +188,4 @@ class DeepMoon(pl.LightningModule):
         loss = self.criterion(x_hat, y)
 
         self.log('val_loss', loss)
+        
