@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-setup(name="deepmoon",
+setup(name="DeepMoon",
       version='.'.join([str(v) for v in (0,0,1)]),
       description="Crater learning",
       author="anton.feldmann@gmail.com",
