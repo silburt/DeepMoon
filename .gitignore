@@ -3,7 +3,7 @@
 [Bb]uild
 *.json
 
-.vscode
+.vscode*
 
 # ipynb stuff
 .ipynb_checkpoints/
