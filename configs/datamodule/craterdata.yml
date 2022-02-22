@@ -1,0 +1,7 @@
+---
+__target__: deepmoon.datamodules.deepcraterdata.CraterDataModule
+
+data_dir: ${data_dir}
+batch_size: 256
+num_worker: 8
+split: [0.25, 0.25, 0.75]

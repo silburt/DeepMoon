@@ -1,3 +1,4 @@
+---
 _target_: deepmoon.datamodules.deepmoon.DeepMoon
 
 batch_size: 64

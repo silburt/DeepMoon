@@ -1,5 +1,43 @@
 ---
 defaults:
 - _self_
-- datamodule: 
-- model: 
+- datamodule: craterdata.yml
+- model: deepmoon.yml
+- callbacks: default.yml
+- logger: tensorboard.yml
+- trainer: default.yml
+- log_dir: default.yml
+- hparams_search: null
+- experiment: null
+- override hydra/hydra_logging: colorlog
+- override hydra/job_logging: colorlog
+
+# path to original working directory
+# hydra hijacks working directory by changing it to the new log directory
+# https://hydra.cc/docs/next/tutorials/basic/running_your_app/working_directory
+original_work_dir: ${hydra:runtime.cwd}
+
+log_dir_path: ${original_work_dir}
+
+# path to folder with data
+data_dir: ${original_work_dir}/data/
+
+# pretty print config at the start of the run using Rich library
+print_config: True
+
+# disable python warnings if they annoy you
+ignore_warnings: True
+
+# set False to skip model training
+train: True
+
+# evaluate on test set, using best model weights achieved during training
+# lightning chooses best weights based on the metric specified in checkpoint callback
+test: True
+
+# seed for random number generators in pytorch, numpy and python.random
+seed: null
+
+# default name for the experiment, determines logging folder path
+# (you can overwrite this name in experiment configs)
+name: "deep_moon_default"

@@ -1,14 +1,22 @@
+from os import environ
 from sys import exit
 
-import fire
 import dotenv
 import hydra
 from omegaconf import DictConfig
 
 dotenv.load_dotenv(override=True)
 
-@hydra.main(config_path="configs/", config_name="train.yaml")
-def train(config: DictConfig):
-    pass
+hydra_config_path = environ.get('DEEPMOONCONFIGPATH', "..")
 
-exit(fire.Fire(train))
+@hydra.main(config_path=f"{hydra_config_path}/configs/", config_name="train.yml")
+def train(config: DictConfig) -> None:
+
+    # Imports can be nested inside @hydra.main to optimize tab completion
+    # https://github.com/facebookresearch/hydra/issues/934
+    from deepmoon.logger import extras
+
+    extras(config)
+
+
+exit(train())

@@ -8,7 +8,7 @@ import pytorch_lightning as pl
 from pytorch_lightning import loggers as pl_loggers
 
 from deepmoon.learning.moondata import (MoonCrater, MoonCraterH5)
-from deepmoon.datamodules import get_model
+from deepmoon.model import get_model
 
 
 def load_split_datasets(dataset, validataion_size, batch_size, shuffle,

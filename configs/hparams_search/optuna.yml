@@ -1,0 +1,37 @@
+# @package _global_
+
+defaults:
+  - override /hydra/sweeper: optuna
+
+optimized_metric: "val/acc_best"
+
+hydra:
+  sweeper:
+    _target_: hydra_plugins.hydra_optuna_sweeper.optuna_sweeper.OptunaSweeper
+
+    storage: null
+
+    study_name: null
+
+    n_jobs: 1
+
+    direction: maximize
+
+    n_trials: 25
+
+    sampler:
+      _target_: optuna.samplers.TPESampler
+      seed: 12345
+      n_startup_trials: 10 
+
+    search_space:
+      datamodule.batch_size:
+        type: categorical
+        choices: [32, 64, 128]
+      model.lr:
+        type: float
+        low: 0.0001
+        high: 0.2
+      model.lin1_size:
+        type: categorical
+        choices: [32, 64, 128, 256, 512]

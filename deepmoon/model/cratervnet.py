@@ -4,9 +4,9 @@ from torch.nn import BCEWithLogitsLoss
 from torch.optim import Adam
 import pytorch_lightning as pl
 
-from deepmoon.datamodules.activations import Activation
-from deepmoon.datamodules.util import (passthrough, ContBatchNorm2d)
-from deepmoon.datamodules.conv import make_Conv
+from deepmoon.torch.activations import Activation
+from deepmoon.torch.util import (passthrough, ContBatchNorm2d)
+from deepmoon.torch.conv import make_Conv
 
 class InputTransition(Module):
     def __init__(self, relu):
@@ -94,10 +94,6 @@ class OutTransition(Module):
 
 class Crater_VNet(pl.LightningModule):
     def __init__(self, 
-                 number_of_filter, 
-                 filter_length, 
-                 lmbda,
-                 dim = 256,
                  activation="relu", 
                  dropout=.15, 
                  lr=0.02):
