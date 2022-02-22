@@ -1,14 +1,22 @@
+from typing import (Any, List)
+
+from torch import argmax
 from torch.nn import (Module, Conv2d, Dropout2d, ConvTranspose2d)
 from torch import (cat, add)
 from torch.nn import BCEWithLogitsLoss
 from torch.optim import Adam
 import pytorch_lightning as pl
 
+from torchmetrics import MaxMetric
+from torchmetrics.classification.accuracy import Accuracy
+
 from deepmoon.torch.activations import Activation
 from deepmoon.torch.util import (passthrough, ContBatchNorm2d)
 from deepmoon.torch.conv import make_Conv
 
+
 class InputTransition(Module):
+
     def __init__(self, relu):
         super().__init__()
 
@@ -24,6 +32,7 @@ class InputTransition(Module):
 
 #start downpath
 class DownTransition(Module):
+
     def __init__(self, inchan, nConvs, relu, dropout=0):
         super().__init__()
 
@@ -48,6 +57,7 @@ class DownTransition(Module):
 
 
 class UpTransition(Module):
+
     def __init__(self, inchan, outchan, nConvs, relu, dropout=0):
         super().__init__()
 
@@ -77,6 +87,7 @@ class UpTransition(Module):
 
 
 class OutTransition(Module):
+
     def __init__(self, inchan, relu):
         super().__init__()
 
@@ -92,27 +103,38 @@ class OutTransition(Module):
         out = self.conv3(out)
         return out
 
+
 class Crater_VNet(pl.LightningModule):
-    def __init__(self, 
-                 activation="relu", 
-                 dropout=.15, 
-                 lr=0.02):
+
+    def __init__(self, activation="relu", dropout=.15, lr=0.02):
         super().__init__()
-        self.save_hyperparameters()
+        self.save_hyperparameters(logger=False)
 
         self.criterion = BCEWithLogitsLoss()
-        self.lerning_rate = lr
 
-        self.in_tr = InputTransition(activation)
-        self.down_32 = DownTransition(16, 1, activation)
-        self.down_64 = DownTransition(32, 1, activation)
-        self.down_128 = DownTransition(64, 2, activation, dropout)
-        self.down_256 = DownTransition(128, 2, activation, dropout)
-        self.up_256 = UpTransition(256, 256, 2, activation, dropout)
-        self.up_128 = UpTransition(256, 128, 2, activation, dropout)
-        self.up_64 = UpTransition(128, 64, 1, activation)
-        self.up_32 = UpTransition(64, 32, 1, activation)
-        self.out_tr = OutTransition(32, activation)
+        # use separate metric instance for train, val and test step
+        # to ensure a proper reduction over the epoch
+        self.train_acc = Accuracy()
+        self.val_acc = Accuracy()
+        self.test_acc = Accuracy()
+
+        # for logging best so far validation accuracy
+        self.val_acc_best = MaxMetric()
+
+        self.in_tr = InputTransition(self.hparams.activation)
+        self.down_32 = DownTransition(16, 1, self.hparams.activation)
+        self.down_64 = DownTransition(32, 1, self.hparams.activation)
+        self.down_128 = DownTransition(64, 2, self.hparams.activation,
+                                       self.hparams.dropout)
+        self.down_256 = DownTransition(128, 2, self.hparams.activation,
+                                       self.hparams.dropout)
+        self.up_256 = UpTransition(256, 256, 2, self.hparams.activation,
+                                   self.hparams.dropout)
+        self.up_128 = UpTransition(256, 128, 2, self.hparams.activation,
+                                   self.hparams.dropout)
+        self.up_64 = UpTransition(128, 64, 1, self.hparams.activation)
+        self.up_32 = UpTransition(64, 32, 1, self.hparams.activation)
+        self.out_tr = OutTransition(32, self.hparams.activation)
 
     def forward(self, idata):
         out16 = self.in_tr(idata)
@@ -130,23 +152,66 @@ class Crater_VNet(pl.LightningModule):
         return out
 
     def configure_optimizers(self):
-        optimizer = Adam(self.parameters(), lr=self.lerning_rate)
+        optimizer = Adam(self.parameters(), lr=self.hparams.lr)
         return optimizer
 
-    def training_step(self, train_batch, batch_idx):
+    def step(self, batch: Any):
+        x, y, _ = batch
+
+        logits = self.forward(x)
+        loss = self.criterion(logits, y)
+        preds = argmax(logits, dim=1)
+
+        return loss, preds, y
+
+    def training_step(self, train_batch: Any, batch_idx: int):
         # data to device
-        x, y = train_batch
-        
-        x_hat = self(x)
-        loss = self.criterion(x_hat, y)
+        loss, preds, targets = self.step(train_batch)
 
-        self.log('train_loss', loss)
-        return loss
+        acc = self.train_acc(preds, targets.squeeze().long())
+        self.log("train/loss",
+                 loss,
+                 on_step=False,
+                 on_epoch=True,
+                 prog_bar=False)
+        self.log("train/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
 
-    def validation_step(self, val_batch, batch_idx):
-        x, y = val_batch
-        
-        x_hat = self(x)
-        loss = self.criterion(x_hat, y)
+        return {"loss": loss, "preds": preds, "targets": targets}
 
-        self.log('val_loss', loss)
+    def validation_step(self, val_batch: Any, batch_idx: int):
+        loss, preds, targets = self.step(val_batch)
+
+        # log val metrics
+        acc = self.val_acc(preds, targets.squeeze().long())
+        self.log("val/loss",
+                 loss,
+                 on_step=False,
+                 on_epoch=True,
+                 prog_bar=False)
+        self.log("val/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
+
+        return {"loss": loss, "preds": preds, "targets": targets}
+
+    def validation_epoch_end(self, outputs: List[Any]):
+        acc = self.val_acc.compute()  # get val accuracy from current epoch
+        self.val_acc_best.update(acc)
+        self.log("val/acc_best",
+                 self.val_acc_best.compute(),
+                 on_epoch=True,
+                 prog_bar=True)
+
+    def test_step(self, batch: Any, batch_idx: int):
+        loss, preds, targets = self.step(batch)
+
+        # log test metrics
+        acc = self.test_acc(preds, targets.squeeze().long())
+        self.log("test/loss", loss, on_step=False, on_epoch=True)
+        self.log("test/acc", acc, on_step=False, on_epoch=True)
+
+        return {"loss": loss, "preds": preds, "targets": targets}
+
+    def on_epoch_end(self):
+        # reset metrics at the end of every epoch
+        self.train_acc.reset()
+        self.test_acc.reset()
+        self.val_acc.reset()

@@ -4,7 +4,7 @@ from torch import argmax
 from torch.nn import (Conv2d, Sequential, Dropout2d, Upsample)
 from torch.nn.init import xavier_uniform
 from torch.nn.modules.activation import Sigmoid
-from torch.nn import BCEWithLogitsLoss
+from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss
 from torch.nn.modules.pooling import MaxPool2d
 from torch.optim import Adam
 import pytorch_lightning as pl
@@ -71,7 +71,7 @@ class DeepMoon(pl.LightningModule):
                    padding=1),
             Activation(self.hparams.activation, number_of_filter_2))
 
-        number_of_filter_4 = number_of_filter * 4
+        number_of_filter_4 = self.hparams.number_of_filter * 4
         self.down_2 = Sequential(
             Conv2d(in_channels=number_of_filter_2,
                    out_channels=number_of_filter_4,
