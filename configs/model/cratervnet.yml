@@ -1,6 +1,0 @@
----
-_target_: deepmoon.datamodules.cratervnet.Crater_VNet
-
-activation: relu
-dropout: 0.15
-lr: 0.02

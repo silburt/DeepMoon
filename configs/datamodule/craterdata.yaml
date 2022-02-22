@@ -1,0 +1,9 @@
+---
+_target_: deepmoon.datamodules.deepcraterdata.CraterDataModule
+
+data_dir: ${data_dir}
+batch_size: 2
+num_worker: 8
+training_test_eval_split: [0.25, 0.25, 0.5]
+download: false
+pin_memory: false

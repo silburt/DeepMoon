@@ -1,0 +1,10 @@
+---
+_target_: deepmoon.model.deepmoon.DeepMoon
+
+number_of_filter: 112
+filter_length: 3
+lmbda: 0.000001
+dim: 256
+activation: "relu"
+dropout: 0.15
+lr: 0.001

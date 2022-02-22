@@ -1,19 +1,19 @@
 ---
 model_checkpoint:
   _target_: pytorch_lightning.callbacks.ModelCheckpoint
-  monitor: "val_loss"
-  mode: "min"
+  monitor: "val/acc"
+  mode: "max"
   save_top_k: 3
   save_last: True
   verbose: False
   dirpath: "checkpoints/"
-  filename: "DeepMoon-{model}-{epoch:02d}-{val_loss:.2f}"
+  filename: "DeepMoon-epoch_{epoch:03d}"
   auto_insert_metric_name: False
 
 early_stopping:
   _target_: pytorch_lightning.callbacks.EarlyStopping
-  monitor: "val_loss"
-  mode: "min"
+  monitor: "val/acc"
+  mode: "max"
   patience: 100
   min_delta: 0
 

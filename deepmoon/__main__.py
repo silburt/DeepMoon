@@ -11,14 +11,16 @@ hydra_config_path = environ.get('DEEPMOONCONFIGPATH', "..")
 
 
 @hydra.main(config_path=f"{hydra_config_path}/configs/",
-            config_name="train.yml")
+            config_name="train.yaml")
 def train(config: DictConfig) -> None:
 
     # Imports can be nested inside @hydra.main to optimize tab completion
     # https://github.com/facebookresearch/hydra/issues/934
     from deepmoon.logger import extras
+    from deepmoon.training import training
 
     extras(config)
 
+    return training(config)
 
 exit(train())

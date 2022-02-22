@@ -27,11 +27,9 @@ hydra:
     search_space:
       datamodule.batch_size:
         type: categorical
-        choices: [32, 64, 128]
+        choices: [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
       model.lr:
         type: float
         low: 0.0001
         high: 0.2
-      model.lin1_size:
-        type: categorical
-        choices: [32, 64, 128, 256, 512]
+  

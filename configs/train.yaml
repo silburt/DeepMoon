@@ -1,14 +1,16 @@
 ---
 defaults:
 - _self_
-- datamodule: craterdata.yml
-- model: deepmoon.yml
-- callbacks: default.yml
-- logger: tensorboard.yml
-- trainer: default.yml
-- log_dir: default.yml
-- hparams_search: null
-- experiment: null
+- datamodule: craterdata.yaml
+- model: deepmoon.yaml
+- callbacks: default.yaml
+- logger: tensorboard.yaml
+- trainer: default.yaml
+- log_dir: default.yaml
+- hparams_search: optuna.yaml
+- experiment: 
+
+#color log
 - override hydra/hydra_logging: colorlog
 - override hydra/job_logging: colorlog
 
