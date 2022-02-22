@@ -82,7 +82,7 @@ def training(config: DictConfig) -> Optional[float]:
     # Get metric score for hyperparameter optimization
     optimized_metric = config.get("optimized_metric")
     if optimized_metric and optimized_metric not in trainer.callback_metrics:
-        raise Exception(
+        raise ValueError(
             "Metric for hyperparameter optimization not found! "
             "Make sure the `optimized_metric` in `hparams_search` config is correct!"
         )
