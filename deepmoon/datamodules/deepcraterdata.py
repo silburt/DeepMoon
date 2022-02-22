@@ -18,6 +18,7 @@ class CraterDataModule(LightningDataModule):
                  data_dir: str = "data/",
                  batch_size: int = 256,
                  num_worker: int = 8,
+                 image_size: int = 256,
                  training_test_eval_split: Tuple[float, float,
                                                  float] = (0.25, 0.25, 0.75),
                  download: bool = False,
@@ -27,7 +28,11 @@ class CraterDataModule(LightningDataModule):
 
         self.save_hyperparameters(logger=False)
 
-        self.transform = transforms.Compose([transforms.ToTensor()])
+        self.transform = transforms.Compose([
+            transforms.Resize([image_size, image_size]),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+        ])
 
         self.data_train: Optional[Dataset] = None
         self.data_val: Optional[Dataset] = None

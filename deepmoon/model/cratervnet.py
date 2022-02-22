@@ -158,9 +158,8 @@ class Crater_VNet(pl.LightningModule):
     def step(self, batch: Any):
         x, y, _ = batch
 
-        logits = self.forward(x)
-        loss = self.criterion(logits, y)
-        preds = argmax(logits, dim=1)
+        preds = self.forward(x)
+        loss = self.criterion(preds, y)
 
         return loss, preds, y
 
@@ -168,7 +167,7 @@ class Crater_VNet(pl.LightningModule):
         # data to device
         loss, preds, targets = self.step(train_batch)
 
-        acc = self.train_acc(preds, targets.squeeze().long())
+        acc = self.train_acc(argmax(preds,dim=1), argmax(targets,dim=1))
         self.log("train/loss",
                  loss,
                  on_step=False,
@@ -182,7 +181,7 @@ class Crater_VNet(pl.LightningModule):
         loss, preds, targets = self.step(val_batch)
 
         # log val metrics
-        acc = self.val_acc(preds, targets.squeeze().long())
+        acc = self.val_acc(argmax(preds,dim=1), argmax(targets,dim=1))
         self.log("val/loss",
                  loss,
                  on_step=False,
@@ -204,7 +203,7 @@ class Crater_VNet(pl.LightningModule):
         loss, preds, targets = self.step(batch)
 
         # log test metrics
-        acc = self.test_acc(preds, targets.squeeze().long())
+        acc = self.test_acc(argmax(preds,dim=1), argmax(targets,dim=1))
         self.log("test/loss", loss, on_step=False, on_epoch=True)
         self.log("test/acc", acc, on_step=False, on_epoch=True)
 

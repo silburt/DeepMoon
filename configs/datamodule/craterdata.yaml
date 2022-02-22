@@ -7,3 +7,4 @@ num_worker: 8
 training_test_eval_split: [0.25, 0.25, 0.5]
 download: false
 pin_memory: false
+image_size: 256
