@@ -1,5 +1,5 @@
-from deepmoon.model.cratervnet import Crater_VNet
-from deepmoon.model.deepmoon import DeepMoon
+from deepmoon.datamodules.cratervnet import Crater_VNet
+from deepmoon.datamodules.deepmoon import DeepMoon
 
 def get_model(model_name):
     return {

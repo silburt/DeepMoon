@@ -7,8 +7,8 @@ from torch.nn.modules.pooling import MaxPool2d
 from torch.optim import Adam
 import pytorch_lightning as pl
 
-from deepmoon.model.activations import Activation
-from deepmoon.model.util import merge
+from deepmoon.datamodules.activations import Activation
+from deepmoon.datamodules.util import merge
 
 
 class DeepMoon(pl.LightningModule):

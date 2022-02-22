@@ -1,0 +1,10 @@
+_target_: deepmoon.datamodules.deepmoon.DeepMoon
+
+batch_size: 64
+number_of_filter: 
+filter_length: 
+lmdba:
+dim: 256 # image size
+activation: "relu"
+dropout: 0.15
+lr: 0.02

@@ -4,9 +4,9 @@ from torch.nn import BCEWithLogitsLoss
 from torch.optim import Adam
 import pytorch_lightning as pl
 
-from deepmoon.model.activations import Activation
-from deepmoon.model.util import (passthrough, ContBatchNorm2d)
-from deepmoon.model.conv import make_Conv
+from deepmoon.datamodules.activations import Activation
+from deepmoon.datamodules.util import (passthrough, ContBatchNorm2d)
+from deepmoon.datamodules.conv import make_Conv
 
 class InputTransition(Module):
     def __init__(self, relu):
