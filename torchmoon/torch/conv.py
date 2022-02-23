@@ -1,8 +1,7 @@
-from deepmoon.datamodules.activations import Activation
 from torch.nn import (Module, Conv2d, Sequential)
-from torch.nn.init import *
 
-from deepmoon.datamodules.util import ContBatchNorm2d
+from torchmoon.torch.activations import Activation
+from torchmoon.torch.util import ContBatchNorm2d
 
 class LUConv(Module):
     def __init__(self, nchan, relu):

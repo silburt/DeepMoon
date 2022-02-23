@@ -14,8 +14,8 @@ from pytorch_lightning import (
 )
 from pytorch_lightning.loggers import LightningLoggerBase
 
-from deepmoon.hyperparameter import (log_hyperparameters, finish)
-from deepmoon.logger import get_logger
+from torchmoon.hyperparameter import (log_hyperparameters, finish)
+from torchmoon.logger import get_logger
 
 log = get_logger(__name__)
 

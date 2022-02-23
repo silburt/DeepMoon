@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import (Tuple, Optional)
 
 from math import floor
@@ -29,7 +28,7 @@ class CraterDataModule(LightningDataModule):
         self.save_hyperparameters(logger=False)
 
         self.transform = transforms.Compose([
-            transforms.Resize([image_size, image_size]),
+            transforms.Resize([self.hparams.image_size, self.hparams.image_size]),
             transforms.ToTensor(),
         ])
 

@@ -5,8 +5,8 @@ from os.path import join
 
 from setuptools import find_packages, setup
 
-from deepmoon.__version__ import VERSION
-from deepmoon import __author__, __email__
+from torchmoon.__version__ import VERSION
+from torchmoon import __author__, __email__
 
 def package_files(directory):
     paths = []

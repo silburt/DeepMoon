@@ -10,9 +10,9 @@ import pytorch_lightning as pl
 from torchmetrics import MaxMetric
 from torchmetrics.classification.accuracy import Accuracy
 
-from deepmoon.torch.activations import Activation
-from deepmoon.torch.util import (passthrough, ContBatchNorm2d)
-from deepmoon.torch.conv import make_Conv
+from torchmoon.torch.activations import Activation
+from torchmoon.torch.util import (passthrough, ContBatchNorm2d)
+from torchmoon.torch.conv import make_Conv
 
 
 class InputTransition(Module):

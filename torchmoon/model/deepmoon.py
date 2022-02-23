@@ -12,8 +12,8 @@ import pytorch_lightning as pl
 from torchmetrics import MaxMetric
 from torchmetrics.classification.accuracy import Accuracy
 
-from deepmoon.torch.activations import Activation
-from deepmoon.torch.util import merge
+from torchmoon.torch.activations import Activation
+from torchmoon.torch.util import merge
 
 
 class DeepMoon(pl.LightningModule):

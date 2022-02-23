@@ -18,8 +18,8 @@ def train(config: DictConfig) -> None:
 
     # Imports can be nested inside @hydra.main to optimize tab completion
     # https://github.com/facebookresearch/hydra/issues/934
-    from deepmoon.logger import extras
-    from deepmoon.training import training
+    from torchmoon.logger import extras
+    from torchmoon.training import training
 
     extras(config)
 
