@@ -17,9 +17,7 @@ def package_files(directory):
 
 extra_files = package_files('configs')
 
-print(extra_files)
-
-setup(name="TorchMoon",
+setup(name="torchmoon",
       version=VERSION,
       description="Crater detection",
       author=__author__,
