@@ -1,13 +1,15 @@
 from setuptools import find_packages, setup
 
+from deepmoon.__version__ import VERSION
+from deepmoon import __author__, __email__
+
 setup(name="DeepMoon",
-      version='.'.join([str(v) for v in (0,0,1)]),
-      description="Crater learning",
-      author="anton.feldmann@gmail.com",
-      author_email="anton.feldmann@gmail.com",
-      url='http://',
+      version=VERSION,
+      description="Crater detection",
+      author=__author__,
+      author_email=__email__,
+      url='https://github.com/afeldman/deepmoon',
       py_modules=['deepmoon'],
       packages=find_packages(),
-      scripts=['./bin/crater_data.py'],
       include_package_data=True,
       install_requires=[])
