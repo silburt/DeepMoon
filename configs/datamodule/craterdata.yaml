@@ -1,5 +1,5 @@
 ---
-_target_: deepmoon.datamodules.deepcraterdata.CraterDataModule
+_target_: torchmoon.datamodules.deepcraterdata.CraterDataModule
 
 data_dir: ${data_dir}
 batch_size: 256

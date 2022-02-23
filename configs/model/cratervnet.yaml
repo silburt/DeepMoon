@@ -1,5 +1,5 @@
 ---
-_target_: deepmoon.model.cratervnet.Crater_VNet
+_target_: torchmoon.model.cratervnet.Crater_VNet
 
 activation: relu
 dropout: 0.15

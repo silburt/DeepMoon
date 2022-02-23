@@ -1,16 +1,14 @@
 from typing import Any, List
 
-from torch import argmax
 from torch.nn import (Conv2d, Sequential, Dropout2d, Upsample)
 from torch.nn.init import xavier_uniform
 from torch.nn.modules.activation import Sigmoid
-from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss
+from torch.nn import BCEWithLogitsLoss
 from torch.nn.modules.pooling import MaxPool2d
 from torch.optim import Adam
 import pytorch_lightning as pl
 
-from torchmetrics import MaxMetric
-from torchmetrics.classification.accuracy import Accuracy
+from torchmetrics import (MaxMetric, StructuralSimilarityIndexMeasure)
 
 from torchmoon.torch.activations import Activation
 from torchmoon.torch.util import merge
@@ -36,10 +34,10 @@ class DeepMoon(pl.LightningModule):
 
         # use separate metric instance for train, val and test step
         # to ensure a proper reduction over the epoch
-        self.train_acc = Accuracy()
-        self.val_acc = Accuracy()
-        self.test_acc = Accuracy()
-
+        self.train_acc = StructuralSimilarityIndexMeasure()
+        self.val_acc = StructuralSimilarityIndexMeasure()
+        self.test_acc = StructuralSimilarityIndexMeasure()
+        
         # for logging best so far validation accuracy
         self.val_acc_best = MaxMetric()
 
@@ -201,14 +199,9 @@ class DeepMoon(pl.LightningModule):
         x, y, _ = batch
 
         y_hat = self.forward(x)
-
-        #because its int so use cpu to calculate data
-        preds = argmax(y_hat,dim=1).detach().cpu()
-        y_tgt = argmax(y, dim=1).detach().cpu()
-
         loss = self.criterion(y_hat, y)
 
-        return loss, preds, y_tgt
+        return loss, y_hat, y
 
     def training_step(self, train_batch: Any, batch_idx: int):
         # data to device

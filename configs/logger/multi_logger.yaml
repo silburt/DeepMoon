@@ -1,4 +1,4 @@
 defaults:
-  - csv.yml
-  - mlflow.yml
-  - tensorboard.yml
+- csv.yml
+- mlflow.yml
+- tensorboard.yml
