@@ -1,14 +1,12 @@
 from typing import (Any, List)
 
-from torch import argmax
 from torch.nn import (Module, Conv2d, Dropout2d, ConvTranspose2d)
 from torch import (cat, add)
 from torch.nn import BCEWithLogitsLoss
 from torch.optim import Adam
 import pytorch_lightning as pl
 
-from torchmetrics import MaxMetric
-from torchmetrics.classification.accuracy import Accuracy
+from torchmetrics import (MaxMetric, StructuralSimilarityIndexMeasure)
 
 from torchmoon.torch.activations import Activation
 from torchmoon.torch.util import (passthrough, ContBatchNorm2d)
@@ -114,9 +112,9 @@ class Crater_VNet(pl.LightningModule):
 
         # use separate metric instance for train, val and test step
         # to ensure a proper reduction over the epoch
-        self.train_acc = Accuracy()
-        self.val_acc = Accuracy()
-        self.test_acc = Accuracy()
+        self.train_acc = StructuralSimilarityIndexMeasure()
+        self.val_acc = StructuralSimilarityIndexMeasure()
+        self.test_acc = StructuralSimilarityIndexMeasure()
 
         # for logging best so far validation accuracy
         self.val_acc_best = MaxMetric()
@@ -159,13 +157,9 @@ class Crater_VNet(pl.LightningModule):
         x, y, _ = batch
 
         y_hat = self.forward(x)
+        loss = self.criterion(y_hat, y)
 
-        preds = argmax(y_hat,dim=1).detach().cpu()
-        y_tgt = argmax(y, dim=1).detach().cpu()
-
-        loss = self.criterion(preds, y)
-
-        return loss, preds, y_tgt
+        return loss, y_hat, y
 
     def training_step(self, train_batch: Any, batch_idx: int):
         # data to device
