@@ -26,5 +26,4 @@ setup(name="TorchMoon",
       author_email=__email__,
       url='https://github.com/afeldman/TorchMoon',
       packages=find_packages(),
-      package_data={'': extra_files},
-      entry_points = {'console_scripts': ['deepmoon = deepmoon.__main__'],})
+      package_data={'': extra_files},)
