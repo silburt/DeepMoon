@@ -1,15 +1,30 @@
+#!/usr/bin/env python
+
+from os import walk
+from os.path import join
+
 from setuptools import find_packages, setup
 
 from deepmoon.__version__ import VERSION
 from deepmoon import __author__, __email__
 
-setup(name="DeepMoon",
+def package_files(directory):
+    paths = []
+    for (path, _, filenames) in walk(directory):
+        for filename in filenames:
+            paths.append(join(path, filename))
+    return paths
+
+extra_files = package_files('configs')
+
+print(extra_files)
+
+setup(name="TorchMoon",
       version=VERSION,
       description="Crater detection",
       author=__author__,
       author_email=__email__,
-      url='https://github.com/afeldman/deepmoon',
-      py_modules=['deepmoon'],
+      url='https://github.com/afeldman/TorchMoon',
       packages=find_packages(),
-      include_package_data=True,
-      install_requires=[])
+      package_data={'': extra_files},
+      entry_points = {'console_scripts': ['deepmoon = deepmoon.__main__'],})
