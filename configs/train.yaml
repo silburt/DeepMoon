@@ -7,8 +7,8 @@ defaults:
 - logger: tensorboard.yaml
 - trainer: default.yaml
 - log_dir: default.yaml
-- hparams_search: optuna.yaml
-- experiment: 
+- hparams_search: null
+- experiment: null
 
 #color log
 - override hydra/hydra_logging: colorlog

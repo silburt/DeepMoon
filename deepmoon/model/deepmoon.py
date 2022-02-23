@@ -201,17 +201,20 @@ class DeepMoon(pl.LightningModule):
         x, y, _ = batch
 
         y_hat = self.forward(x)
-        preds = argmax(y_hat,dim=1)
+
+        #because its int so use cpu to calculate data
+        preds = argmax(y_hat,dim=1).detach().cpu()
+        y_tgt = argmax(y, dim=1).detach().cpu()
 
         loss = self.criterion(y_hat, y)
 
-        return loss, preds, y
+        return loss, preds, y_tgt
 
     def training_step(self, train_batch: Any, batch_idx: int):
         # data to device
         loss, preds, targets = self.step(train_batch)
 
-        acc = self.train_acc(preds, targets.squeeze().long())
+        acc = self.train_acc(preds, targets)
         self.log("train/loss",
                  loss,
                  on_step=False,
@@ -225,7 +228,7 @@ class DeepMoon(pl.LightningModule):
         loss, preds, targets = self.step(val_batch)
 
         # log val metrics
-        acc = self.val_acc(preds, targets.squeeze().long())
+        acc = self.val_acc(preds, targets)
         self.log("val/loss",
                  loss,
                  on_step=False,
@@ -247,7 +250,7 @@ class DeepMoon(pl.LightningModule):
         loss, preds, targets = self.step(batch)
 
         # log test metrics
-        acc = self.test_acc(preds, targets.squeeze().long())
+        acc = self.test_acc(preds, targets)
         self.log("test/loss", loss, on_step=False, on_epoch=True)
         self.log("test/acc", acc, on_step=False, on_epoch=True)
 
