@@ -8,9 +8,9 @@ import pytorch_lightning as pl
 
 from torchmetrics import (MaxMetric, StructuralSimilarityIndexMeasure)
 
-from torchmoon.torch.activations import Activation
-from torchmoon.torch.util import (passthrough, ContBatchNorm2d)
-from torchmoon.torch.conv import make_Conv
+from apu.ml.torch.activations import Activation
+from apu.ml.torch.util import (passthrough, ContBatchNorm2d)
+from apu.ml.torch.conv import make_Conv
 
 
 class InputTransition(Module):

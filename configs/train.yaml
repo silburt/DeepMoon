@@ -7,7 +7,7 @@ defaults:
 - logger: tensorboard.yaml
 - trainer: default.yaml
 - log_dir: default.yaml
-- hparams_search: null
+- hparams_search: optuna.yaml
 - experiment: null
 
 #color log
