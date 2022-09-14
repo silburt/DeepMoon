@@ -28,6 +28,7 @@ def log_hyperparameters(
 
     if "seed" in config:
         hparams["seed"] = config["seed"]
+
     if "callbacks" in config:
         hparams["callbacks"] = config["callbacks"]
 

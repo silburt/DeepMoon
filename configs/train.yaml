@@ -24,6 +24,9 @@ log_dir_path: ${original_work_dir}
 # path to folder with data
 data_dir: ${original_work_dir}/data/
 
+# debug activ
+debug_config: default.yaml
+
 # pretty print config at the start of the run using Rich library
 print_config: True
 

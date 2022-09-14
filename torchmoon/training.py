@@ -19,7 +19,6 @@ from torchmoon.logger import get_logger
 
 log = get_logger(__name__)
 
-
 def training(config: DictConfig) -> Optional[float]:
 
     # Set seed for random number generators in pytorch, numpy and python.random
@@ -115,3 +114,4 @@ def training(config: DictConfig) -> Optional[float]:
 
     # Return metric score for hyperparameter optimization
     return score
+    

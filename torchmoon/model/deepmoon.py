@@ -1,3 +1,4 @@
+import gc
 from typing import Any, List
 
 from torch.nn import (Conv2d, Sequential, Dropout2d, Upsample)
@@ -6,12 +7,16 @@ from torch.nn.modules.activation import Sigmoid
 from torch.nn import BCEWithLogitsLoss
 from torch.nn.modules.pooling import MaxPool2d
 from torch.optim import Adam
+
+import torch
+import gc
+
 import pytorch_lightning as pl
 
 from torchmetrics import (MaxMetric, StructuralSimilarityIndexMeasure)
 
-from torchmoon.torch.activations import Activation
-from torchmoon.torch.util import merge
+from apu.ml.torch.activations import Activation
+from apu.ml.torch.util import merge
 
 
 class DeepMoon(pl.LightningModule):
@@ -187,7 +192,6 @@ class DeepMoon(pl.LightningModule):
     def init_weights(self, m):
         if isinstance(m, Conv2d):
             xavier_uniform(m.weight)
-            #m.bias.data.fill_(self.lmbda)
 
     def configure_optimizers(self):
         optimizer = Adam(self.parameters(),
@@ -199,26 +203,43 @@ class DeepMoon(pl.LightningModule):
         x, y, _ = batch
 
         y_hat = self.forward(x)
+
         loss = self.criterion(y_hat, y)
+
+        del batch
+        gc.collect()
+        torch.cuda.empty_cache()
 
         return loss, y_hat, y
 
-    def training_step(self, train_batch: Any, batch_idx: int):
+    def training_step(self, train_batch: Any, batch_idx: int) -> dict:
         # data to device
         loss, preds, targets = self.step(train_batch)
+        del train_batch
+        gc.collect()
+        torch.cuda.empty_cache()
 
         acc = self.train_acc(preds, targets)
+
         self.log("train/loss",
                  loss,
                  on_step=False,
                  on_epoch=True,
                  prog_bar=False)
-        self.log("train/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
+
+        self.log("train/acc", 
+                  acc, 
+                  on_step=False, 
+                  on_epoch=True, 
+                  prog_bar=True)
 
         return {"loss": loss, "preds": preds, "targets": targets}
 
-    def validation_step(self, val_batch: Any, batch_idx: int):
+    def validation_step(self, val_batch: Any, batch_idx: int) -> dict:
         loss, preds, targets = self.step(val_batch)
+        del val_batch
+        gc.collect()
+        torch.cuda.empty_cache()
 
         # log val metrics
         acc = self.val_acc(preds, targets)
@@ -227,13 +248,22 @@ class DeepMoon(pl.LightningModule):
                  on_step=False,
                  on_epoch=True,
                  prog_bar=False)
-        self.log("val/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
-
+        self.log("val/acc", 
+                  acc, 
+                  on_step=False, 
+                  on_epoch=True, 
+                  prog_bar=True)
+    
         return {"loss": loss, "preds": preds, "targets": targets}
 
     def validation_epoch_end(self, outputs: List[Any]):
         acc = self.val_acc.compute()  # get val accuracy from current epoch
+
+        gc.collect()
+        torch.cuda.empty_cache()
+        
         self.val_acc_best.update(acc)
+
         self.log("val/acc_best",
                  self.val_acc_best.compute(),
                  on_epoch=True,
@@ -241,11 +271,22 @@ class DeepMoon(pl.LightningModule):
 
     def test_step(self, batch: Any, batch_idx: int):
         loss, preds, targets = self.step(batch)
+        del batch
+        gc.collect()
+        torch.cuda.empty_cache()
 
         # log test metrics
         acc = self.test_acc(preds, targets)
-        self.log("test/loss", loss, on_step=False, on_epoch=True)
-        self.log("test/acc", acc, on_step=False, on_epoch=True)
+
+        self.log("test/loss", 
+                 loss, 
+                 on_step=False, 
+                 on_epoch=True)
+
+        self.log("test/acc", 
+                 acc, 
+                 on_step=False, 
+                 on_epoch=True)
 
         return {"loss": loss, "preds": preds, "targets": targets}
 
@@ -254,3 +295,10 @@ class DeepMoon(pl.LightningModule):
         self.train_acc.reset()
         self.test_acc.reset()
         self.val_acc.reset()
+
+        torch.cuda.empty_cache()
+
+
+    def on_train_start(self):
+        # reset metrics at the end of every epoch
+        self.val_acc_best.reset()

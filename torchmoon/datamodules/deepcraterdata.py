@@ -16,7 +16,7 @@ class CraterDataModule(LightningDataModule):
     def __init__(self,
                  data_dir: str = "data/",
                  batch_size: int = 256,
-                 num_worker: int = 8,
+                 num_workers: int = 8,
                  image_size: int = 256,
                  training_test_eval_split: Tuple[float, float,
                                                  float] = (0.25, 0.25, 0.75),
@@ -62,20 +62,20 @@ class CraterDataModule(LightningDataModule):
     def train_dataloader(self):
         return DataLoader(dataset=self.data_train,
                           batch_size=self.hparams.batch_size,
-                          num_workers=self.hparams.num_worker,
+                          num_workers=self.hparams.num_workers,
                           pin_memory=self.hparams.pin_memory,
                           shuffle=True)
 
     def val_dataloader(self):
         return DataLoader(dataset=self.data_val,
                           batch_size=self.hparams.batch_size,
-                          num_workers=self.hparams.num_worker,
+                          num_workers=self.hparams.num_workers,
                           pin_memory=self.hparams.pin_memory,
                           shuffle=False)
 
     def test_dataloader(self):
         return DataLoader(dataset=self.data_test,
                           batch_size=self.hparams.batch_size,
-                          num_workers=self.hparams.num_worker,
+                          num_workers=self.hparams.num_workers,
                           pin_memory=self.hparams.pin_memory,
                           shuffle=False)
