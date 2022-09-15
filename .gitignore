@@ -1,9 +1,9 @@
-# Compiled files
-*.py[cod]
-*.a
-*.o
-*.so
-__pycache__
+*None
+*__py**__
+[Bb]uild
+*.json
+
+.vscode*
 
 # ipynb stuff
 .ipynb_checkpoints/
@@ -16,3 +16,5 @@ docs/.ipynb_checkpoints/
 
 # Mac OSX
 .DS_Store
+[Dd]ist/
+*egg*

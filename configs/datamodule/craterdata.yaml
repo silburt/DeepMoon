@@ -1,0 +1,10 @@
+---
+_target_: torchmoon.datamodules.deepcraterdata.CraterDataModule
+
+data_dir: ${data_dir}
+batch_size: 16
+num_workers: 2
+training_test_eval_split: [0.25, 0.25, 0.5]
+download: false
+pin_memory: false
+image_size: 256
