@@ -1,0 +1,92 @@
+[tool.poetry]
+name = "torchmoon"
+version = "1.0.1"
+description = "mon crater detection"
+authors = ["Anton Feldmann <anton.feldmann@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0"
+pytorch-lightning = "^2.4.0"
+hydra-core = "^1.3.2"
+torchmetrics = "^1.4.1"
+torchvision = "^0.19.0"
+craterdata = "^0.1.3"
+python-dotenv = "^1.0.1"
+rich = "^13.7.1"
+wandb = "^0.17.6"
+hydra-colorlog = "^1.2.0"
+hydra-optuna-sweeper = "^1.2.0"
+apu = "^0.1.22.0.0"
+pytorch-lightning-bolts = "^0.3.2.post1"
+tensorboardx = "^2.6.2.2"
+tensorboard = "^2.17.0"
+numpy = "<2"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.1"
+pylint = "^3.2.2"
+coverage = "^7.5.3"
+ruff = "^0.4.7"
+tox = "^4.15.0"
+sphinx = { version = "^2.2", optional = true }
+sphinx_rtd_theme = { version = "^0.4.3", optional = true }
+sphinxcontrib-napoleon = { version = "0.7", optional = true }
+mypy = "^1.10.0"
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint]
+select = [
+  "E",       # pycodestyle (error)
+  "F",       # pyflakes
+  "W",       # pycodestyle (warning)
+  "B",       # flake8-bugbear
+  "I",       # isort
+  "RUF100",  # Unused noqa comments
+  "PGH004",  # blanket noqa comments
+  "UP",      # pyupgrade
+  "C4",      # flake8-comprehensions
+  "SIM201", "SIM202",  # simplify comparisons involving not
+  "ISC001",  # implicitly concatenated string
+  "RET501", "RET502",  # better return None handling
+  "NPY201" # numpy error    
+]
+fixable = ["ALL"]
+unfixable = []
+
+[tool.tox]
+legacy_tox_ini = """
+    [tox]
+    requires =  
+        tox>=4  
+    env_list =   
+        py{38,39,310,311,312} 
+        type
+
+    [testenv]
+    deps = pytest
+    commands = pytest
+
+    [testenv:type]
+    deps = mypy
+    commands = mypy .
+"""
+
+[tool.coverage.run]
+command_line = "-m pytest"
+
+[tool.coverage.report]
+include = ["osma_smtp/*.py"]
+show_missing = true
+
+[tool.coverage.html]
+directory = "coverage_html_report"
+
+[tool.poetry.extras]

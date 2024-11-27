@@ -1,0 +1,9 @@
+---
+defaults:
+- default.yml
+
+accelerator: 'gpu'
+devices: 2
+
+strategy: ddp
+sync_batchnorm: True
